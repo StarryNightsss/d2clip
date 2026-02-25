@@ -1,0 +1,22 @@
+[
+  {
+    "analysis_id": "ab79cd3c-ac28-4867-83aa-ec874ca00527",
+    "created_at": "2026-02-25T20:35:00.977659",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-02-19.json",
+    "total_notes": 30,
+    "analyzed_notes": 30,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "cf275499-e900-4ab2-ae11-ce03e40f5a9d",
+    "created_at": "2026-02-25T20:15:00.774796",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-02-19.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  }
+]

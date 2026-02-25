@@ -1,0 +1,39 @@
+[project]
+name = "d2c-backend"
+version = "1.0.0"
+description = "D2C 口红实验室后端 - 基于 LangChain 的 AI 分析系统"
+requires-python = ">=3.11"
+dependencies = [
+    # LangChain 生态
+    "langchain>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "langchain-community>=0.0.20",
+
+    # 向量数据库
+    "chromadb>=0.4.22",
+
+    # OpenAI
+    "openai>=1.12.0",
+    "tiktoken>=0.5.2",
+
+    # 后端框架
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.5.2",
+    "pydantic-settings>=2.1.0",
+
+    # 数据处理
+    "pandas>=2.2.0",
+    "numpy>=1.26.3",
+    "jieba>=0.42.1",
+
+    # 可视化
+    "matplotlib>=3.8.2",
+
+    # 工具
+    "httpx>=0.26.0",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+    "aiofiles>=23.2.1",
+]
+

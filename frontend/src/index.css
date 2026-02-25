@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  letter-spacing: -0.011em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ant-btn {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-weight: 500;
+}
+
+.ant-select, .ant-input, .ant-input-textarea {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 自定义菜单样式 */
+.custom-menu .ant-menu-item {
+  border-radius: 12px !important;
+  margin: 6px 0 !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  padding-left: 20px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-menu .ant-menu-item:hover {
+  background: linear-gradient(135deg, #f5f6fa 0%, #e8eaf6 100%) !important;
+  transform: translateX(4px);
+}
+
+.custom-menu .ant-menu-item-selected {
+  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3) !important;
+}
+
+.custom-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: white !important;
+}
+
+.custom-menu .ant-menu-item-selected span {
+  color: white !important;
+}
+
+/* 表格样式优化 */
+.ant-table {
+  font-size: 14px;
+}
+
+.ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #f5f6fa 0%, #e8eaf6 100%) !important;
+  font-weight: 600 !important;
+  padding: 16px !important;
+  border-bottom: 2px solid #e0e0e0 !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #fafbfc !important;
+}
+
+.table-row-light {
+  background: #fafbfc !important;
+}
+
+/* 下拉菜单样式 */
+.ant-dropdown-menu {
+  border-radius: 12px !important;
+  padding: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.ant-dropdown-menu-item {
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: #f5f6fa !important;
+}
+
+/* 简化动画效果 */
+
+/* 登录页面表单样式 */
+.ant-select-single .ant-select-selector {
+  height: 48px !important;
+  border-radius: 12px !important;
+  border: 2px solid #e8eaf6 !important;
+  background: #fafbfc !important;
+  transition: all 0.3s !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+}
+
+.ant-select-single .ant-select-selector:hover {
+  border-color: #ff6b9d !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: #ff6b9d !important;
+  background: white !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.15) !important;
+}
+
+.ant-select-dropdown {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.ant-select-item {
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+.ant-select-item-option-selected {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(196, 69, 105, 0.1) 100%) !important;
+  color: #ff6b9d !important;
+  font-weight: 600 !important;
+}
+
+.ant-select-item-option-active {
+  background: rgba(255, 107, 157, 0.05) !important;
+}
+
+/* Input 样式优化 */
+.ant-input-affix-wrapper {
+  border: 2px solid #e8eaf6 !important;
+  border-radius: 12px !important;
+  background: #fafbfc !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ant-input-affix-wrapper:hover {
+  border-color: #ff6b9d !important;
+}
+
+.ant-input-affix-wrapper-focused {
+  border-color: #ff6b9d !important;
+  background: white !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.15) !important;
+}
+
+.ant-input {
+  background: transparent !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+.ant-input::placeholder {
+  color: #b2bec3 !important;
+  font-weight: 400 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ant-card {
+    margin: 20px !important;
+  }
+
+  .ant-card .ant-card-body {
+    padding: 32px 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-card .ant-card-body {
+    padding: 24px 20px !important;
+  }
+}
