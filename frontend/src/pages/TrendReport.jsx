@@ -393,7 +393,7 @@ const TrendReport = () => {
                 <Button
                   size="large"
                   icon={<ArrowLeftOutlined />}
-                  onClick={() => navigate('/workbench')}
+                  onClick={() => navigate('/')}
                 >
                   返回工作台
                 </Button>
@@ -708,7 +708,7 @@ const TrendReport = () => {
           <Space size="middle">
             <Button
               icon={<ArrowLeftOutlined />}
-              onClick={() => navigate('/workbench')}
+              onClick={() => navigate('/')}
               style={{
                 background: 'white',
                 color: '#2d3436',

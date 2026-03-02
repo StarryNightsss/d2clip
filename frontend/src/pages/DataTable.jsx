@@ -329,7 +329,7 @@ const DataTable = () => {
         <Space size="middle">
           <Button
             icon={<ArrowLeftOutlined />}
-            onClick={() => navigate('/workbench')}
+            onClick={() => navigate('/')}
             style={{ background: 'white', color: '#2d3436', fontWeight: '600' }}
           >
             返回工作台
