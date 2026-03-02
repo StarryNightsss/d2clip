@@ -1,10 +1,9 @@
-# 爬虫镜像构建：排除无关内容
+# 爬虫镜像构建：排除无关内容（不能排除 backend，d2clip 服务用 Railpack 会复用此文件）
 .git
 .gitignore
 .env*
 *.md
 frontend
-backend
 node_modules
 __pycache__
 *.pyc
