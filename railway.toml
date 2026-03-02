@@ -1,0 +1,9 @@
+# Railway 配置即代码：构建与启动命令（覆盖面板设置）
+# https://docs.railway.com/guides/config-as-code
+
+[build]
+builder = "nixpacks"
+buildCommand = "uv sync --no-dev --frozen"
+
+[deploy]
+startCommand = "uv run python -m backend.main"
