@@ -1,9 +1,9 @@
 # Railway 爬虫服务专用配置（在 Railway 里将此服务指向此文件）
 # 使用方式：Railway 新建服务后，Settings → 找到 Config 或 Deploy → Config file path 填 railway.crawler.toml
 
-# 构建阶段：拉取 MediaCrawler、安装依赖、打补丁（子模块内不提交，构建时应用）
+# 构建阶段：由脚本执行（脚本内分行写步骤，不用 &&）
 [build]
-buildCommand = "python scripts/ensure_mediacrawler.py && uv sync --directory crawler/MediaCrawler --no-dev && python scripts/patch_mediacrawler_venv.py"
+buildCommand = "bash scripts/railway_crawler_build.sh"
 
 [deploy]
 startCommand = "uv run python scripts/railway_crawler_start.py"
