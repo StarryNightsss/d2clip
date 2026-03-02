@@ -1,6 +1,5 @@
-# Railway 配置即代码：部署前先向量化知识库，再启动后端（解决线上向量 0 条）
+# Railway 配置即代码：单入口启动脚本内先向量化、再启动后端（同容器同磁盘，解决 0 条）
 # https://docs.railway.com/guides/config-as-code
 
 [deploy]
-preDeployCommand = ["uv run python scripts/vectorize_knowledge.py"]
-startCommand = "uv run python -m backend.main"
+startCommand = "uv run python scripts/railway_start.py"
