@@ -1,9 +1,5 @@
-# Railway 配置即代码：构建与启动命令（覆盖面板设置）
+# Railway 配置即代码：仅指定启动命令，构建交给 Nixpacks 自动识别（会装 uv 并执行 uv sync）
 # https://docs.railway.com/guides/config-as-code
-
-[build]
-builder = "nixpacks"
-buildCommand = "uv sync --no-dev --frozen"
 
 [deploy]
 startCommand = "uv run python -m backend.main"
