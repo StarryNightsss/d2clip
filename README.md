@@ -296,16 +296,22 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
      - **Build Command** 填：`uv sync`
      - **Start Command** 填：`uv run python -m backend.main`
      - **Root Directory** 留空（用仓库根目录）。
-   - 打开 **Variables** 标签，点 **Add Variable** 或 **RAW Editor**，添加（把下面值换成你自己的）：
-     ```
-     OPENAI_API_KEY=你的OpenAI或代理的key
-     OPENAI_API_BASE=https://api.chatanywhere.tech/v1
-     ```
-     `FRONTEND_ORIGIN` 先不填，等前端部署完再回来填。
+   - 打开 **Variables** 标签，按下面**变量名**添加（值换成你自己的；Railway 会自动注入 `PORT`，不用填）：
+     | 变量名 | 说明 | 示例值 |
+     |--------|------|--------|
+     | `OPENAI_API_KEY` | OpenAI 或代理的 API Key | 你的 key |
+     | `OPENAI_API_BASE` | API 基础地址 | `https://api.chatanywhere.tech/v1` |
+     | `FRONTEND_ORIGIN` | 前端公网地址（CORS），等 Vercel 部署完再填 | `https://d2clip-xxx.vercel.app` |
+     `FRONTEND_ORIGIN` 可先不填，等前端部署完再回来填。
 
 4. **生成公网地址**
-   - 在 **Settings** 里找到 **Networking**，点 **Generate Domain**，会得到一个类似 `xxx.railway.app` 的地址。
-   - 记下这个地址，例如：`https://d2clip-backend.railway.app`。前端要请求的 API 基础地址是：**这个地址 + `/api`**，即 `https://d2clip-backend.railway.app/api`。
+   - 点进 **d2clip** 这个服务（不是项目首页），然后按下面顺序找：
+     1. **Settings** 标签 → 向下滚动，找 **Networking**、**Domains** 或 **Public Networking** → 点 **Generate Domain** / **Add Domain** / **Create domain**。
+     2. 若没有，看服务**顶部**或 **Deployments** 旁边是否有 **「Unexposed」** 或 **「No public domain」** 的提示/按钮，点进去通常可以生成 `*.up.railway.app` 域名。
+     3. 或看左侧/上方是否有 **「Networking」**、**「Domains」** 单独标签（和 Deployments、Variables、Settings 并列），点进去再点 **Generate** / **Add**。
+   - 新界面里也可能在：服务卡片的 **「⋯」** 菜单里，或 **Settings** 最下方 **Domains** 区块。
+   - 会得到一个类似 `https://xxx.up.railway.app` 的地址，记下来。前端要请求的 API 基础地址是：**这个地址 + `/api`**，例如 `https://xxx.up.railway.app/api`。
+   - 若仍找不到，可打开 [Railway 文档 Domains](https://docs.railway.com/networking/domains) 看最新截图，或到 Railway Discord 问当前入口位置。
 
 5. **验证**
    - 浏览器打开 `https://你的域名.railway.app/api/health`，若返回 `{"status":"ok"}` 说明后端已跑起来。
@@ -345,12 +351,18 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 
 ### 三、爬虫 API（可选）
 
-若需要在线「爬虫 / 数据文件列表」功能，再在 Railway 新建一个服务：
+若需要在线「爬虫 / 数据文件列表」功能，在 Railway 再建一个服务。仓库里已提供 **railway.crawler.toml**，可让该服务用爬虫启动命令。
 
-- **New Project** → **Deploy from GitHub repo**，仍选同一仓库 d2clip。
-- 新服务的 **Start Command** 填：`uv run python scripts/run_crawler_api.py`（子模块需在 Build 里先拉取：Build Command 可设为 `git submodule update --init && uv sync`）。
-- 同样 **Generate Domain**，得到爬虫的网址。
-- 在 Vercel 的前端项目里，**Settings → Environment Variables** 增加 `VITE_CRAWLER_API_BASE` = `https://爬虫域名.railway.app/api`，重新部署前端即可。
+1. **Railway** → 当前项目（exciting-grace）里点 **+ New** → **GitHub Repo** → 仍选 **d2clip**，创建第二个服务。
+2. 点进这个**新服务**（不要动原来的 d2clip 后端）：
+   - **Settings** → **Deploy**（或 **Config**）：若有 **Config file path** / **Config as code**，填 **`railway.crawler.toml`**，则启动命令会自动用爬虫脚本。
+   - 若没有该选项，则在 **Start Command** 里填：`uv run python scripts/railway_crawler_start.py`。
+   - **Variables**：如需固定端口可加 **`PORT`** = **`8080`**（否则用 Railway 自动注入的 PORT）。
+3. **Settings** → **Networking** → **Generate Domain**，端口填 **8080**（与 Variables 里 PORT 一致），得到爬虫公网地址，例如 `https://xxx.up.railway.app`。
+4. **Vercel** → d2clip 前端项目 → **Settings** → **Environment Variables**，新增：
+   - **Name**：`VITE_CRAWLER_API_BASE`
+   - **Value**：`https://爬虫域名.up.railway.app/api`（上一步的域名 + `/api`）
+5. 保存后到 Vercel **Deployments** 里对前端做一次 **Redeploy**，使新变量生效。
 
 ---
 
@@ -364,6 +376,23 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 | 4（可选） | Railway | 再建一个服务跑爬虫，前端填 `VITE_CRAWLER_API_BASE` |
 
 完成后，把 Vercel 的访问链接发给别人，对方打开即可使用，无需自己起终端。
+
+### 五、环境变量清单（复制变量名用）
+
+**Railway（后端服务）Variables 里要有的：**
+
+| 变量名 | 必填 | 说明 |
+|--------|------|------|
+| `OPENAI_API_KEY` | 是 | OpenAI 或代理的 API Key |
+| `OPENAI_API_BASE` | 否 | 默认见 backend/config.py，可覆盖 |
+| `FRONTEND_ORIGIN` | 前端部署后填 | 前端公网地址，如 `https://xxx.vercel.app`，用于 CORS |
+
+**Vercel（前端）Environment Variables 里要有的：**
+
+| 变量名 | 必填 | 说明 |
+|--------|------|------|
+| `VITE_ANALYSIS_API_BASE` | 是 | 后端公网地址 + `/api`，如 `https://xxx.up.railway.app/api` |
+| `VITE_CRAWLER_API_BASE` | 否 | 爬虫 API 地址 + `/api`，不部署爬虫可不填 |
 
 ---
 

@@ -1,0 +1,5 @@
+# Railway 爬虫服务专用配置（在 Railway 里将此服务指向此文件）
+# 使用方式：Railway 新建服务后，Settings → 找到 Config 或 Deploy → Config file path 填 railway.crawler.toml
+
+[deploy]
+startCommand = "uv run python scripts/railway_crawler_start.py"
