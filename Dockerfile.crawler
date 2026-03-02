@@ -1,7 +1,8 @@
 # Railway 爬虫服务 Docker 部署：解决 libGL 等系统库缺失，使 OpenCV/Playwright 可用
 # 部署时在 Railway 选择此 Dockerfile，而非 Railpack
 
-FROM python:3.11-slim
+# 固定 Bookworm，避免 Trixie 中 libgl1-mesa-glx 被弃用导致的包名变化
+FROM python:3.11-slim-bookworm
 
 # 1. 安装 OpenCV / Playwright 需要的系统库
 RUN apt-get update && apt-get install -y --no-install-recommends \
