@@ -198,7 +198,7 @@ const AnalysisWorkbench = () => {
       // 构建爬虫参数（完全对应后端 CrawlerStartRequest）
       const crawlerParams = {
         platform: values.platforms[0] || 'xhs',
-        login_type: values.loginType || 'qrcode',
+        login_type: values.loginType || 'cookie',
         crawler_type: values.crawlerType || 'search',
         keywords: processedKeywords,
         specified_ids: values.specifiedIds || '',
@@ -406,14 +406,14 @@ const AnalysisWorkbench = () => {
               <Form.Item
                 name="loginType"
                 label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>登录方式</span>}
-                initialValue="qrcode"
+                initialValue="cookie"
               >
                 <Select
                   style={{ fontSize: '15px' }}
                   options={[
-                    { value: 'qrcode', label: '📱 二维码扫码登录（推荐）' },
-                    { value: 'phone', label: '📞 手机号登录' },
-                    { value: 'cookie', label: '🍪 Cookie 登录' }
+                    { value: 'cookie', label: '🍪 Cookie 登录（推荐）' },
+                    { value: 'qrcode', label: '📱 二维码扫码登录' },
+                    { value: 'phone', label: '📞 手机号登录' }
                   ]}
                 />
               </Form.Item>
