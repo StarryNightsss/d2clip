@@ -24,5 +24,17 @@ os.chdir(crawler_root)
 # 在本进程内导入 app，再传给 uvicorn（部署时平台会注入 PORT）
 from api.main import app
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+
+# 生产环境 CORS：允许前端域名（Railway 上为爬虫服务设置 CORS_ORIGIN 或 FRONTEND_ORIGIN）
+_frontend_origin = os.environ.get("CORS_ORIGIN") or os.environ.get("FRONTEND_ORIGIN") or "https://d2clip.vercel.app"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[_frontend_origin],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 port = int(os.environ.get("PORT", 8080))
 uvicorn.run(app, host="0.0.0.0", port=port)
