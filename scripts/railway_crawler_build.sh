@@ -5,7 +5,7 @@ set -e
 python scripts/ensure_mediacrawler.py
 cd crawler/MediaCrawler
 uv sync --no-dev
-uv pip uninstall opencv-python -y
+uv pip uninstall opencv-python
 uv pip install "opencv-python-headless>=4.11.0.86"
 cd ../..
 python scripts/patch_mediacrawler_venv.py
