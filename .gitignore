@@ -49,9 +49,17 @@ yarn-error.log*
 
 # Data files (可选：如果数据文件很大，建议排除)
 backend/data/analyses/*.json
+# 允许提交这两份报告，便于部署后点「查看」有内容
+!backend/data/analyses/4e846f04-9857-4f13-8161-9341e4010460.json
+!backend/data/analyses/27f0c137-0447-4e57-bf6f-2a28d77e2286.json
 backend/data/community_uploads/
 crawler/MediaCrawler/data/**/*.json
 crawler/MediaCrawler/data/**/*.csv
+# 允许提交样例数据，便于部署后测试（分析历史对应的两批数据）
+!crawler/MediaCrawler/data/xhs/json/search_contents_2026-02-27.json
+!crawler/MediaCrawler/data/xhs/json/search_contents_2026-02-28.json
+!crawler/MediaCrawler/data/xhs/json/search_comments_2026-02-27.json
+!crawler/MediaCrawler/data/xhs/json/search_comments_2026-02-28.json
 
 # Logs
 *.log
