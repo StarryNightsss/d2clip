@@ -1,6 +1,6 @@
 import { Table, Tag, Space, Button, Spin, message, Input, Select, Card, Row, Col, Modal, Descriptions } from 'antd'
 import { EyeOutlined, DownloadOutlined, LoadingOutlined, ReloadOutlined, SearchOutlined, FilterOutlined, ArrowLeftOutlined, FileTextOutlined } from '@ant-design/icons'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analysisAPI } from '../services/api'
 
@@ -45,6 +45,23 @@ const DataTable = () => {
   useEffect(() => {
     loadData()
   }, [])
+
+  // 筛选选项：基于当前数据列表（即本次报告的分析结果）动态生成，保证筛选条件与报告一致
+  const filterOptions = useMemo(() => {
+    const styles = new Set()
+    const colors = new Set()
+    const scenes = new Set()
+    dataList.forEach(item => {
+      if (item.style && Array.isArray(item.style)) item.style.forEach(s => s && styles.add(s))
+      if (item.color && item.color !== '未知') colors.add(item.color)
+      if (item.scene && Array.isArray(item.scene)) item.scene.forEach(s => s && scenes.add(s))
+    })
+    return {
+      styles: [...styles].sort(),
+      colors: [...colors].sort(),
+      scenes: [...scenes].sort()
+    }
+  }, [dataList])
 
   // 筛选和搜索逻辑
   useEffect(() => {
@@ -306,7 +323,7 @@ const DataTable = () => {
         <div>
           <h2 style={{ color: 'white', margin: 0, fontSize: 24 }}>原始数据列表</h2>
           <p style={{ color: 'rgba(255,255,255,0.9)', margin: '8px 0 0 0', fontSize: 14 }}>
-            共分析 {total} 条笔记数据，当前显示 {filteredData.length} 条
+            与当前报告为同一次分析 · 共 {total} 条笔记，当前显示 {filteredData.length} 条
           </p>
         </div>
         <Space size="middle">
@@ -367,55 +384,36 @@ const DataTable = () => {
           </Col>
           <Col span={6}>
             <Select
-              placeholder="筛选妆容风格"
+              placeholder="筛选妆容风格（来自本次分析）"
               value={filterStyle}
               onChange={setFilterStyle}
               allowClear
               style={{ width: '100%', fontSize: '14px' }}
               suffixIcon={<FilterOutlined />}
-            >
-              <Select.Option value="日常">日常</Select.Option>
-              <Select.Option value="职场">职场</Select.Option>
-              <Select.Option value="约会">约会</Select.Option>
-              <Select.Option value="派对">派对</Select.Option>
-              <Select.Option value="韩系">韩系</Select.Option>
-              <Select.Option value="欧美">欧美</Select.Option>
-              <Select.Option value="复古">复古</Select.Option>
-            </Select>
+              options={filterOptions.styles.map(v => ({ label: v, value: v }))}
+            />
           </Col>
           <Col span={6}>
             <Select
-              placeholder="筛选口红色调"
+              placeholder="筛选口红色调（来自本次分析）"
               value={filterColor}
               onChange={setFilterColor}
               allowClear
               style={{ width: '100%', fontSize: '14px' }}
               suffixIcon={<FilterOutlined />}
-            >
-              <Select.Option value="豆沙色">豆沙色</Select.Option>
-              <Select.Option value="正红色">正红色</Select.Option>
-              <Select.Option value="玫红色">玫红色</Select.Option>
-              <Select.Option value="橘红色">橘红色</Select.Option>
-              <Select.Option value="裸色">裸色</Select.Option>
-              <Select.Option value="梅子色">梅子色</Select.Option>
-              <Select.Option value="珊瑚色">珊瑚色</Select.Option>
-            </Select>
+              options={filterOptions.colors.map(v => ({ label: v, value: v }))}
+            />
           </Col>
           <Col span={6}>
             <Select
-              placeholder="筛选使用场景"
+              placeholder="筛选使用场景（来自本次分析）"
               value={filterScene}
               onChange={setFilterScene}
               allowClear
               style={{ width: '100%', fontSize: '14px' }}
               suffixIcon={<FilterOutlined />}
-            >
-              <Select.Option value="上班">上班</Select.Option>
-              <Select.Option value="约会">约会</Select.Option>
-              <Select.Option value="聚会">聚会</Select.Option>
-              <Select.Option value="日常">日常</Select.Option>
-              <Select.Option value="晚宴">晚宴</Select.Option>
-            </Select>
+              options={filterOptions.scenes.map(v => ({ label: v, value: v }))}
+            />
           </Col>
         </Row>
         {(searchText || filterStyle || filterColor || filterScene) && (

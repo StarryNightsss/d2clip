@@ -81,6 +81,71 @@ export const analysisAPI = {
   }, ANALYSIS_API_BASE),
 }
 
+// 企业社群 API（与后端 community 路由对接）
+export const communityAPI = {
+  getUsers: () => request('/community/users', {}, ANALYSIS_API_BASE),
+  getGroups: (userId) => request(`/community/groups${userId ? `?user_id=${encodeURIComponent(userId)}` : ''}`, {}, ANALYSIS_API_BASE),
+  markGroupRead: (groupKey, userId) => request(`/community/groups/${groupKey}/read`, {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId || '' }),
+  }, ANALYSIS_API_BASE),
+  getPosts: (groupKey) => request(`/community/groups/${groupKey}/posts`, {}, ANALYSIS_API_BASE),
+  createPost: (groupKey, body) => request(`/community/groups/${groupKey}/posts`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+  createReportPost: (groupKey, body = {}) => request(`/community/groups/${groupKey}/posts/report`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+
+  likePost: (postId, body = {}) => request(`/community/posts/${postId}/like`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+  sharePost: (postId) => request(`/community/posts/${postId}/share`, { method: 'POST' }, ANALYSIS_API_BASE),
+  addComment: (postId, body) => request(`/community/posts/${postId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+
+  deleteComment: (postId, commentIndex) => request(`/community/posts/${postId}/comments/${commentIndex}`, {
+    method: 'DELETE',
+  }, ANALYSIS_API_BASE),
+
+  forwardPost: (postId, body) => request(`/community/posts/${postId}/forward`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+
+  updatePost: (postId, body) => request(`/community/posts/${postId}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  }, ANALYSIS_API_BASE),
+
+  deletePost: (postId) => request(`/community/posts/${postId}`, {
+    method: 'DELETE',
+  }, ANALYSIS_API_BASE),
+
+  // 上传文件（原格式保存），返回 { file_id, name, size }，发帖时放入 attachments
+  uploadFile: async (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch(`${ANALYSIS_API_BASE}/community/upload`, {
+      method: 'POST',
+      body: form,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: '上传失败' }))
+      throw new Error(err.detail || `HTTP ${res.status}`)
+    }
+    return res.json()
+  },
+
+  // 下载链接（上传什么格式就按什么格式下载，持久化存储）
+  getFileDownloadUrl: (fileId) => `${ANALYSIS_API_BASE}/community/files/${fileId}/download`,
+}
+
 // 数据相关 API（爬虫后端）
 export const dataAPI = {
   // 获取数据文件列表

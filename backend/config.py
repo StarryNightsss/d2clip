@@ -1,9 +1,20 @@
 from pydantic_settings import BaseSettings
 from pathlib import Path
 
+
+def _resolve_project_root() -> Path:
+    """解析项目根目录（避免从 .venv 里加载时 BASE_DIR 指错路径）"""
+    path = Path(__file__).resolve().parent.parent
+    for _ in range(6):
+        if (path / "knowledge").exists() and (path / "backend").exists():
+            return path
+        path = path.parent
+    return Path(__file__).resolve().parent.parent
+
+
 class Settings(BaseSettings):
-    # 项目路径
-    BASE_DIR: Path = Path(__file__).parent.parent
+    # 项目路径（始终解析到含 knowledge/ 与 backend/ 的根目录）
+    BASE_DIR: Path = _resolve_project_root()
 
     # OpenAI 配置
     OPENAI_API_KEY: str = "sk-guu0pkgYYHPkkNCjOXrnovpwVOQ0Vzw9S91FBPr8bzYnumzr"

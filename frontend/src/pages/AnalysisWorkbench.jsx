@@ -284,114 +284,16 @@ const AnalysisWorkbench = () => {
         </p>
       </div>
 
-      {/* 步骤指示器 */}
-      <Row gutter={24} style={{ marginBottom: '32px' }}>
-        <Col span={8}>
-          <div style={{
-            background: status === 'idle' ? 'white' : '#f5f5f5',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: status === 'idle' ? '0 4px 16px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.05)',
-            border: status === 'idle' ? '2px solid #ff6b9d' : '2px solid transparent',
-            transition: 'all 0.3s'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: 'white',
-                marginRight: '16px'
-              }}>
-                <DatabaseOutlined />
-              </div>
-              <div>
-                <div style={{ fontSize: '18px', fontWeight: '600', color: '#2d3436', marginBottom: '4px' }}>
-                  步骤 1
-                </div>
-                <div style={{ fontSize: '14px', color: '#636e72' }}>
-                  数据采集配置
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-        <Col span={8}>
-          <div style={{
-            background: status === 'analyzing' ? 'white' : '#f5f5f5',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: status === 'analyzing' ? '0 4px 16px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.05)',
-            border: status === 'analyzing' ? '2px solid #ff6b9d' : '2px solid transparent',
-            transition: 'all 0.3s'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: 'white',
-                marginRight: '16px'
-              }}>
-                <RocketOutlined />
-              </div>
-              <div>
-                <div style={{ fontSize: '18px', fontWeight: '600', color: '#2d3436', marginBottom: '4px' }}>
-                  步骤 2
-                </div>
-                <div style={{ fontSize: '14px', color: '#636e72' }}>
-                  AI智能分析
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-        <Col span={8}>
-          <div style={{
-            background: status === 'completed' ? 'white' : '#f5f5f5',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: status === 'completed' ? '0 4px 16px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.05)',
-            border: status === 'completed' ? '2px solid #ff6b9d' : '2px solid transparent',
-            transition: 'all 0.3s'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: 'white',
-                marginRight: '16px'
-              }}>
-                <HistoryOutlined />
-              </div>
-              <div>
-                <div style={{ fontSize: '18px', fontWeight: '600', color: '#2d3436', marginBottom: '4px' }}>
-                  步骤 3
-                </div>
-                <div style={{ fontSize: '14px', color: '#636e72' }}>
-                  查看报告
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
+      {/* Lottie 动画：独立页面 iframe 嵌入，覆盖原步骤 1～3 整行 */}
+      <div className="workbench-hero-wrap">
+        <div className="workbench-lottie-inner">
+          <iframe
+            title="Kiss Lottie"
+            src="/lottie-player.html"
+            className="workbench-lottie-iframe"
+          />
+        </div>
+      </div>
 
       {/* 配置表单 */}
       <Card
@@ -705,14 +607,14 @@ const AnalysisWorkbench = () => {
                   marginBottom: '24px',
                   fontSize: '14px'
                 }}>
-                  使用AI提取风格、色调并生成报告
+                  使用AI分析刚刚采集的数据，生成报告（需先完成步骤1采集）
                 </p>
                 <Button
                   type="primary"
                   size="large"
                   icon={<RocketOutlined />}
                   onClick={() => navigate('/report?auto=true')}
-                  disabled={!completedStats && historyData.length === 0}
+                  disabled
                   style={{
                     height: '56px',
                     padding: '0 48px',
@@ -721,17 +623,18 @@ const AnalysisWorkbench = () => {
                     borderRadius: '28px',
                     background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
                     border: 'none',
-                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)'
+                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)',
+                    opacity: 0.6
                   }}
                 >
-                  AI智能分析
+                  AI智能分析（请先完成采集）
                 </Button>
               </div>
             </Col>
           </Row>
         )}
 
-        {/* analyzing状态：左侧爬虫运行中，右侧AI分析可用 */}
+        {/* analyzing状态：左侧爬虫运行中，右侧AI分析不可点 */}
         {status === 'analyzing' && (
           <Row gutter={24}>
             {/* 左侧：爬虫运行中 */}
@@ -833,16 +736,16 @@ const AnalysisWorkbench = () => {
               </div>
             </Col>
 
-            {/* 右侧：AI分析仍然可用 */}
+            {/* 右侧：采集未完成，AI分析不可点 */}
             <Col span={12}>
               <div style={{
                 textAlign: 'center',
                 padding: '60px 32px',
-                background: 'linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%)',
+                background: 'linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%)',
                 borderRadius: '12px',
                 height: '100%'
               }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px' }}>🤖</div>
+                <div style={{ fontSize: '64px', marginBottom: '20px', opacity: 0.6 }}>🤖</div>
                 <p style={{
                   color: '#2d3436',
                   marginBottom: '24px',
@@ -856,14 +759,13 @@ const AnalysisWorkbench = () => {
                   marginBottom: '24px',
                   fontSize: '14px'
                 }}>
-                  可以分析已有的历史数据
+                  请等待采集完成后再分析，将使用本次刚采集的数据
                 </p>
                 <Button
                   type="primary"
                   size="large"
                   icon={<RocketOutlined />}
-                  onClick={() => navigate('/report?auto=true')}
-                  disabled={historyData.length === 0}
+                  disabled
                   style={{
                     height: '56px',
                     padding: '0 48px',
@@ -872,17 +774,18 @@ const AnalysisWorkbench = () => {
                     borderRadius: '28px',
                     background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
                     border: 'none',
-                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)'
+                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)',
+                    opacity: 0.6
                   }}
                 >
-                  AI智能分析
+                  请先完成采集
                 </Button>
               </div>
             </Col>
           </Row>
         )}
 
-        {/* completed状态：左侧爬虫完成，右侧AI分析 */}
+        {/* completed状态：左侧爬虫完成，右侧AI分析可点击，分析本次刚采集的数据 */}
         {status === 'completed' && (
           <Row gutter={24}>
             {/* 左侧：爬虫完成 */}
@@ -969,7 +872,7 @@ const AnalysisWorkbench = () => {
                   color: '#636e72',
                   marginBottom: '24px'
                 }}>
-                  使用AI提取风格、色调并生成专业报告
+                  使用AI分析本次刚采集的数据，提取风格、色调并生成专业报告
                 </p>
                 <Button
                   type="primary"
@@ -987,7 +890,7 @@ const AnalysisWorkbench = () => {
                     boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)'
                   }}
                 >
-                  AI智能分析 →
+                  AI智能分析（分析本次采集数据） →
                 </Button>
               </div>
             </Col>

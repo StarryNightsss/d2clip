@@ -1,9 +1,17 @@
+# 支持从 backend 目录直接启动：把项目根加入 path，保证 backend.* 导入可用
+import sys
+from pathlib import Path
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from config import settings
-from api.analysis import router as analysis_router
+from backend.config import settings
+from backend.api.analysis import router as analysis_router
+from backend.api.community import router as community_router
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -23,6 +31,7 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(analysis_router, prefix="/api")
+app.include_router(community_router, prefix="/api")
 
 @app.get("/")
 async def root():

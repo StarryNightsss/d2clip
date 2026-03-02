@@ -9,14 +9,14 @@ from collections import Counter
 from datetime import datetime
 import uuid
 
-from config import settings
-from models.schemas import (
+from backend.config import settings
+from backend.models.schemas import (
     NoteAnalysisResult, AnalysisStatistics, AnalysisResponse,
     StyleStatistics, ColorStatistics, KeywordStatistics,
     LipstickFeatures, DynamicReport, ReportSection, ChartConfig
 )
-from services.langchain_service import langchain_service
-from prompts.chart_schema import COLOR_SCHEMES, ECHARTS_PIE_SCHEMA, ECHARTS_BAR_SCHEMA, ECHARTS_SCATTER_SCHEMA
+from backend.services.langchain_service import langchain_service
+from backend.prompts.chart_schema import COLOR_SCHEMES, ECHARTS_PIE_SCHEMA, ECHARTS_BAR_SCHEMA, ECHARTS_SCATTER_SCHEMA
 
 
 class AnalysisService:
@@ -522,9 +522,12 @@ class AnalysisService:
         return notes
 
     def _load_crawler_data(self, data_file: str, platform: str = "xhs") -> List[Dict]:
-        """加载单个爬虫数据文件"""
-        if "/" in data_file:
-            file_path = settings.CRAWLER_DATA_DIR / data_file
+        """加载单个爬虫数据文件（兼容 / 与 \\，避免 xhs/json 被拼两次）"""
+        # 统一为正斜杠，避免 Windows 下 \ 导致判断走错分支
+        data_file_normalized = data_file.replace("\\", "/")
+        if "/" in data_file_normalized:
+            # 已含相对路径，直接拼在 CRAWLER_DATA_DIR 下
+            file_path = settings.CRAWLER_DATA_DIR / data_file_normalized
         else:
             platform_dirs = {
                 "xhs": "xhs/json",
@@ -536,7 +539,7 @@ class AnalysisService:
                 "zhihu": "zhihu/json"
             }
             platform_dir = platform_dirs.get(platform, "xhs/json")
-            file_path = settings.CRAWLER_DATA_DIR / platform_dir / data_file
+            file_path = settings.CRAWLER_DATA_DIR / platform_dir / data_file_normalized
 
         if not file_path.exists():
             raise FileNotFoundError(f"数据文件不存在: {file_path}")
@@ -644,65 +647,77 @@ class AnalysisService:
 
     def get_analysis_results(self, analysis_id: str) -> Dict:
         """获取指定分析任务的结果（优先内存，然后文件）"""
-        # 先从内存缓存获取
-        response = self._analysis_cache.get(analysis_id)
+        try:
+            # 先从内存缓存获取
+            response = self._analysis_cache.get(analysis_id)
 
-        # 如果内存中没有，尝试从文件加载
-        if not response:
-            response = self._load_analysis_from_file(analysis_id)
+            # 如果内存中没有，尝试从文件加载
             if not response:
-                return None
+                response = self._load_analysis_from_file(analysis_id)
+                if not response:
+                    return None
 
-            # 加载后放入缓存，方便下次访问
-            self._analysis_cache[analysis_id] = response
-        return {
-            "analysis_id": response.analysis_id,
-            "status": response.status,
-            "created_at": response.created_at.isoformat(),
-            "total": len(response.results),
-            "results": [
-                {
-                    "note_id": r.note_id,
-                    "title": r.title,
-                    "style": r.makeup_style,
-                    "color": r.lipstick_features.color,
-                    "texture": r.lipstick_features.texture,
-                    "keywords": r.keywords,
-                    "scene": r.scene
+                # 加载后放入缓存，方便下次访问
+                self._analysis_cache[analysis_id] = response
+
+            # 兼容 report 为 None（旧数据或异常情况）
+            report_data = None
+            if response.report:
+                report_data = {
+                    "report_title": response.report.report_title,
+                    "summary": response.report.summary,
+                    "sections": [
+                        {
+                            "section_id": s.section_id,
+                            "title": s.title,
+                            "content": s.content,
+                            "charts": [
+                                {
+                                    "chart_type": c.chart_type,
+                                    "chart_title": c.chart_title,
+                                    "description": c.description,
+                                    "echarts_option": c.echarts_option
+                                }
+                                for c in s.charts
+                            ],
+                            "order": s.order
+                        }
+                        for s in response.report.sections
+                    ]
                 }
-                for r in response.results
-            ],
-            "statistics": {
-                "total_notes": response.statistics.total_notes,
-                "analyzed_notes": response.statistics.analyzed_notes,
-                "failed_notes": response.statistics.failed_notes,
-                "styles": [{"name": s.name, "count": s.count, "percentage": s.percentage} for s in response.statistics.styles],
-                "colors": [{"name": c.name, "count": c.count, "percentage": c.percentage} for c in response.statistics.colors],
-                "keywords": [{"name": k.name, "count": k.count} for k in response.statistics.keywords]
-            },
-            "report": {
-                "report_title": response.report.report_title,
-                "summary": response.report.summary,
-                "sections": [
+            else:
+                report_data = {"report_title": "", "summary": "", "sections": []}
+
+            return {
+                "analysis_id": response.analysis_id,
+                "status": response.status,
+                "created_at": response.created_at.isoformat() if response.created_at else "",
+                "total": len(response.results),
+                "results": [
                     {
-                        "section_id": s.section_id,
-                        "title": s.title,
-                        "content": s.content,
-                        "charts": [
-                            {
-                                "chart_type": c.chart_type,
-                                "chart_title": c.chart_title,
-                                "description": c.description,
-                                "echarts_option": c.echarts_option
-                            }
-                            for c in s.charts
-                        ],
-                        "order": s.order
+                        "note_id": r.note_id,
+                        "title": r.title,
+                        "style": r.makeup_style,
+                        "color": r.lipstick_features.color,
+                        "texture": r.lipstick_features.texture,
+                        "keywords": r.keywords,
+                        "scene": r.scene
                     }
-                    for s in response.report.sections
-                ]
+                    for r in response.results
+                ],
+                "statistics": {
+                    "total_notes": response.statistics.total_notes,
+                    "analyzed_notes": response.statistics.analyzed_notes,
+                    "failed_notes": response.statistics.failed_notes,
+                    "styles": [{"name": s.name, "count": s.count, "percentage": s.percentage} for s in response.statistics.styles],
+                    "colors": [{"name": c.name, "count": c.count, "percentage": c.percentage} for c in response.statistics.colors],
+                    "keywords": [{"name": k.name, "count": k.count} for k in response.statistics.keywords]
+                },
+                "report": report_data
             }
-        }
+        except Exception as e:
+            print(f"⚠️ get_analysis_results 异常: {e}")
+            return None
 
     def get_latest_results(self, limit: int = 100) -> Dict:
         """获取最近一次分析的结果"""

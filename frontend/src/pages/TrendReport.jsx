@@ -103,6 +103,51 @@ const TrendReport = () => {
     }
   }
 
+  // 轮询分析进度（组件级，供 handleStartAnalysis 和 useEffect 共用）
+  const startProgressPolling = () => {
+    const interval = setInterval(async () => {
+      try {
+        const progress = await analysisAPI.getProgress()
+        if (progress.progress !== undefined) {
+          setLoadingProgress(progress.progress)
+          if (progress.progress < 20) {
+            setLoadingStep('正在加载数据到向量数据库...')
+          } else if (progress.progress < 50) {
+            setLoadingStep('AI 正在提取妆容风格和色调...')
+          } else if (progress.progress < 80) {
+            setLoadingStep('正在生成统计分析和图表...')
+          } else if (progress.progress < 100) {
+            setLoadingStep('AI 正在撰写分析报告...')
+          }
+        }
+        if (progress.status === 'completed') {
+          clearInterval(interval)
+          setLoadingStep('加载分析结果...')
+          message.success('分析完成！正在加载结果...')
+          const latestResults = await analysisAPI.getLatestResults(100)
+          // 必须有 report（含骨架与图表）才视为有效结果，避免空结果覆盖
+          if (latestResults && latestResults.report) {
+            setReportData(latestResults)
+            setEditableReport(latestResults.report)
+          } else if (latestResults && latestResults.message) {
+            message.warning(latestResults.message)
+          }
+          setLoading(false)
+        } else if (progress.status === 'error') {
+          clearInterval(interval)
+          setLoadingStep('分析失败')
+          message.error('分析任务失败，请重试')
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('获取进度失败:', error)
+        clearInterval(interval)
+        setLoadingStep('连接失败')
+        setLoading(false)
+      }
+    }, 3000)
+  }
+
   // 手动开始分析
   const handleStartAnalysis = async () => {
     if (!selectedFile) {
@@ -243,58 +288,6 @@ const TrendReport = () => {
         message.error(`后端服务调用失败: ${error.message}`)
         setLoading(false)
       }
-    }
-
-    // 轮询进度
-    const startProgressPolling = () => {
-      const interval = setInterval(async () => {
-        try {
-          const progress = await analysisAPI.getProgress()
-
-          console.log('任务进度:', progress)
-
-          // 更新进度和步骤提示
-          if (progress.progress !== undefined) {
-            setLoadingProgress(progress.progress)
-
-            // 根据进度显示不同的步骤提示
-            if (progress.progress < 20) {
-              setLoadingStep('正在加载数据到向量数据库...')
-            } else if (progress.progress < 50) {
-              setLoadingStep('AI 正在提取妆容风格和色调...')
-            } else if (progress.progress < 80) {
-              setLoadingStep('正在生成统计分析和图表...')
-            } else if (progress.progress < 100) {
-              setLoadingStep('AI 正在撰写分析报告...')
-            }
-          }
-
-          if (progress.status === 'completed') {
-            clearInterval(interval)
-            setLoadingStep('加载分析结果...')
-            message.success('分析完成！正在加载结果...')
-
-            // 加载完成的结果（使用最新的缓存结果）
-            const latestResults = await analysisAPI.getLatestResults(100)
-            if (latestResults && latestResults.results) {
-              setReportData(latestResults)
-              setEditableReport(latestResults.report)
-            }
-            setLoading(false)
-          } else if (progress.status === 'error') {
-            clearInterval(interval)
-            setLoadingStep('分析失败')
-            message.error('分析任务失败，请重试')
-            setLoading(false)
-          }
-          // status === 'running' 时继续轮询
-        } catch (error) {
-          console.error('获取进度失败:', error)
-          clearInterval(interval)
-          setLoadingStep('连接失败')
-          setLoading(false)
-        }
-      }, 3000)  // 每3秒检查一次
     }
 
     loadAnalysisData()
@@ -494,6 +487,9 @@ const TrendReport = () => {
   }
 
   const report = editableReport || reportData.report
+
+  // 报告数据来源：reportData 来自 API getLatestResults / getResults(analysis_id)，
+  // 对应后端 backend/data/analyses/<analysis_id>.json 与内存缓存
 
   // 数据概览统计
   const overview = {

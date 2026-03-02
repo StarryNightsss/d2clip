@@ -1,5 +1,5 @@
 import { Card } from 'antd'
-import { RocketOutlined } from '@ant-design/icons'
+import { SmileOutlined } from '@ant-design/icons'
 
 const VirtualTryOn = () => {
   return (
@@ -20,7 +20,7 @@ const VirtualTryOn = () => {
           marginBottom: '12px',
           letterSpacing: '-0.5px'
         }}>
-          <RocketOutlined style={{ marginRight: '12px' }} />
+          <SmileOutlined style={{ marginRight: '12px' }} />
           虚拟试妆
         </h1>
         <p style={{

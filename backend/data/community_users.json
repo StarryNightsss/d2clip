@@ -1,0 +1,103 @@
+[
+  {
+    "username": "testsss@admin.com",
+    "name": "管理员",
+    "department": "admin",
+    "avatar": "/kuromi-avatar.png"
+  },
+  {
+    "username": "admin",
+    "name": "管理员",
+    "department": "admin",
+    "avatar": "/kuromi-avatar.png"
+  },
+  {
+    "username": "zhangsan",
+    "name": "张三",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan"
+  },
+  {
+    "username": "lisi",
+    "name": "李四",
+    "department": "rd",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=lisi"
+  },
+  {
+    "username": "wangwu",
+    "name": "王五",
+    "department": "market",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu"
+  },
+  {
+    "username": "zhaoliu",
+    "name": "赵六",
+    "department": "operation",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu"
+  },
+  {
+    "name": "张晓雯",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+  },
+  {
+    "name": "李明",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming"
+  },
+  {
+    "name": "王芳",
+    "department": "design",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+  },
+  {
+    "name": "陈悦",
+    "department": "marketing",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+  },
+  {
+    "name": "刘洋",
+    "department": "operation",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"
+  },
+  {
+    "name": "周敏",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhoumin"
+  },
+  {
+    "name": "赵琳",
+    "department": "design",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"
+  },
+  {
+    "name": "孙婷",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"
+  },
+  {
+    "name": "吴倩",
+    "department": "operation",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wuqian"
+  },
+  {
+    "name": "郑浩",
+    "department": "design",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhenghao"
+  },
+  {
+    "name": "林娜",
+    "department": "marketing",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=linna"
+  },
+  {
+    "name": "黄磊",
+    "department": "operation",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=huanglei"
+  },
+  {
+    "name": "何静",
+    "department": "product",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=hejing"
+  }
+]

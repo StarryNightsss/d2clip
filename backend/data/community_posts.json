@@ -1,0 +1,584 @@
+[
+  {
+    "id": "1",
+    "group_key": "product",
+    "author": "张晓雯",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang",
+    "role": "产品经理",
+    "created_at": "2026-03-01T08:29:33.586137Z",
+    "title": "【趋势分析】\"地母系\"妆容流行趋势报告",
+    "preview": "根据最新分析的60条小红书笔记，「地母系」风格占比达到45%...",
+    "content": "根据最新分析的60条小红书笔记，「地母系」风格占比达到45%，用户更倾向于裸色系雾面质地。\n\n关键发现：\n• 显白(32次) - 用户更关注的功能点\n• 不拔干(28次) - 质地需求明显\n• 日常(25次) - 适用场景偏好\n\n建议设计部门重点关注低饱和度、雾面质地的色号开发。",
+    "images": [
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=300&fit=crop"
+    ],
+    "likes": 30,
+    "comments": 0,
+    "shares": 6,
+    "tags": [
+      "趋势分析",
+      "需求文档",
+      "地母系"
+    ],
+    "attachments": [
+      {
+        "name": "化妆风格分析报告.pdf",
+        "size": "2.3MB"
+      }
+    ],
+    "type": "text",
+    "liked_by": [
+      "testsss@admin.com"
+    ],
+    "comment_list": []
+  },
+  {
+    "id": "2",
+    "group_key": "product",
+    "author": "李明",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming",
+    "role": "数据分析师",
+    "created_at": "2026-03-01T08:29:33.586137Z",
+    "title": "本周口红色号需求统计",
+    "preview": "珊瑚橘(18%)、豆沙色(15%)、正红(12%)...",
+    "content": "本周数据统计结果：\n\n色号占比：\n• 裸色系：25%\n• 珊瑚橘：18%\n• 豆沙色：15%\n• 正红：12%\n• 番茄色：10%\n• 其他：20%\n\n用户对低饱和度色系的需求持续上升，建议研发重点关注。",
+    "images": [
+      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
+    ],
+    "likes": 15,
+    "comments": 8,
+    "shares": 3,
+    "tags": [
+      "数据分析",
+      "色号统计"
+    ],
+    "attachments": [],
+    "type": "text",
+    "comment_list": [
+      {
+        "author": "周敏",
+        "content": "裸色系占比好高，下季主推可以侧重这块。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhoumin"
+      },
+      {
+        "author": "赵琳",
+        "content": "豆沙色数据很稳，研发可以多出几个色号。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"
+      },
+      {
+        "author": "孙婷",
+        "content": "收到，已同步给设计做色卡参考。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"
+      },
+      {
+        "author": "吴倩",
+        "content": "番茄色占比10%可以考虑做限定款。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wuqian"
+      },
+      {
+        "author": "郑浩",
+        "content": "裸色系25%和上周持平，趋势稳定。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhenghao"
+      },
+      {
+        "author": "林娜",
+        "content": "正红12%那部分我们下次直播可以带。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=linna"
+      },
+      {
+        "author": "黄磊",
+        "content": "数据已收，明天同步给设计。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=huanglei"
+      },
+      {
+        "author": "何静",
+        "content": "研发会按这个比例排产。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=hejing"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "group_key": "design",
+    "author": "王芳",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang",
+    "role": "色彩设计师",
+    "created_at": "2026-03-01T08:29:33.586137Z",
+    "title": "【新品配色】「桃夭」系列色卡方案",
+    "preview": "基于产品部门的趋势分析，设计了16款裸色系配色方案...",
+    "content": "基于产品部门的趋势分析，设计了16款裸色系配色方案。\n\n主打色号：\n• #E8B4A0（桃夭）- 温柔裸粉\n• #D4A59A（灼华）- 豆沙橘调\n• #C9A18B（芳菲）- 奶茶裸色\n\n色彩来源：《诗经·桃夭》「桃之夭夭，灼灼其华」\n\n已完成多层叠加测试，色彩稳定性良好。建议市场部门尽快安排试妆验证。",
+    "images": [
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=400&h=300&fit=crop"
+    ],
+    "likes": 42,
+    "comments": 18,
+    "shares": 9,
+    "tags": [
+      "色彩方案",
+      "诗经命名",
+      "新品"
+    ],
+    "attachments": [
+      {
+        "name": "桃夭系列色卡.sketch",
+        "size": "8.7MB"
+      }
+    ],
+    "type": "text",
+    "comment_list": [
+      {
+        "author": "陈悦",
+        "content": "灼华那个色号我们试过了，上嘴很自然，市场会主推。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      },
+      {
+        "author": "刘洋",
+        "content": "诗经命名太有质感了，宣发文案可以直接用这句。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"
+      },
+      {
+        "author": "张晓雯",
+        "content": "芳菲适合做日常款，建议优先打样给试妆组。",
+        "role": "产品经理",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+      },
+      {
+        "author": "孙婷",
+        "content": "16款方案都看了，桃夭和灼华可以先打样。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"
+      },
+      {
+        "author": "赵琳",
+        "content": "色卡.sketch 已更新到共享盘。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"
+      },
+      {
+        "author": "周敏",
+        "content": "多层叠加测试数据能发我们一份吗？",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhoumin"
+      },
+      {
+        "author": "吴倩",
+        "content": "诗经这句可以做主 slogan。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wuqian"
+      },
+      {
+        "author": "郑浩",
+        "content": "裸色系方案和趋势报告对上了。",
+        "role": "产品经理",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhenghao"
+      },
+      {
+        "author": "林娜",
+        "content": "芳菲的奶茶裸很适合秋冬。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=linna"
+      },
+      {
+        "author": "黄磊",
+        "content": "试妆验证我们周三前完成。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=huanglei"
+      },
+      {
+        "author": "何静",
+        "content": "建议市场尽快安排+1。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=hejing"
+      },
+      {
+        "author": "李明",
+        "content": "色彩稳定性数据已记入报告。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming"
+      },
+      {
+        "author": "王芳",
+        "content": "E8B4A0 和 D4A59A 对比度已校过。",
+        "role": "色彩设计师",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+      },
+      {
+        "author": "陈悦",
+        "content": "豆沙橘调我们重点推。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      },
+      {
+        "author": "刘洋",
+        "content": "宣发会用桃之夭夭灼灼其华。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"
+      },
+      {
+        "author": "张晓雯",
+        "content": "打样给试妆组这周能排吗？",
+        "role": "产品经理",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+      },
+      {
+        "author": "孙婷",
+        "content": "低饱和度雾面质地和地母系报告一致。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting2"
+      },
+      {
+        "author": "赵琳",
+        "content": "16款里优先3款主色没问题。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin2"
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "group_key": "marketing",
+    "author": "陈悦",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue",
+    "role": "市场专员",
+    "created_at": "2026-03-01T08:29:33.586137Z",
+    "title": "【试妆效果】「桃夭」多肤色适配测试",
+    "preview": "已完成黄一白、粉二白、黄黑皮三种肤色的虚拟试妆...",
+    "content": "已完成「桃夭」系列三种肤色的虚拟试妆验证。\n\n测试结果：\n• 黄一白：效果最佳，显白度++\n• 粉二白：效果良好，自然感强\n• 黄黑皮：需调整饱和度+5%\n\n目标人群建议：\n20-35岁亚洲肤色女性，特别适合办公室白领日常妆容。\n\n已同步给运营部门，可以开始准备宣发素材。",
+    "images": [
+      "https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=400&h=300&fit=crop"
+    ],
+    "likes": 35,
+    "comments": 14,
+    "shares": 7,
+    "tags": [
+      "试妆报告",
+      "肤色适配",
+      "桃夭"
+    ],
+    "attachments": [],
+    "type": "text",
+    "comment_list": [
+      {
+        "author": "刘洋",
+        "content": "黄一白效果图能先发我们吗？做首图用。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"
+      },
+      {
+        "author": "王芳",
+        "content": "粉二白那组数据很实用，已记入色彩报告。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+      },
+      {
+        "author": "李明",
+        "content": "饱和度+5% 的调整建议收到，下周会出修订版色卡。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming"
+      },
+      {
+        "author": "陈悦",
+        "content": "黄一白显白度++ 那组图可以做主图。",
+        "role": "市场专员",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      },
+      {
+        "author": "张晓雯",
+        "content": "20-35岁人群我们主推渠道对。",
+        "role": "产品经理",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+      },
+      {
+        "author": "王芳",
+        "content": "黄黑皮+5%饱和度修订版色卡已出。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+      },
+      {
+        "author": "孙婷",
+        "content": "粉二白自然感强，用户反馈会好。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"
+      },
+      {
+        "author": "赵琳",
+        "content": "宣发素材我们按三种肤色各做一版。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"
+      },
+      {
+        "author": "周敏",
+        "content": "办公室白领日常妆容定位准确。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhoumin"
+      },
+      {
+        "author": "吴倩",
+        "content": "已收到，首图用黄一白。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wuqian"
+      },
+      {
+        "author": "郑浩",
+        "content": "亚洲肤色女性数据和我们画像一致。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhenghao"
+      },
+      {
+        "author": "林娜",
+        "content": "试妆验证已同步运营。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=linna"
+      },
+      {
+        "author": "黄磊",
+        "content": "素材准备中，周三前给。",
+        "role": "运营部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=huanglei"
+      },
+      {
+        "author": "何静",
+        "content": "饱和度+5% 的修订已记入色卡。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=hejing"
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "group_key": "operation",
+    "author": "刘洋",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang",
+    "role": "内容运营",
+    "created_at": "2026-03-01T08:29:33.586137Z",
+    "title": "【推广文案】「桃夭」小红书发布内容",
+    "preview": "已生成3套宣发文案，配图素材已准备完毕...",
+    "content": "已生成3套宣发文案，配图素材已准备完毕。\n\n文案示例（方案A）：\n「桃之夭夭，灼灼其华 🌸\n这支#桃夭#真的太绝了\n裸色系但不会显得没气色\n黄皮亲妈色号！日常通勤必备💄」\n\n发布计划：\n• 时间：本周三 10:00\n• 平台：小红书、抖音、微博\n• 目标：曝光10w+，互动率>5%\n\n请市场部门确认试妆图片是否可以用于推广。",
+    "images": [
+      "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop"
+    ],
+    "likes": 23,
+    "comments": 9,
+    "shares": 11,
+    "tags": [
+      "推广文案",
+      "小红书",
+      "待发布"
+    ],
+    "attachments": [
+      {
+        "name": "桃夭推广方案.docx",
+        "size": "1.2MB"
+      }
+    ],
+    "type": "text",
+    "comment_list": [
+      {
+        "author": "陈悦",
+        "content": "方案A的文案可以直接用，我们周三准时发。试妆图市场确认了。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      },
+      {
+        "author": "张晓雯",
+        "content": "抖音那边排期也好了，和微博同天发。",
+        "role": "产品经理",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+      },
+      {
+        "author": "王芳",
+        "content": "首图用桃夭主色那张，已导出给运营。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+      },
+      {
+        "author": "刘洋",
+        "content": "10w+ 曝光我们按5%互动率拆了任务。",
+        "role": "内容运营",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"
+      },
+      {
+        "author": "李明",
+        "content": "方案B和C的文案也发我看下。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming"
+      },
+      {
+        "author": "王芳",
+        "content": "首图已导出，桃夭主色那张。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"
+      },
+      {
+        "author": "陈悦",
+        "content": "试妆图确认了，可以用于推广。",
+        "role": "市场部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      },
+      {
+        "author": "孙婷",
+        "content": "周三 10:00 三个平台一起发没问题。",
+        "role": "产品部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"
+      },
+      {
+        "author": "赵琳",
+        "content": "黄皮亲妈色号这句可以加进主文案。",
+        "role": "设计部门",
+        "created_at": "2026-03-01T08:29:33.586137Z",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"
+      }
+    ]
+  },
+  {
+    "id": "39e2f874-a1cf-4339-ab4f-63da6572e518",
+    "group_key": "product_rd",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "产品部门",
+    "created_at": "2026-03-01T15:24:44.064837Z",
+    "title": "小红书色彩趋势分析",
+    "preview": "2026年妆容与色彩趋势分析报告",
+    "content": "2026年妆容与色彩趋势分析报告",
+    "images": [],
+    "likes": 1,
+    "comments": 1,
+    "shares": 0,
+    "liked_by": [
+      "testsss@admin.com"
+    ],
+    "comment_list": [
+      {
+        "author": "testsss@admin.com",
+        "content": "这是2026年小红书近两个月的色彩分析趋势，请各位查收~",
+        "role": "产品部门",
+        "created_at": "2026-03-01T16:50:06.471633Z",
+        "avatar": "/kuromi-avatar.png"
+      }
+    ],
+    "tags": [],
+    "attachments": [
+      {
+        "file_id": "40b8ab14-4437-4cf0-92d9-8bdbc016b0e8",
+        "name": "趋势报告_妆容与色彩趋势分析报告_2026-02-26.pdf",
+        "size": "86.2MB"
+      }
+    ],
+    "type": "text"
+  },
+  {
+    "id": "2f5a4646-f479-495d-82f5-60382405c23c",
+    "group_key": "product",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "产品部门",
+    "created_at": "2026-03-01T16:39:06.547560Z",
+    "title": "2026年妆容与色彩趋势分析报告",
+    "preview": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性...",
+    "content": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性的产品策略。通过关键词分析，我们更深入地了解了消费者的偏好与需求。",
+    "images": [],
+    "likes": 1,
+    "comments": 0,
+    "shares": 1,
+    "liked_by": [
+      "testsss@admin.com"
+    ],
+    "comment_list": [],
+    "tags": [
+      "趋势报告",
+      "分析"
+    ],
+    "attachments": [],
+    "type": "report",
+    "analysis_id": "27f0c137-0447-4e57-bf6f-2a28d77e2286"
+  },
+  {
+    "id": "300aad00-d48a-4e38-80ff-7395565be07d",
+    "group_key": "product_small",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "产品部门",
+    "created_at": "2026-03-01T16:49:07.228770Z",
+    "title": "【转发】2026年妆容与色彩趋势分析报告",
+    "preview": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性...",
+    "content": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性的产品策略。通过关键词分析，我们更深入地了解了消费者的偏好与需求。",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "转发",
+      "趋势报告",
+      "分析"
+    ],
+    "attachments": [],
+    "type": "report",
+    "analysis_id": "27f0c137-0447-4e57-bf6f-2a28d77e2286"
+  }
+]

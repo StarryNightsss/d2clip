@@ -1,46 +1,52 @@
 import { Form, Input, Button, Card, message, Select } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined, BarChartOutlined, ExperimentOutlined, SmileOutlined, EditOutlined, TeamOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import loginBg from '../assets/login-bg.png'
+import { communityAPI } from '../services/api'
+import LipstickLottie from '../components/LipstickLottie'
 
 const Login = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogin = (values) => {
+  const handleLogin = async (values) => {
     setLoading(true)
+    const { username, password, department } = values
 
-    // 模拟登录验证
-    setTimeout(() => {
-      const { username, password, department } = values
-
-      // 简单的模拟验证
-      if (password === '123456') {
-        const userInfo = {
-          username,
-          department,
-          departmentName: {
-            product: '产品部门',
-            rd: '研发部门',
-            market: '市场部门',
-            operation: '运营部门',
-            admin: '管理员'
-          }[department]
-        }
-
-        localStorage.setItem('userInfo', JSON.stringify(userInfo))
-        message.success('登录成功！')
-
-        setTimeout(() => {
-          navigate('/')
-        }, 500)
-      } else {
+    try {
+      // 简单模拟验证
+      if (password !== '123456') {
         message.error('密码错误！')
+        return
       }
-
+      // 从后端员工列表取当前用户头像，统一与社区发帖/评论一致
+      let avatar
+      try {
+        const users = await communityAPI.getUsers()
+        const me = Array.isArray(users) ? users.find(u => u && (u.username === username || u.email === username)) : null
+        avatar = me?.avatar || ((username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined)
+      } catch (_) {
+        avatar = (username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined
+      }
+      const userInfo = {
+        username,
+        department,
+        departmentName: {
+          product: '产品部门',
+          rd: '研发部门',
+          market: '市场部门',
+          operation: '运营部门',
+          admin: '管理员'
+        }[department],
+        avatar
+      }
+      localStorage.setItem('userInfo', JSON.stringify(userInfo))
+      message.success('登录成功！')
+      setTimeout(() => navigate('/'), 500)
+    } finally {
       setLoading(false)
-    }, 800)
+    }
   }
 
   return (
@@ -87,26 +93,26 @@ const Login = () => {
         }}
         bodyStyle={{ padding: '48px 40px' }}
       >
-        {/* Logo 和标题 */}
+        {/* Logo 和标题：口红 Lottie 动画 */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <div style={{
             width: '90px',
             height: '90px',
             margin: '0 auto 20px',
-            background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+            background: 'linear-gradient(135deg, #F18EB2 0%, #c44569 100%)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '48px',
+            overflow: 'hidden',
             boxShadow: '0 10px 30px rgba(255, 107, 157, 0.3)'
           }}>
-            💄
+            <LipstickLottie size={70} />
           </div>
           <h1 style={{
             fontSize: '32px',
             fontWeight: '800',
-            background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+            background: 'linear-gradient(135deg, #F18EB2 0%, #c44569 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             marginBottom: '8px',
@@ -173,11 +179,11 @@ const Login = () => {
               placeholder="请选择您的部门"
               style={{ fontSize: '15px' }}
               options={[
-                { value: 'product', label: '🎯 产品部门' },
-                { value: 'rd', label: '🔬 研发部门' },
-                { value: 'market', label: '📢 市场部门' },
-                { value: 'operation', label: '✍️ 运营部门' },
-                { value: 'admin', label: '👑 管理员' }
+                { value: 'product', label: <span><BarChartOutlined style={{ marginRight: 8 }} />产品部门</span> },
+                { value: 'rd', label: <span><ExperimentOutlined style={{ marginRight: 8 }} />研发部门</span> },
+                { value: 'market', label: <span><SmileOutlined style={{ marginRight: 8 }} />市场部门</span> },
+                { value: 'operation', label: <span><EditOutlined style={{ marginRight: 8 }} />运营部门</span> },
+                { value: 'admin', label: <span><TeamOutlined style={{ marginRight: 8 }} />管理员</span> }
               ]}
             />
           </Form.Item>

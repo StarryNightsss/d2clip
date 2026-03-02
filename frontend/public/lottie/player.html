@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lottie</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    #canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="dotlottie-canvas"></canvas>
+  <script type="module">
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const w = Math.min(400, parseInt(params.get('w') || '90', 10) || 90);
+      const h = Math.min(400, parseInt(params.get('h') || '90', 10) || 90);
+      const src = params.get('src') || '/lottie/Lipstick.lottie';
+      const canvas = document.getElementById('dotlottie-canvas');
+      canvas.width = w;
+      canvas.height = h;
+      import('https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm').then(function (m) {
+        new m.DotLottie({ autoplay: true, loop: true, canvas: canvas, src: src });
+      }).catch(function () {});
+    })();
+  </script>
+</body>
+</html>

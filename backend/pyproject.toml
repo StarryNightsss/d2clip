@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "d2c-backend"
 version = "1.0.0"
@@ -8,6 +12,7 @@ dependencies = [
     "langchain>=0.1.0",
     "langchain-openai>=0.0.5",
     "langchain-community>=0.0.20",
+    "langchain-chroma>=0.1.0",
 
     # 向量数据库
     "chromadb>=0.4.22",
@@ -36,4 +41,11 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "aiofiles>=23.2.1",
 ]
+
+[tool.setuptools.package-dir]
+"backend" = "."
+
+[tool.setuptools]
+# 显式列出包，避免把 api/data/models 等当作顶层包
+packages = ["backend", "backend.api", "backend.models", "backend.prompts", "backend.services"]
 

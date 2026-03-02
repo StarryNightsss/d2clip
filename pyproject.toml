@@ -1,0 +1,16 @@
+[project]
+name = "d2clip"
+version = "0.1.0"
+description = "D2C 口红实验室 - 美妆趋势分析系统"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "d2c-backend",
+    "playwright>=1.58.0",
+]
+
+[tool.uv.sources]
+d2c-backend = { workspace = true }
+
+[tool.uv.workspace]
+members = ["backend"]

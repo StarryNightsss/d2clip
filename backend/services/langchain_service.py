@@ -9,10 +9,10 @@ from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from config import settings
-from models.schemas import NoteAnalysisResult, LipstickFeatures, ReportSkeletonOutput
-from prompts.analysis_prompts import NOTE_ANALYSIS_TEMPLATE
-from prompts.report_prompts import (
+from backend.config import settings
+from backend.models.schemas import NoteAnalysisResult, LipstickFeatures, ReportSkeletonOutput
+from backend.prompts.analysis_prompts import NOTE_ANALYSIS_TEMPLATE
+from backend.prompts.report_prompts import (
     REPORT_SKELETON_TEMPLATE,
     SECTION_CONTENT_TEMPLATE,
     CHART_GENERATION_TEMPLATE
@@ -113,6 +113,13 @@ class LangChainService:
         if not self.vectorstore:
             return []
         return self.vectorstore.similarity_search(query, k=k)
+
+    def create_vectorstore(self, documents: List[Document]):
+        """将文档向量化并写入 Chroma（供 scripts/vectorize_knowledge.py 使用）"""
+        if not self.vectorstore:
+            raise RuntimeError("向量数据库未初始化")
+        self.vectorstore.add_documents(documents)
+        return self.vectorstore
 
     def _validate_and_get_errors(self, result: Dict) -> list:
         """验证分析结果，返回错误列表"""

@@ -8,6 +8,7 @@ import UserManagement from './pages/UserManagement'
 import ColorDesign from './pages/ColorDesign'
 import VirtualTryOn from './pages/VirtualTryOn'
 import ContentGeneration from './pages/ContentGeneration'
+import Community from './pages/Community'
 
 // 权限控制组件
 const ProtectedRoute = ({ children }) => {
@@ -78,6 +79,14 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <ContentGeneration />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/community" element={
+          <ProtectedRoute>
+            <Layout>
+              <Community />
             </Layout>
           </ProtectedRoute>
         } />

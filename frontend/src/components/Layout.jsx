@@ -1,6 +1,7 @@
 import { Layout as AntLayout, Menu, Dropdown, Avatar, Space, Modal, message } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { BarChartOutlined, FileTextOutlined, TableOutlined, UserOutlined, LogoutOutlined, TeamOutlined, ExperimentOutlined, RocketOutlined, EditOutlined } from '@ant-design/icons'
+import { BarChartOutlined, FileTextOutlined, TableOutlined, UserOutlined, LogoutOutlined, TeamOutlined, ExperimentOutlined, SmileOutlined, EditOutlined, CommentOutlined } from '@ant-design/icons'
+import LipstickLottie from './LipstickLottie'
 import { useState, useEffect } from 'react'
 
 const { Header, Content, Sider } = AntLayout
@@ -71,7 +72,7 @@ const Layout = ({ children }) => {
       },
       {
         key: '/market',
-        icon: <RocketOutlined style={{ fontSize: '18px' }} />,
+        icon: <SmileOutlined style={{ fontSize: '18px' }} />,
         label: <span style={{ fontSize: '15px', fontWeight: '500' }}>虚拟试妆</span>,
         departments: ['market', 'admin']
       },
@@ -80,6 +81,12 @@ const Layout = ({ children }) => {
         icon: <EditOutlined style={{ fontSize: '18px' }} />,
         label: <span style={{ fontSize: '15px', fontWeight: '500' }}>内容生成</span>,
         departments: ['operation', 'admin']
+      },
+      {
+        key: '/community',
+        icon: <CommentOutlined style={{ fontSize: '18px' }} />,
+        label: <span style={{ fontSize: '15px', fontWeight: '500' }}>企业社群</span>,
+        departments: ['product', 'rd', 'market', 'operation', 'admin']
       },
       {
         key: '/users',
@@ -116,7 +123,7 @@ const Layout = ({ children }) => {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <span style={{ fontSize: '28px' }}>💄</span>
+          <LipstickLottie size={28} style={{ flexShrink: 0 }} />
           D2C 口红实验室
           {userInfo && (
             <span style={{
@@ -154,11 +161,12 @@ const Layout = ({ children }) => {
               }}
             >
               <Avatar
+                src={userInfo.avatar || (userInfo.username === 'testsss@admin.com' ? '/kuromi-avatar.png' : undefined)}
                 style={{
-                  backgroundColor: '#ff8fab',
+                  backgroundColor: (userInfo.avatar || userInfo.username === 'testsss@admin.com') ? 'transparent' : '#ff8fab',
                   fontWeight: '600'
                 }}
-                icon={<UserOutlined />}
+                icon={!userInfo.avatar && userInfo.username !== 'testsss@admin.com' ? <UserOutlined /> : undefined}
               />
               <span style={{
                 color: 'white',

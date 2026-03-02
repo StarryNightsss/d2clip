@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Body
 from typing import Optional, Dict
 
-from models.schemas import NoteAnalysisRequest, AnalysisResponse
-from services.analysis_service import analysis_service
+from backend.models.schemas import NoteAnalysisRequest, AnalysisResponse
+from backend.services.analysis_service import analysis_service
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -50,8 +50,13 @@ async def get_analysis_results(analysis_id: str):
     try:
         results = analysis_service.get_analysis_results(analysis_id)
         if not results:
-            raise HTTPException(status_code=404, detail=f"未找到分析任务: {analysis_id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"未找到分析任务: {analysis_id}（可能结果文件已丢失，请重新运行分析）"
+            )
         return results
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取结果失败: {str(e)}")
 
