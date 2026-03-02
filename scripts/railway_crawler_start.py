@@ -27,37 +27,33 @@ def main():
     else:
         print("📦 [Railway Crawler] 无 git，使用构建阶段已拉取的子模块。")
 
-    # 1.5 运行时用当前 Python 重建 MediaCrawler .venv（构建时 venv 的 Python 路径在运行镜像可能失效）
-    mc_venv_py = ROOT / "crawler" / "MediaCrawler" / ".venv" / "bin" / "python"
-    if not mc_venv_py.exists() or not os.access(mc_venv_py, os.X_OK):
-        print("📦 [Railway Crawler] 正在用运行时 Python 同步 MediaCrawler 依赖（约 1 分钟）...")
-        r = subprocess.run(
-            ["uv", "sync", "--no-dev"],
-            cwd=str(ROOT / "crawler" / "MediaCrawler"),
-            env={**os.environ, "VIRTUAL_ENV": ""},  # 不继承父进程 venv，让 uv 在 MediaCrawler 下创建 .venv
-        )
-        if r.returncode != 0:
-            print("⚠️ MediaCrawler uv sync 未成功，环境检测可能失败。")
-        else:
-            # 替换为 headless OpenCV，避免运行时 libGL 缺失
-            subprocess.run(
-                ["uv", "pip", "uninstall", "opencv-python"],
-                cwd=str(ROOT / "crawler" / "MediaCrawler"),
-                env={**os.environ, "VIRTUAL_ENV": ""},
-            )
-            subprocess.run(
-                ["uv", "pip", "install", "opencv-python-headless>=4.11.0.86"],
-                cwd=str(ROOT / "crawler" / "MediaCrawler"),
-                env={**os.environ, "VIRTUAL_ENV": ""},
-            )
-            print("✅ [Railway Crawler] MediaCrawler .venv 就绪。")
+    mc_dir = ROOT / "crawler" / "MediaCrawler"
+    mc_venv_py = mc_dir / ".venv" / "bin" / "python"
+    need_sync = not mc_venv_py.exists() or not os.access(mc_venv_py, os.X_OK)
 
-    # 2. 启动爬虫 API（替换当前进程，保留 PORT 等环境变量）
-    os.execve(
-        sys.executable,
-        [sys.executable, str(ROOT / "scripts" / "run_crawler_api.py")],
-        os.environ,
-    )
+    # 2. 先启动 API（立即监听 PORT，避免 Railway 健康检查超时）
+    if need_sync:
+        print("📦 [Railway Crawler] .venv 待同步，先启动 API，后台同步依赖（约 1 分钟）...")
+    api_argv = [sys.executable, str(ROOT / "scripts" / "run_crawler_api.py")]
+    if need_sync:
+        # 不 exec：当前进程保持，子进程跑 API，后台再跑 uv sync
+        api_proc = subprocess.Popen(
+            api_argv,
+            env=os.environ,
+            cwd=str(ROOT),
+        )
+        env_no_venv = {**os.environ, "VIRTUAL_ENV": ""}
+        subprocess.Popen(
+            ["uv", "sync", "--no-dev"],
+            cwd=str(mc_dir),
+            env=env_no_venv,
+        ).wait()
+        subprocess.run(["uv", "pip", "uninstall", "opencv-python"], cwd=str(mc_dir), env=env_no_venv)
+        subprocess.run(["uv", "pip", "install", "opencv-python-headless>=4.11.0.86"], cwd=str(mc_dir), env=env_no_venv)
+        print("✅ [Railway Crawler] MediaCrawler .venv 就绪。")
+        sys.exit(api_proc.wait())
+    else:
+        os.execve(sys.executable, api_argv, os.environ)
 
 if __name__ == "__main__":
     main()
