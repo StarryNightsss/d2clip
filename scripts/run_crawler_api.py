@@ -21,6 +21,19 @@ if not api_main.exists():
 sys.path.insert(0, str(crawler_root))
 os.chdir(crawler_root)
 
+# 加载 .env 和 XHS_COOKIES 等环境变量
+_env_file = crawler_root / ".env"
+if _env_file.exists():
+    from dotenv import load_dotenv
+    load_dotenv(_env_file)
+# 主仓库 crawler_config/xhs_cookies_default.txt 作为默认 Cookie（Railway 部署用）
+_cookie_file = root / "crawler_config" / "xhs_cookies_default.txt"
+if not os.environ.get("XHS_COOKIES") and _cookie_file.exists():
+    _lines = _cookie_file.read_text(encoding="utf-8").strip().splitlines()
+    _cookie = next((ln.strip() for ln in _lines if ln.strip() and not ln.startswith("#")), "")
+    if _cookie:
+        os.environ["XHS_COOKIES"] = _cookie
+
 # 在本进程内导入 app，再传给 uvicorn（部署时平台会注入 PORT）
 from api.main import app
 import uvicorn

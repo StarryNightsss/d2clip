@@ -4,7 +4,7 @@
 # 固定 Bookworm，避免 Trixie 中 libgl1-mesa-glx 被弃用导致的包名变化
 FROM python:3.11-slim-bookworm
 
-# 1. 安装 OpenCV / Playwright 需要的系统库
+# 1. 安装系统依赖：OpenCV/Playwright 库 + Node.js（PyExecJS 需要，知乎/抖音签名）
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpango-1.0-0 \
     libcairo2 \
     git \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. 安装 uv
@@ -46,6 +47,9 @@ RUN if [ -f crawler/MediaCrawler/pyproject.toml ]; then \
       done; \
       [ -f crawler/MediaCrawler/pyproject.toml ] || { echo "MediaCrawler clone failed"; exit 1; }; \
     fi
+
+# 5b. 覆盖 d2clip 定制（XHS_COOKIES 默认、Cookie 登录优先等）
+RUN if [ -d crawler_overlay ]; then cp -r crawler_overlay/MediaCrawler/* crawler/MediaCrawler/; fi
 
 # 6. 将 opencv-python 替换为 headless，并重新生成 lock（否则 uv.lock 会强制装回 opencv-python）
 WORKDIR /app/crawler/MediaCrawler
