@@ -35,12 +35,13 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
 
-    # CORS 配置
+    # CORS 配置（部署时设置 FRONTEND_ORIGIN 为前端公网地址，如 https://xxx.vercel.app）
     CORS_ORIGINS: list = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
     ]
+    FRONTEND_ORIGIN: str = ""
 
     class Config:
         env_file = ".env"

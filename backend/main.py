@@ -1,4 +1,5 @@
 # 支持从 backend 目录直接启动：把项目根加入 path，保证 backend.* 导入可用
+import os
 import sys
 from pathlib import Path
 _root = Path(__file__).resolve().parent.parent
@@ -20,10 +21,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS 配置
+# CORS 配置（部署时通过 FRONTEND_ORIGIN 加入前端域名）
+_cors_origins = list(settings.CORS_ORIGINS)
+if settings.FRONTEND_ORIGIN:
+    _cors_origins.append(settings.FRONTEND_ORIGIN)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,9 +52,10 @@ async def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", settings.API_PORT))
     uvicorn.run(
         "backend.main:app",
         host=settings.API_HOST,
-        port=settings.API_PORT,
+        port=port,
         reload=True
     )

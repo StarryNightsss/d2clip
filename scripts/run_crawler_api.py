@@ -21,7 +21,8 @@ if not api_main.exists():
 sys.path.insert(0, str(crawler_root))
 os.chdir(crawler_root)
 
-# 在本进程内导入 app，再传给 uvicorn
+# 在本进程内导入 app，再传给 uvicorn（部署时平台会注入 PORT）
 from api.main import app
 import uvicorn
-uvicorn.run(app, host="0.0.0.0", port=8080)
+port = int(os.environ.get("PORT", 8080))
+uvicorn.run(app, host="0.0.0.0", port=port)

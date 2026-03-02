@@ -1,8 +1,6 @@
-// API 服务层
-// 爬虫API: http://localhost:8080/api
-// 分析API: http://localhost:8000/api
-const CRAWLER_API_BASE = 'http://localhost:8080/api'
-const ANALYSIS_API_BASE = 'http://localhost:8000/api'
+// API 服务层（部署时由 Vercel 等注入 VITE_* 环境变量）
+const CRAWLER_API_BASE = import.meta.env.VITE_CRAWLER_API_BASE || 'http://localhost:8080/api'
+const ANALYSIS_API_BASE = import.meta.env.VITE_ANALYSIS_API_BASE || 'http://localhost:8000/api'
 
 // 通用请求封装
 const request = async (url, options = {}, baseUrl = CRAWLER_API_BASE) => {

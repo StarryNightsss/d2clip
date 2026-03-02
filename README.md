@@ -274,6 +274,99 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 
 ---
 
+## 🌐 公网部署（点链接即用）
+
+从未用过 Railway / Vercel 也没关系，按下面一步步做即可。整体顺序：**先部署后端 → 拿到后端网址 → 再部署前端并填上后端网址**。
+
+---
+
+### 一、部署分析后端（Railway）
+
+1. **注册 Railway**
+   - 打开 https://railway.app ，点 **Login**，用 **GitHub** 登录并授权。
+
+2. **从 GitHub 创建项目**
+   - 登录后点 **New Project**。
+   - 选 **Deploy from GitHub repo**，若第一次会提示连接 GitHub 账号，选 **StarryNightsss/d2clip**（或你的仓库名）。
+   - 选中仓库后 Railway 会创建一个 Service，并开始用默认设置构建（可能失败，下一步会改配置）。
+
+3. **配置后端服务**
+   - 点进刚创建的服务（一个方块/卡片）。
+   - 打开 **Settings** 标签：
+     - **Build Command** 填：`uv sync`
+     - **Start Command** 填：`uv run python -m backend.main`
+     - **Root Directory** 留空（用仓库根目录）。
+   - 打开 **Variables** 标签，点 **Add Variable** 或 **RAW Editor**，添加（把下面值换成你自己的）：
+     ```
+     OPENAI_API_KEY=你的OpenAI或代理的key
+     OPENAI_API_BASE=https://api.chatanywhere.tech/v1
+     ```
+     `FRONTEND_ORIGIN` 先不填，等前端部署完再回来填。
+
+4. **生成公网地址**
+   - 在 **Settings** 里找到 **Networking**，点 **Generate Domain**，会得到一个类似 `xxx.railway.app` 的地址。
+   - 记下这个地址，例如：`https://d2clip-backend.railway.app`。前端要请求的 API 基础地址是：**这个地址 + `/api`**，即 `https://d2clip-backend.railway.app/api`。
+
+5. **验证**
+   - 浏览器打开 `https://你的域名.railway.app/api/health`，若返回 `{"status":"ok"}` 说明后端已跑起来。
+
+---
+
+### 二、部署前端（Vercel）
+
+1. **注册 Vercel**
+   - 打开 https://vercel.com ，点 **Sign Up**，用 **GitHub** 登录并授权。
+
+2. **从 GitHub 导入项目**
+   - 登录后点 **Add New…** → **Project**。
+   - 在列表里选 **d2clip**（或你的仓库名），点 **Import**。
+
+3. **配置前端构建**
+   - **Root Directory**：点 **Edit**，选 `frontend`，确认。
+   - **Framework Preset**：选 **Vite**（一般会自动识别）。
+   - **Build Command**：留默认 `npm run build` 即可。
+   - **Output Directory**：留默认 `dist` 即可。
+
+4. **填环境变量（重要）**
+   - 在 **Environment Variables** 里添加：
+     - 名称：`VITE_ANALYSIS_API_BASE`，值：`https://你的后端域名.railway.app/api`（上一步记下的那个 + `/api`）。
+     - 若暂时不部署爬虫，可以不填 `VITE_CRAWLER_API_BASE`（前端会 fallback 到本地地址，线上爬虫功能会不可用；要爬虫再单独部署后填这里）。
+   - 然后点 **Deploy**，等构建完成。
+
+5. **拿到前端链接**
+   - 部署成功后会出现 **Visit** 链接，例如 `https://d2clip-xxx.vercel.app`，这就是「点链接即用」的地址。
+
+6. **回去填后端的 CORS**
+   - 回到 Railway 该服务的 **Variables**，新增：
+     - 名称：`FRONTEND_ORIGIN`，值：`https://d2clip-xxx.vercel.app`（你上一步拿到的 Vercel 地址，不要带末尾斜杠）。
+   - 保存后 Railway 会自动重新部署，几秒后刷新前端页面，跨域报错会消失。
+
+---
+
+### 三、爬虫 API（可选）
+
+若需要在线「爬虫 / 数据文件列表」功能，再在 Railway 新建一个服务：
+
+- **New Project** → **Deploy from GitHub repo**，仍选同一仓库 d2clip。
+- 新服务的 **Start Command** 填：`uv run python scripts/run_crawler_api.py`（子模块需在 Build 里先拉取：Build Command 可设为 `git submodule update --init && uv sync`）。
+- 同样 **Generate Domain**，得到爬虫的网址。
+- 在 Vercel 的前端项目里，**Settings → Environment Variables** 增加 `VITE_CRAWLER_API_BASE` = `https://爬虫域名.railway.app/api`，重新部署前端即可。
+
+---
+
+### 四、小结
+
+| 步骤 | 平台 | 你要做的 |
+|------|------|----------|
+| 1 | Railway | 用 GitHub 部署仓库，Build: `uv sync`，Start: `uv run python -m backend.main`，填 `OPENAI_API_KEY` 等，Generate Domain |
+| 2 | Vercel | 用 GitHub 导入仓库，Root 选 `frontend`，填 `VITE_ANALYSIS_API_BASE` = 后端地址+`/api`，Deploy |
+| 3 | Railway | 同一后端服务 Variables 里填 `FRONTEND_ORIGIN` = 你的 Vercel 地址 |
+| 4（可选） | Railway | 再建一个服务跑爬虫，前端填 `VITE_CRAWLER_API_BASE` |
+
+完成后，把 Vercel 的访问链接发给别人，对方打开即可使用，无需自己起终端。
+
+---
+
 ## 📡 核心 API
 
 **分析笔记：** `POST /api/analysis/analyze`
