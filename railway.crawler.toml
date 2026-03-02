@@ -1,9 +1,9 @@
 # Railway 爬虫服务专用配置（在 Railway 里将此服务指向此文件）
 # 使用方式：Railway 新建服务后，Settings → 找到 Config 或 Deploy → Config file path 填 railway.crawler.toml
 
-# 构建阶段拉取子模块（运行镜像里没有 git，必须在 build 时做）
+# 构建阶段拉取 MediaCrawler（Railway 构建无 .git，用脚本：有 .git 则 submodule，否则 clone）
 [build]
-buildCommand = "git submodule update --init --recursive"
+buildCommand = "python scripts/ensure_mediacrawler.py"
 
 [deploy]
 startCommand = "uv run python scripts/railway_crawler_start.py"
