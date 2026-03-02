@@ -1,0 +1,10 @@
+# Railway/Nixpacks 构建配置，避免 "Error creating build plan"
+# 项目根目录为 uv workspace，需显式指定 Python 与启动命令
+
+providers = ["python"]
+
+[phases.install]
+cmds = ["uv sync --no-dev --frozen"]
+
+[start]
+cmd = "uv run python -m backend.main"
