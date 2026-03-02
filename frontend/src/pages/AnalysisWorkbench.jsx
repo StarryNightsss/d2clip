@@ -176,6 +176,8 @@ const AnalysisWorkbench = () => {
 
   const handleStart = async () => {
     try {
+      // 先取当前表单值（防止 validateFields 遗漏某些字段）
+      const fieldsValue = form.getFieldsValue()
       const values = await form.validateFields()
 
       // ⚠️ 只支持单平台，如果选了多个，提示用户
@@ -190,9 +192,10 @@ const AnalysisWorkbench = () => {
       // 启动 Mock 进度条
       startMockProgress()
 
-      // 处理关键词：把中文逗号转成英文逗号
-      const processedKeywords = values.keywords
-        ? values.keywords.replace(/，/g, ',').trim()
+      // 处理关键词：优先用 values，其次用 fieldsValue，确保用户输入被正确传递
+      const rawKeywords = (values.keywords ?? fieldsValue.keywords ?? '').toString().trim()
+      const processedKeywords = rawKeywords
+        ? rawKeywords.replace(/，/g, ',').trim()
         : '口红试色'
 
       // 构建爬虫参数（完全对应后端 CrawlerStartRequest）
@@ -214,14 +217,13 @@ const AnalysisWorkbench = () => {
 
       console.log('🚀 启动爬虫，参数:', crawlerParams)
       console.log('📝 关键词:', processedKeywords)
-      console.log('📊 每个关键词采集数量:', values.dataCount)
 
       await crawlerAPI.start(crawlerParams)
 
       // 保存分析数量配置到 localStorage，供 TrendReport 使用
       localStorage.setItem('analysisLimit', JSON.stringify(values.dataCount || 10))
 
-      message.success('爬虫已启动，正在采集数据...')
+      message.success(`爬虫已启动，正在采集「${processedKeywords}」...`)
 
       // 启动状态轮询，等待爬虫完成
       startProgressPolling()
