@@ -1,9 +1,9 @@
 # Railway 爬虫服务专用配置（在 Railway 里将此服务指向此文件）
-# 使用方式：Railway 新建服务后，Settings → 找到 Config 或 Deploy → Config file path 填 railway.crawler.toml
+# 使用方式：Railway 新建服务后，Settings → Config file path 填 railway.crawler.toml
 
-# 构建阶段：由脚本执行（脚本内分行写步骤，不用 &&）
+# Docker 部署（解决 libGL/OpenCV 依赖，推荐）
 [build]
-buildCommand = "bash scripts/railway_crawler_build.sh"
+dockerfilePath = "Dockerfile.crawler"
 
-[deploy]
-startCommand = "uv run python scripts/railway_crawler_start.py"
+# 若使用 Docker，CMD 已在 Dockerfile 中，无需 startCommand
+# 环境变量：PORT（Railway 自动注入）、CORS_ORIGIN 或 FRONTEND_ORIGIN（前端域名，如 https://xxx.vercel.app）

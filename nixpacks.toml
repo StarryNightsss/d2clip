@@ -6,9 +6,12 @@ providers = ["python"]
 [phases.install]
 cmds = ["uv sync --no-dev --frozen"]
 
-# 构建时生成向量库，否则线上 Chroma 读到的为 0 条
+# 构建时拉取爬虫子模块并生成向量库（爬虫与后端共用同一构建）
 [phases.build]
-cmds = ["uv run python scripts/vectorize_knowledge.py"]
+cmds = [
+  "git submodule update --init --recursive",
+  "uv run python scripts/vectorize_knowledge.py"
+]
 
 [start]
 cmd = "uv run python -m backend.main"

@@ -1,0 +1,14 @@
+# 爬虫镜像构建：排除无关内容
+.git
+.gitignore
+.env*
+*.md
+frontend
+backend
+node_modules
+__pycache__
+*.pyc
+.venv
+*.egg-info
+dist
+build

@@ -72,6 +72,7 @@ logs/
 
 # ChromaDB
 backend/knowledge/vectorized/chroma_db/
+knowledge/vectorized/chroma_db/
 
 # Temporary files
 tmp/

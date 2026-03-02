@@ -1,0 +1,70 @@
+# Railway 爬虫服务 Docker 部署：解决 libGL 等系统库缺失，使 OpenCV/Playwright 可用
+# 部署时在 Railway 选择此 Dockerfile，而非 Railpack
+
+FROM python:3.11-slim
+
+# 1. 安装 OpenCV / Playwright 需要的系统库
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libcairo2 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. 安装 uv
+RUN pip install --no-cache-dir uv
+
+# 3. 工作目录
+WORKDIR /app
+
+# 4. 拷贝项目
+COPY . /app
+
+# 5. 拉取 MediaCrawler（Railway 克隆不含子模块内容，需单独 clone，最多重试 3 次）
+RUN if [ -f crawler/MediaCrawler/pyproject.toml ]; then \
+      echo "MediaCrawler present, skip clone"; \
+    else \
+      rm -rf crawler/MediaCrawler 2>/dev/null; mkdir -p crawler; \
+      for i in 1 2 3; do \
+        git clone --depth 1 https://github.com/NanmiCoder/MediaCrawler.git crawler/MediaCrawler && break; \
+        sleep 10; \
+      done; \
+      [ -f crawler/MediaCrawler/pyproject.toml ] || { echo "MediaCrawler clone failed"; exit 1; }; \
+    fi
+
+# 6. 将 opencv-python 替换为 headless，并重新生成 lock（否则 uv.lock 会强制装回 opencv-python）
+WORKDIR /app/crawler/MediaCrawler
+RUN sed -i 's/opencv-python>=/opencv-python-headless>=/g' pyproject.toml \
+  && uv lock
+
+# 7. 安装依赖
+RUN uv sync --no-dev
+
+# 8. 安装 Playwright 浏览器 + Chrome（微博/知乎/贴吧等使用 channel="chrome"）
+ENV PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright
+# 安装 Chromium 及 Google Chrome（满足 channel="chrome" 的平台需求）
+RUN uv run playwright install chromium
+RUN uv run playwright install chrome || true
+RUN uv run playwright install-deps chromium 2>/dev/null || true
+
+# 9. 回到项目根，暴露端口
+WORKDIR /app
+ENV PORT=8080
+EXPOSE 8080
+
+# 10. 用 MediaCrawler 的 venv 启动我们的 API 包装（含 CORS）
+CMD ["/app/crawler/MediaCrawler/.venv/bin/python", "scripts/run_crawler_api.py"]
