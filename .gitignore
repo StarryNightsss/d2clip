@@ -74,6 +74,9 @@ logs/
 backend/knowledge/vectorized/chroma_db/
 knowledge/vectorized/chroma_db/
 
+# Playwright browsers（构建时安装，不提交）
+.playwright/
+
 # Temporary files
 tmp/
 temp/

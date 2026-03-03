@@ -6,12 +6,18 @@ providers = ["python"]
 [phases.install]
 cmds = ["uv sync --no-dev --frozen"]
 
-# 构建：向量化知识库 + 安装 Playwright Chromium（xhs_simple 爬虫用，失败则爬虫功能不可用）
+# 构建：向量化知识库 + 安装 Playwright Chromium（xhs_simple 爬虫用）
+# --with-deps 安装系统依赖；PLAYWRIGHT_BROWSERS_PATH 确保浏览器在项目目录内，构建与运行一致
 [phases.build]
+env = { PLAYWRIGHT_BROWSERS_PATH = ".playwright" }
 cmds = [
   "uv run python scripts/vectorize_knowledge.py",
-  "uv run playwright install chromium || true"
+  "uv run playwright install --with-deps chromium"
 ]
+
+# 运行时需同样指定，否则 Playwright 找不到浏览器
+[variables]
+PLAYWRIGHT_BROWSERS_PATH = ".playwright"
 
 [start]
 cmd = "uv run python -m backend.main"
