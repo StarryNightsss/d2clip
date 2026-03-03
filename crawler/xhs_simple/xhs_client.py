@@ -37,8 +37,11 @@ class XhsClient:
     def _init_browser(self):
         """初始化 Playwright 浏览器"""
         self.playwright = sync_playwright().start()
+        # channel='chromium' 使用完整 Chromium（playwright install chromium 安装的），
+        # 避免 chromium_headless_shell 在 Railway/Nixpacks 环境下缺失
         self.browser = self.playwright.chromium.launch(
             headless=True,
+            channel='chromium',
             args=['--disable-blink-features=AutomationControlled']
         )
 
