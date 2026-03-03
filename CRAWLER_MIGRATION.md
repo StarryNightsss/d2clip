@@ -106,3 +106,11 @@ backend/data/crawler_output/xhs/json/
 1. **Vercel 环境变量**：只设置 `VITE_ANALYSIS_API_BASE` 指向主后端 URL（如 `https://xxx.up.railway.app/api`）。**不要设置** `VITE_CRAWLER_API_BASE`。
 2. **Railway 服务**：只保留一个主后端服务（使用 `railway.toml`）。若之前有单独的爬虫服务（使用 `railway.crawler.toml` / `Dockerfile.crawler`），请删除或停用。
 3. **验证**：爬虫启动后，终端应出现 `[xhs_simple] 开始爬取...`。若看到 `MediaCrawler`、`BrowserLauncher` 等字样，说明仍在调用旧服务。
+
+## Railway 上 Playwright 构建失败时
+
+若 Nixpacks 构建时出现 `Executable doesn't exist at .../chromium_headless_shell`，说明 Playwright 浏览器未正确安装。**改用 Dockerfile 构建**更可靠：
+
+- 项目根目录的 `Dockerfile` 使用 `python:3.12-bookworm`，在 Debian 环境下执行 `playwright install --with-deps chromium`
+- Railway 检测到根目录存在 `Dockerfile` 时会自动用它替代 Nixpacks
+- 无需修改 Railway 配置，推送代码后会自动用新方式构建

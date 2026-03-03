@@ -1,4 +1,4 @@
-# 爬虫镜像构建：排除无关内容（不能排除 backend，d2clip 服务用 Railpack 会复用此文件）
+# 构建排除：排除无关内容（backend/crawler 需保留，主服务与爬虫共用）
 .git
 .gitignore
 .env*
@@ -8,6 +8,7 @@ node_modules
 __pycache__
 *.pyc
 .venv
+.playwright
 *.egg-info
 dist
 build
