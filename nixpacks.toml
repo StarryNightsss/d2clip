@@ -6,11 +6,11 @@ providers = ["python"]
 [phases.install]
 cmds = ["uv sync --no-dev --frozen"]
 
-# 构建时拉取爬虫子模块并生成向量库（爬虫与后端共用同一构建）
+# 构建：向量化知识库 + 安装 Playwright Chromium（xhs_simple 爬虫用，失败则爬虫功能不可用）
 [phases.build]
 cmds = [
-  "git submodule update --init --recursive",
-  "uv run python scripts/vectorize_knowledge.py"
+  "uv run python scripts/vectorize_knowledge.py",
+  "uv run playwright install chromium || true"
 ]
 
 [start]
