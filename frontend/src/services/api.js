@@ -1,9 +1,9 @@
-// API 服务层（部署时由 Vercel 等注入 VITE_* 环境变量）
-const CRAWLER_API_BASE = import.meta.env.VITE_CRAWLER_API_BASE || 'http://localhost:8080/api'
+// API 服务层（爬虫已集成到主后端，统一使用 8000 端口）
 const ANALYSIS_API_BASE = import.meta.env.VITE_ANALYSIS_API_BASE || 'http://localhost:8000/api'
+const CRAWLER_API_BASE = import.meta.env.VITE_CRAWLER_API_BASE || ANALYSIS_API_BASE
 
-// 通用请求封装
-const request = async (url, options = {}, baseUrl = CRAWLER_API_BASE) => {
+// 通用请求封装（注意：crawler/data 与 analysis 同端口）
+const request = async (url, options = {}, baseUrl = ANALYSIS_API_BASE) => {
   try {
     const response = await fetch(`${baseUrl}${url}`, {
       ...options,

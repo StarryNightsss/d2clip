@@ -13,6 +13,8 @@ import uvicorn
 from backend.config import settings
 from backend.api.analysis import router as analysis_router
 from backend.api.community import router as community_router
+from backend.api.crawler import router as crawler_router
+from backend.api.data import router as data_router
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -36,6 +38,8 @@ app.add_middleware(
 # 注册路由
 app.include_router(analysis_router, prefix="/api")
 app.include_router(community_router, prefix="/api")
+app.include_router(crawler_router, prefix="/api")
+app.include_router(data_router, prefix="/api")
 
 @app.get("/")
 async def root():

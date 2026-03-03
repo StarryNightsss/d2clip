@@ -1,8 +1,9 @@
 import { Card, Form, Input, Select, Button, Space, Alert, Row, Col, Divider, message, Table, Tag, Progress } from 'antd'
 import { PlayCircleOutlined, CheckCircleOutlined, RocketOutlined, DatabaseOutlined, HistoryOutlined, ThunderboltOutlined, EyeOutlined, ReloadOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { crawlerAPI, dataAPI, analysisAPI } from '../services/api'
+import CrawlerTerminal from '../components/CrawlerTerminal'
 
 const { TextArea } = Input
 
@@ -18,15 +19,7 @@ const AnalysisWorkbench = () => {
   const [progressInterval, setProgressInterval] = useState(null)  // Mock 进度定时器
   const [pollingInterval, setPollingInterval] = useState(null)  // 状态轮询定时器
   const [completedStats, setCompletedStats] = useState(null)  // 完成后的统计数据
-  const [logs, setLogs] = useState([])  // 爬虫日志
-  const logContainerRef = useRef(null)  // 日志容器引用
-
-  // 日志更新时自动滚动到底部
-  useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight
-    }
-  }, [logs])
+  const [logs, setLogs] = useState([])  // 保留兼容（CrawlerTerminal 现独立轮询）
 
   // 检查爬虫状态（仅在组件加载时检查一次）
   useEffect(() => {
@@ -122,17 +115,9 @@ const AnalysisWorkbench = () => {
     const interval = setInterval(async () => {
       try {
         // 同时获取状态和日志
-        const [statusData, logsData] = await Promise.all([
-          crawlerAPI.getStatus(),
-          crawlerAPI.getLogs(30)  // 获取最近30条日志
-        ])
+        const statusData = await crawlerAPI.getStatus()
 
         console.log('📡 爬虫状态:', statusData.status)
-
-        // 更新日志
-        if (logsData && logsData.logs) {
-          setLogs(logsData.logs)
-        }
 
         if (statusData.status === 'idle') {
           // 爬虫已完成
@@ -335,18 +320,9 @@ const AnalysisWorkbench = () => {
                   placeholder="请选择采集平台"
                   style={{ fontSize: '15px' }}
                   options={[
-                    { value: 'xhs', label: '📱 小红书' },
-                    { value: 'dy', label: '🎵 抖音' },
-                    { value: 'wb', label: '🐦 微博' },
-                    { value: 'bili', label: '📺 B站' },
-                    { value: 'ks', label: '⚡ 快手' },
-                    { value: 'zhihu', label: '💡 知乎' },
-                    { value: 'tieba', label: '💬 贴吧' }
+                    { value: 'xhs', label: '📱 小红书' }
                   ]}
                 />
-                <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '8px' }}>
-                  当前版本仅支持单平台采集
-                </div>
               </Form.Item>
             </Col>
 
@@ -359,9 +335,7 @@ const AnalysisWorkbench = () => {
                 <Select
                   style={{ fontSize: '15px' }}
                   options={[
-                    { value: 'search', label: '🔍 关键词搜索' },
-                    { value: 'detail', label: '📄 指定帖子详情' },
-                    { value: 'creator', label: '👤 指定创作者主页' }
+                    { value: 'search', label: '🔍 关键词搜索' }
                   ]}
                 />
               </Form.Item>
@@ -371,7 +345,7 @@ const AnalysisWorkbench = () => {
           <Form.Item
             name="keywords"
             label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>搜索关键词</span>}
-            initialValue="口红试色"
+            initialValue=""
             rules={[{ required: true, message: '请输入搜索关键词' }]}
           >
             <TextArea
@@ -379,10 +353,10 @@ const AnalysisWorkbench = () => {
               placeholder="请输入搜索关键词，多个关键词用逗号分隔（支持中文逗号和英文逗号）"
               style={{ fontSize: '15px', lineHeight: '1.6' }}
             />
-            <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '8px' }}>
-              💡 默认使用1个关键词，如需多个请用逗号分隔（如：口红推荐，妆容推荐，平价口红）
-            </div>
           </Form.Item>
+          <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '-16px', marginBottom: '24px' }}>
+            💡 默认使用1个关键词，如需多个请用逗号分隔（如：口红推荐，妆容推荐，平价口红）
+          </div>
 
           <Form.Item
             name="dataCount"
@@ -398,10 +372,10 @@ const AnalysisWorkbench = () => {
                 { value: 100, label: '100 条数据（推荐）' }
               ]}
             />
-            <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '8px' }}>
-              控制 AI 分析的数据条数，数量越多分析时间越长
-            </div>
           </Form.Item>
+          <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '8px' }}>
+            控制 AI 分析的数据条数，数量越多分析时间越长
+          </div>
 
           <Row gutter={24}>
             <Col span={12}>
@@ -681,44 +655,10 @@ const AnalysisWorkbench = () => {
                   </p>
                 </div>
 
-                {/* 实时日志显示 */}
-                {logs.length > 0 && (
-                  <div
-                    ref={logContainerRef}
-                    style={{
-                      background: '#1e1e1e',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      marginBottom: '20px',
-                      maxHeight: '300px',
-                      overflowY: 'auto',
-                      fontFamily: 'Monaco, Menlo, Consolas, monospace',
-                      fontSize: '12px',
-                      lineHeight: '1.6'
-                    }}
-                  >
-                    {logs.map((log, idx) => {
-                      const levelColors = {
-                        error: '#ff4757',
-                        warning: '#ffa502',
-                        success: '#26de81',
-                        info: '#45aaf2',
-                        debug: '#a5b1c2'
-                      }
-                      const color = levelColors[log.level] || '#dfe4ea'
-
-                      return (
-                        <div key={log.id || idx} style={{ marginBottom: '4px' }}>
-                          <span style={{ color: '#95a5a6' }}>[{log.timestamp}]</span>
-                          {' '}
-                          <span style={{ color, fontWeight: 'bold' }}>[{log.level.toUpperCase()}]</span>
-                          {' '}
-                          <span style={{ color: '#ecf0f1' }}>{log.message}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+                {/* 实时日志显示 - CrawlerTerminal 直接轮询后端 */}
+                <div style={{ marginBottom: '20px' }}>
+                  <CrawlerTerminal active={true} />
+                </div>
 
                 <Button
                   danger

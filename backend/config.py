@@ -28,7 +28,8 @@ class Settings(BaseSettings):
 
     # 数据路径
     DATA_DIR: Path = BASE_DIR / "backend" / "data"
-    CRAWLER_DATA_DIR: Path = BASE_DIR / "crawler" / "MediaCrawler" / "data"
+    # 简化版爬虫数据目录（无需 MediaCrawler 子模块）
+    CRAWLER_DATA_DIR: Path = BASE_DIR / "backend" / "data" / "crawler_output"
     KNOWLEDGE_DIR: Path = BASE_DIR / "knowledge" / "raw"
 
     # API 配置
