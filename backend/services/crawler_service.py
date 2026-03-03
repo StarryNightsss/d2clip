@@ -94,7 +94,7 @@ class CrawlerService:
 
         keywords_list = [kw.strip() for kw in keywords.split(',') if kw.strip()] if keywords else ["口红"]
 
-        self._add_log(f"开始爬取 {platform} 平台，类型: {crawler_type}")
+        self._add_log(f"[xhs_simple] 开始爬取 {platform} 平台，类型: {crawler_type}")
         self._add_log(f"关键词数量: {len(keywords_list)}，关键词: {', '.join(keywords_list)}")
         self._add_log(f"目标笔记数: {max_notes_count}，评论: {'开启' if enable_comments else '关闭'}")
 
@@ -162,13 +162,14 @@ class CrawlerService:
             from crawler import XhsCrawler
 
             cookie_file = _project_root / "crawler_config" / "xhs_cookies_default.txt"
+            log_fn = lambda msg, level="info": self._add_log(msg, level)
 
             if cookies:
                 self._add_log("   📝 使用自定义 Cookie")
-                crawler = XhsCrawler(cookie=cookies)
+                crawler = XhsCrawler(cookie=cookies, log_fn=log_fn)
             elif cookie_file.exists():
                 self._add_log(f"   📄 使用 Cookie 文件: {cookie_file.name}")
-                crawler = XhsCrawler(cookie_file=str(cookie_file))
+                crawler = XhsCrawler(cookie_file=str(cookie_file), log_fn=log_fn)
             else:
                 raise FileNotFoundError(f"Cookie 文件不存在: {cookie_file}")
 

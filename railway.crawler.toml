@@ -1,4 +1,7 @@
-# Railway 爬虫服务专用配置（在 Railway 里将此服务指向此文件）
+# [已废弃] Railway 爬虫服务专用配置（MediaCrawler 旧架构）
+# 当前版本已使用 xhs_simple 集成在主后端，爬虫与主服务同端口，无需单独爬虫服务。
+# 若仍使用本配置会运行 MediaCrawler，与主后端不一致。请使用 railway.toml 单服务部署。
+#
 # 使用方式：Railway 新建服务后，Settings → Config file path 填 railway.crawler.toml
 
 # Docker 部署（解决 libGL/OpenCV 依赖，推荐）

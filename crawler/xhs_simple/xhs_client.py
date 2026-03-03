@@ -1,16 +1,25 @@
 """小红书客户端（使用 Playwright + httpx）"""
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Callable, Optional
 import json
 from playwright.sync_api import sync_playwright
 import httpx
 from playwright_sign import sign_with_playwright
 
 
+def _noop_log(msg: str, level: str = "info"):
+    print(msg)
+
+
 class XhsClient:
     """小红书 API 客户端（使用 Playwright 模拟浏览器）"""
 
-    def __init__(self, cookie: str = None, cookie_file: str = None):
+    def __init__(
+        self,
+        cookie: str = None,
+        cookie_file: str = None,
+        log_fn: Optional[Callable[[str, str], None]] = None,
+    ):
         if cookie:
             self.cookie_str = cookie
         elif cookie_file:
@@ -18,6 +27,7 @@ class XhsClient:
         else:
             raise ValueError("必须提供 cookie 或 cookie_file")
 
+        self._log = log_fn or _noop_log
         self.playwright = None
         self.browser = None
         self.context = None
@@ -86,7 +96,7 @@ class XhsClient:
             response = response_info.value
             api_data = response.json()
 
-            print(f"API 响应: {api_data.get('code')}, {api_data.get('msg')}")
+            self._log(f"API 响应: {api_data.get('code')}, {api_data.get('msg')}")
 
             if api_data.get('success'):
                 return api_data.get('data', {})
@@ -94,7 +104,7 @@ class XhsClient:
                 return {"items": [], "has_more": False}
 
         except Exception as e:
-            print(f"搜索失败: {e}")
+            self._log(f"搜索失败: {e}", "error")
             return {"items": [], "has_more": False}
 
     def get_note_comments(self, note_id: str, xsec_token: str = "", cursor: str = "") -> Dict:

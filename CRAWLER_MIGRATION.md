@@ -96,3 +96,13 @@ backend/data/crawler_output/xhs/json/
 ```
 
 分析服务会自动从 `CRAWLER_DATA_DIR` 读取上述文件。
+
+## Railway / Vercel 部署（避免继续调用 MediaCrawler）
+
+**问题**：若之前配置过 `VITE_CRAWLER_API_BASE` 指向单独的爬虫服务（MediaCrawler），前端会继续请求旧服务，日志里会出现 MediaCrawler 路径。
+
+**正确做法**：
+
+1. **Vercel 环境变量**：只设置 `VITE_ANALYSIS_API_BASE` 指向主后端 URL（如 `https://xxx.up.railway.app/api`）。**不要设置** `VITE_CRAWLER_API_BASE`。
+2. **Railway 服务**：只保留一个主后端服务（使用 `railway.toml`）。若之前有单独的爬虫服务（使用 `railway.crawler.toml` / `Dockerfile.crawler`），请删除或停用。
+3. **验证**：爬虫启动后，终端应出现 `[xhs_simple] 开始爬取...`。若看到 `MediaCrawler`、`BrowserLauncher` 等字样，说明仍在调用旧服务。

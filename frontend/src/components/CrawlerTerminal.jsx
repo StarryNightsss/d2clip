@@ -1,4 +1,4 @@
-/** 爬虫实时日志终端 - 直接轮询后端 /api/crawler/logs */
+/** 爬虫实时日志终端 - 轮询 /api/crawler/logs，API 地址由 api.js 的 VITE_ANALYSIS_API_BASE 配置 */
 import { useState, useEffect, useRef } from 'react'
 import { crawlerAPI } from '../services/api'
 
@@ -10,22 +10,34 @@ const levelColors = {
   debug: '#a5b1c2',
 }
 
+// 带超时的 getLogs，避免爬虫启动时后端繁忙导致一直「正在连接」
+const fetchLogsWithTimeout = (ms = 8000) => {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), ms)
+  return crawlerAPI.getLogs(100, ctrl.signal).finally(() => clearTimeout(timer))
+}
+
 const CrawlerTerminal = ({ active = true }) => {
   const [logs, setLogs] = useState([])
+  const [error, setError] = useState(null)
+  const [hasConnected, setHasConnected] = useState(false)
   const containerRef = useRef(null)
 
-  // 当 active 时，每 1 秒轮询后端日志
   useEffect(() => {
     if (!active) return
 
     const fetchLogs = async () => {
       try {
-        const res = await crawlerAPI.getLogs(100)
+        const res = await fetchLogsWithTimeout()
+        setError(null)
+        setHasConnected(true)
         if (res?.logs && Array.isArray(res.logs)) {
           setLogs(res.logs)
         }
       } catch (e) {
-        console.warn('CrawlerTerminal 获取日志失败:', e)
+        const msg = e.name === 'AbortError' ? '请求超时，请稍候刷新' : (e.message || '无法连接后端')
+        setError(msg)
+        setHasConnected(true)
       }
     }
 
@@ -39,6 +51,14 @@ const CrawlerTerminal = ({ active = true }) => {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
   }, [logs])
+
+  const emptyMessage = logs.length === 0
+    ? (error
+        ? `连接失败: ${error}，请检查后端是否启动及 VITE_ANALYSIS_API_BASE 配置`
+        : hasConnected
+          ? '暂无日志，爬虫运行中...'
+          : '正在连接...')
+    : null
 
   return (
     <div
@@ -54,8 +74,8 @@ const CrawlerTerminal = ({ active = true }) => {
         lineHeight: '1.6',
       }}
     >
-      {logs.length === 0 && (
-        <div style={{ color: '#95a5a6' }}>等待爬虫启动...</div>
+      {emptyMessage && (
+        <div style={{ color: error ? '#ff4757' : '#95a5a6' }}>{emptyMessage}</div>
       )}
       {logs.map((log, idx) => {
         const color = levelColors[log.level] || '#ecf0f1'

@@ -1,6 +1,8 @@
-// API 服务层（爬虫已集成到主后端，统一使用 8000 端口）
-const ANALYSIS_API_BASE = import.meta.env.VITE_ANALYSIS_API_BASE || 'http://localhost:8000/api'
-const CRAWLER_API_BASE = import.meta.env.VITE_CRAWLER_API_BASE || ANALYSIS_API_BASE
+// API 服务层：后端地址由环境变量配置，部署时在构建平台设置 VITE_ANALYSIS_API_BASE
+// 爬虫已集成到主后端（xhs_simple），爬虫和数据分析使用同一 API 地址，不要设置 VITE_CRAWLER_API_BASE
+const ANALYSIS_API_BASE = import.meta.env.VITE_ANALYSIS_API_BASE
+  || (import.meta.env.DEV ? 'http://localhost:8000/api' : `${window.location.origin}/api`)
+const CRAWLER_API_BASE = ANALYSIS_API_BASE
 
 // 通用请求封装（注意：crawler/data 与 analysis 同端口）
 const request = async (url, options = {}, baseUrl = ANALYSIS_API_BASE) => {
@@ -39,8 +41,9 @@ export const crawlerAPI = {
   // 获取爬虫状态
   getStatus: () => request('/crawler/status', {}, CRAWLER_API_BASE),
 
-  // 获取日志
-  getLogs: (limit = 100) => request(`/crawler/logs?limit=${limit}`, {}, CRAWLER_API_BASE),
+  // 获取日志（可选 signal 用于超时中断）
+  getLogs: (limit = 100, signal) =>
+    request(`/crawler/logs?limit=${limit}`, { signal }, CRAWLER_API_BASE),
 }
 
 // 分析相关 API（新后端）

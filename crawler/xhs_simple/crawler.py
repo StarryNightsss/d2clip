@@ -2,18 +2,30 @@
 import json
 import time
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Callable, Optional
 from datetime import datetime
 
 from xhs_client import XhsClient
 from data_formatter import DataFormatter
 
 
+def _default_log(msg: str):
+    print(msg)
+
+
 class XhsCrawler:
     """小红书爬虫"""
 
-    def __init__(self, cookie: str = None, cookie_file: str = None, output_dir: str = None):
-        self.client = XhsClient(cookie=cookie, cookie_file=cookie_file)
+    def __init__(
+        self,
+        cookie: str = None,
+        cookie_file: str = None,
+        output_dir: str = None,
+        log_fn: Optional[Callable[[str, str], None]] = None,
+    ):
+        """log_fn(message, level) 用于将日志输出到前端；不传则使用 print"""
+        self._log = log_fn or (lambda m, l="info": _default_log(m))
+        self.client = XhsClient(cookie=cookie, cookie_file=cookie_file, log_fn=self._log)
         self.formatter = DataFormatter()
 
         # 默认输出到 backend/data/crawler_output（无需 MediaCrawler 子模块）
@@ -32,9 +44,9 @@ class XhsCrawler:
         crawl_comments: bool = True
     ) -> Dict:
         """根据关键词爬取笔记和评论"""
-        print(f"\n🔍 开始爬取关键词: {keyword}")
-        print(f"   目标笔记数: {max_notes}")
-        print(f"   每条笔记评论数: {max_comments_per_note}")
+        self._log(f"\n🔍 开始爬取关键词: {keyword}")
+        self._log(f"   目标笔记数: {max_notes}")
+        self._log(f"   每条笔记评论数: {max_comments_per_note}")
 
         # 1. 搜索笔记
         all_notes = []
@@ -43,7 +55,7 @@ class XhsCrawler:
 
         while len(all_notes) < max_notes:
             try:
-                print(f"\n📄 正在获取第 {page} 页...")
+                self._log(f"\n📄 正在获取第 {page} 页...")
                 result = self.client.search_notes(
                     keyword=keyword,
                     page=page,
@@ -52,7 +64,7 @@ class XhsCrawler:
 
                 items = result.get("items", [])
                 if not items:
-                    print("   ℹ️ 没有更多笔记了")
+                    self._log("   ℹ️ 没有更多笔记了")
                     break
 
                 # 提取笔记数据
@@ -66,24 +78,24 @@ class XhsCrawler:
 
                     formatted_note = self.formatter.format_note(item, keyword)
                     all_notes.append(formatted_note)
-                    print(f"   ✅ [{len(all_notes)}/{max_notes}] {formatted_note['title'][:30]}")
+                    self._log(f"   ✅ [{len(all_notes)}/{max_notes}] {formatted_note['title'][:30]}")
 
                 page += 1
                 time.sleep(1)  # 限速
 
             except Exception as e:
-                print(f"   ❌ 获取笔记失败: {e}")
+                self._log(f"   ❌ 获取笔记失败: {e}", "error")
                 break
 
-        print(f"\n✅ 共获取 {len(all_notes)} 条笔记")
+        self._log(f"\n✅ 共获取 {len(all_notes)} 条笔记", "success")
 
         # 2. 爬取评论
         all_comments = []
         if crawl_comments:
-            print(f"\n💬 开始爬取评论...")
+            self._log(f"\n💬 开始爬取评论...")
             for i, note in enumerate(all_notes):
                 note_id = note["note_id"]
-                print(f"   [{i+1}/{len(all_notes)}] {note['title'][:30]}")
+                self._log(f"   [{i+1}/{len(all_notes)}] {note['title'][:30]}")
 
                 try:
                     xsec_token = note.get("xsec_token", "")
@@ -97,14 +109,14 @@ class XhsCrawler:
                         comments, note_id
                     )
                     all_comments.extend(formatted_comments)
-                    print(f"       ✅ 获取 {len(formatted_comments)} 条评论")
+                    self._log(f"       ✅ 获取 {len(formatted_comments)} 条评论", "success")
 
                     time.sleep(1)  # 限速
 
                 except Exception as e:
-                    print(f"       ❌ 评论获取失败: {e}")
+                    self._log(f"       ❌ 评论获取失败: {e}", "error")
 
-            print(f"\n✅ 共获取 {len(all_comments)} 条评论")
+            self._log(f"\n✅ 共获取 {len(all_comments)} 条评论", "success")
 
         # 3. 保存数据
         date_str = datetime.now().strftime("%Y-%m-%d")
@@ -118,8 +130,8 @@ class XhsCrawler:
 
         relative_path = f"xhs/json/search_contents_{date_str}_{timestamp_suffix}.json"
         output_files["notes"] = relative_path
-        print(f"\n💾 笔记已保存: {notes_file}")
-        print(f"   相对路径: {relative_path}")
+        self._log(f"\n💾 笔记已保存: {notes_file}")
+        self._log(f"   相对路径: {relative_path}")
 
         # 保存评论
         if all_comments:
@@ -129,8 +141,8 @@ class XhsCrawler:
 
             relative_path_comments = f"xhs/json/search_comments_{date_str}_{timestamp_suffix}.json"
             output_files["comments"] = relative_path_comments
-            print(f"💾 评论已保存: {comments_file}")
-            print(f"   相对路径: {relative_path_comments}")
+            self._log(f"💾 评论已保存: {comments_file}")
+            self._log(f"   相对路径: {relative_path_comments}")
 
         return {
             "notes_count": len(all_notes),

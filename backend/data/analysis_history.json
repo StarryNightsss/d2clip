@@ -1,5 +1,15 @@
 [
   {
+    "analysis_id": "306dba43-df66-426f-a1fb-42c5cb83bf43",
+    "created_at": "2026-03-04T02:57:27.299206",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-04_024117.json",
+    "total_notes": 25,
+    "analyzed_notes": 25,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
     "analysis_id": "2d78572e-1950-4157-a4ba-1aa3e9148eef",
     "created_at": "2026-03-04T02:33:36.691004",
     "platform": "xhs",
