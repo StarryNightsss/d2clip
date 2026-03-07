@@ -236,42 +236,16 @@ const UserManagement = () => {
   }
 
   return (
-    <div>
-      {/* 页面标题 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-        padding: '40px 48px',
-        borderRadius: '16px',
-        marginBottom: '32px',
-        boxShadow: '0 8px 24px rgba(255, 107, 157, 0.3)'
-      }}>
-        <h1 style={{
-          color: 'white',
-          fontSize: '36px',
-          fontWeight: '700',
-          margin: 0,
-          marginBottom: '12px',
-          letterSpacing: '-0.5px'
-        }}>
-          <TeamOutlined style={{ marginRight: '12px' }} />
-          职员管理
-        </h1>
-        <p style={{
-          color: 'rgba(255, 255, 255, 0.9)',
-          fontSize: '16px',
-          margin: 0,
-          fontWeight: '400'
-        }}>
-          管理系统用户、分配部门权限
-        </p>
-      </div>
+    <div className="page-wrap">
+      <header className="page-header animate-fade-in">
+        <h1 className="page-title">职员管理</h1>
+        <p className="page-subtitle">管理系统用户、分配部门权限</p>
+      </header>
 
-      {/* 操作栏 */}
       <Card
+        className="card-hover page-module animate-slide-up"
         style={{
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          border: 'none',
+          borderRadius: '20px',
           marginBottom: '24px'
         }}
         bodyStyle={{ padding: '24px' }}
@@ -303,11 +277,9 @@ const UserManagement = () => {
       </Card>
 
       {/* 用户列表 */}
-      <div style={{
-        background: 'white',
+      <div className="card-hover page-module animate-slide-up" style={{
         padding: '32px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
+        borderRadius: '20px'
       }}>
         <Table
           columns={columns}

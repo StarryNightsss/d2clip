@@ -1,5 +1,5 @@
-import { Card, Form, Input, Select, Button, Space, Alert, Row, Col, Divider, message, Table, Tag, Progress } from 'antd'
-import { PlayCircleOutlined, CheckCircleOutlined, RocketOutlined, DatabaseOutlined, HistoryOutlined, ThunderboltOutlined, EyeOutlined, ReloadOutlined, DeleteOutlined, StopOutlined } from '@ant-design/icons'
+import { Card, Form, Input, Select, Button, Space, Alert, Row, Col, Divider, message, Table, Tag, Progress, Carousel } from 'antd'
+import { PlayCircleOutlined, CheckCircleOutlined, RocketOutlined, DatabaseOutlined, HistoryOutlined, ThunderboltOutlined, EyeOutlined, ReloadOutlined, DeleteOutlined, StopOutlined, MobileOutlined, SearchOutlined, CommentOutlined, LoginOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { crawlerAPI, dataAPI, analysisAPI } from '../services/api'
@@ -273,106 +273,119 @@ const AnalysisWorkbench = () => {
   }
 
   return (
-    <div>
-      {/* 页面标题 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #ffa6c1 0%, #ff6b9d 100%)',
-        padding: '40px 48px',
-        borderRadius: '16px',
-        marginBottom: '32px',
-        boxShadow: '0 8px 24px rgba(255, 107, 157, 0.2)'
-      }}>
-        <h1 style={{
-          color: 'white',
-          fontSize: '36px',
-          fontWeight: '700',
-          margin: 0,
-          marginBottom: '12px',
-          letterSpacing: '-0.5px'
-        }}>
-          <ThunderboltOutlined style={{ marginRight: '12px' }} />
-          分析工作台
-        </h1>
-        <p style={{
-          color: 'rgba(255, 255, 255, 0.9)',
-          fontSize: '16px',
-          margin: 0,
-          fontWeight: '400'
-        }}>
-          配置数据采集参数，启动AI智能分析，生成专业趋势报告
-        </p>
-      </div>
-
-      {/* Lottie 动画：独立页面 iframe 嵌入，覆盖原步骤 1～3 整行 */}
-      <div className="workbench-hero-wrap">
-        <div className="workbench-lottie-inner">
-          <iframe
-            title="Kiss Lottie"
-            src="/lottie-player.html"
-            className="workbench-lottie-iframe"
-          />
+    <div className="workbench-page-wrap">
+      {/* 页面标题：与 else Workbench 一致，列在最上面 */}
+      <header className="workbench-page-header">
+        <div>
+          <h1 className="workbench-page-title">分析工作台</h1>
+          <p className="workbench-page-subtitle">配置数据采集参数，启动AI智能分析，生成专业趋势报告</p>
         </div>
-      </div>
+      </header>
 
-      {/* 配置表单 */}
-      <Card
-        style={{
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          border: 'none',
-          marginBottom: '24px'
-        }}
-        bodyStyle={{ padding: '40px' }}
-      >
-        <div style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#2d3436',
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <DatabaseOutlined style={{ marginRight: '12px', color: '#ff6b9d' }} />
-          数据采集配置
+      <Form form={form} layout="vertical" size="large">
+        {/* 上部四卡片：采集平台、爬虫类型、采集数据量、采集评论（模仿 else Workbench） */}
+        <div className="workbench-stats-row animate-fade-in">
+          <div className="workbench-stat-card">
+            <div className="workbench-stat-icon"><MobileOutlined style={{ fontSize: 26 }} /></div>
+            <div className="workbench-stat-body">
+              <div className="workbench-stat-label">采集平台</div>
+              <div className="workbench-stat-control">
+                <Form.Item name="platforms" initialValue={['xhs']} rules={[{ required: true, message: '请选择平台' }]} noStyle>
+                  <Select
+                    placeholder="请选择"
+                    style={{ fontSize: '14px' }}
+                    options={[{ value: 'xhs', label: '📱 小红书' }]}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <span className="workbench-stat-deco" aria-hidden="true">📱</span>
+          </div>
+          <div className="workbench-stat-card">
+            <div className="workbench-stat-icon"><SearchOutlined style={{ fontSize: 26 }} /></div>
+            <div className="workbench-stat-body">
+              <div className="workbench-stat-label">爬取类型</div>
+              <div className="workbench-stat-control">
+                <Form.Item name="crawlerType" initialValue="search" noStyle>
+                  <Select
+                    style={{ fontSize: '14px' }}
+                    options={[{ value: 'search', label: '🔍 关键词搜索' }]}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <span className="workbench-stat-deco" aria-hidden="true">🔍</span>
+          </div>
+          <div className="workbench-stat-card">
+            <div className="workbench-stat-icon"><LoginOutlined style={{ fontSize: 26 }} /></div>
+            <div className="workbench-stat-body">
+              <div className="workbench-stat-label">登录方式</div>
+              <div className="workbench-stat-control">
+                <Form.Item name="loginType" initialValue="cookie" noStyle>
+                  <Select
+                    style={{ fontSize: '14px' }}
+                    options={[
+                      { value: 'cookie', label: '🍪 Cookie 登录（推荐）' },
+                      { value: 'qrcode', label: '📱 二维码扫码登录' },
+                      { value: 'phone', label: '📞 手机号登录' }
+                    ]}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <span className="workbench-stat-deco" aria-hidden="true">🔐</span>
+          </div>
+          <div className="workbench-stat-card">
+            <div className="workbench-stat-icon"><CommentOutlined style={{ fontSize: 26 }} /></div>
+            <div className="workbench-stat-body">
+              <div className="workbench-stat-label">采集评论</div>
+              <div className="workbench-stat-control">
+                <Form.Item name="enableComments" initialValue={true} noStyle>
+                  <Select
+                    style={{ fontSize: '14px' }}
+                    options={[
+                      { value: true, label: '✅ 采集评论' },
+                      { value: false, label: '❌ 不采集' }
+                    ]}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <span className="workbench-stat-deco" aria-hidden="true">💬</span>
+          </div>
         </div>
-        <p style={{ fontSize: '15px', color: '#636e72', marginBottom: '32px' }}>
-          选择数据来源平台、配置关键词和采集参数
-        </p>
 
-        <Form form={form} layout="vertical" size="large">
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="platforms"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>采集平台</span>}
-                initialValue={['xhs']}
-                rules={[{ required: true, message: '请选择平台' }]}
-              >
-                <Select
-                  placeholder="请选择采集平台"
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: 'xhs', label: '📱 小红书' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                name="crawlerType"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>爬取类型</span>}
-                initialValue="search"
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: 'search', label: '🔍 关键词搜索' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+        {/* 左右布局：左侧 数据采集配置 + 轮播图，右侧 AI 智能分析，两列等高 */}
+        <div className="workbench-config-row">
+          <div className="workbench-config-left">
+            <div className="workbench-config-left-inner">
+            <Card
+              className="card-hover workbench-content-card"
+              style={{
+                borderRadius: '20px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                marginBottom: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
+              }}
+              bodyStyle={{ padding: '40px' }}
+            >
+              <div style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#2d3436',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <DatabaseOutlined style={{ marginRight: '12px', color: '#ff6b9d' }} />
+                数据采集配置
+              </div>
+          <p style={{ fontSize: '15px', color: '#636e72', marginBottom: '32px' }}>
+            选择数据来源平台、配置关键词和采集参数
+          </p>
 
           <Form.Item
             name="keywords"
@@ -398,486 +411,311 @@ const AnalysisWorkbench = () => {
             <Select
               style={{ fontSize: '15px' }}
               options={[
-                { value: 10, label: '10 条数据' },
-                { value: 25, label: '25 条数据' },
-                { value: 50, label: '50 条数据' },
-                { value: 100, label: '100 条数据（推荐）' }
+                { value: 10, label: '10 条' },
+                { value: 25, label: '25 条' },
+                { value: 50, label: '50 条' },
+                { value: 100, label: '100 条（推荐）' }
               ]}
             />
           </Form.Item>
-          <div style={{ fontSize: '13px', color: '#95a5a6', marginTop: '8px' }}>
-            控制 AI 分析的数据条数，数量越多分析时间越长
+            </Card>
+
+            {/* 左侧轮播图卡片：填满与右侧 AI 智能分析的高度差 */}
+            <div className="workbench-left-carousel-wrap">
+              <Card
+                className="workbench-left-carousel-card"
+                bodyStyle={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}
+              >
+                <Carousel autoplay autoplaySpeed={4000} effect="fade" dotPosition="bottom" className="workbench-left-carousel">
+                  <div className="workbench-carousel-slide workbench-carousel-slide-1">
+                    <span className="workbench-carousel-title">数据驱动 · 趋势洞察</span>
+                    <span className="workbench-carousel-desc">配置采集参数，一键启动智能分析</span>
+                  </div>
+                  <div className="workbench-carousel-slide workbench-carousel-slide-2">
+                    <span className="workbench-carousel-title">小红书笔记分析</span>
+                    <span className="workbench-carousel-desc">关键词搜索，采集笔记与评论</span>
+                  </div>
+                  <div className="workbench-carousel-slide workbench-carousel-slide-3">
+                    <span className="workbench-carousel-title">AI 报告生成</span>
+                    <span className="workbench-carousel-desc">妆容风格、口红色调、用户关键词提取</span>
+                  </div>
+                </Carousel>
+              </Card>
+            </div>
+            </div>
           </div>
 
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="loginType"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>登录方式</span>}
-                initialValue="cookie"
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: 'cookie', label: '🍪 Cookie 登录（推荐）' },
-                    { value: 'qrcode', label: '📱 二维码扫码登录' },
-                    { value: 'phone', label: '📞 手机号登录' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
+          <div className="workbench-config-right">
+            <Card
+              className="workbench-content-card"
+              style={{
+                borderRadius: '20px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                marginBottom: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
+              }}
+              bodyStyle={{ padding: '40px' }}
+            >
+              <div style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#2d3436',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <RocketOutlined style={{ marginRight: '12px', color: '#ff6b9d' }} />
+                AI 智能分析
+              </div>
+              <p style={{ fontSize: '15px', color: '#636e72', marginBottom: '32px' }}>
+                使用大模型提取妆容风格、口红特征、用户关键词等信息
+              </p>
 
-            <Col span={12}>
-              <Form.Item
-                name="startPage"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>起始页</span>}
-                initialValue={1}
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: 1, label: '第 1 页' },
-                    { value: 2, label: '第 2 页' },
-                    { value: 3, label: '第 3 页' },
-                    { value: 5, label: '第 5 页' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+              {/* idle状态：两个步骤上下排列，卡片风格 + hover 右移 */}
+              {status === 'idle' && (
+                <Row gutter={[24, 32]} className="workbench-ai-steps-row">
+                  <Col span={24} className="workbench-ai-step-first">
+                    <div className="workbench-ai-step-card" onClick={handleStart}>
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap">🕷️</div>
+                        <div className="workbench-ai-step-title">步骤1：采集数据</div>
+                        <div className="workbench-ai-step-desc">从社交平台爬取笔记和评论数据</div>
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<PlayCircleOutlined />}
+                          onClick={(e) => { e.stopPropagation(); handleStart(); }}
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)',
+                            border: 'none',
+                            boxShadow: '0 8px 24px rgba(253, 203, 110, 0.4)'
+                          }}
+                        >
+                          启动爬虫
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div className="workbench-ai-step-card workbench-ai-step-card--disabled">
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap">🤖</div>
+                        <div className="workbench-ai-step-title">步骤2：AI分析</div>
+                        <div className="workbench-ai-step-desc">使用AI分析刚刚采集的数据，生成报告（需先完成步骤1采集）</div>
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<RocketOutlined />}
+                          disabled
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(255, 107, 157, 0.3)',
+                            opacity: 0.6
+                          }}
+                        >
+                          AI智能分析（请先完成采集）
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              )}
 
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="enableComments"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>采集评论</span>}
-                initialValue={true}
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: true, label: '✅ 采集评论（推荐）' },
-                    { value: false, label: '❌ 不采集评论' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
+              {/* analyzing状态：上侧爬虫运行中，下侧AI分析不可点 */}
+              {status === 'analyzing' && (
+                <Row gutter={[24, 32]} className="workbench-ai-steps-row">
+                  <Col span={24} className="workbench-ai-step-first">
+                    <div className="workbench-ai-step-card">
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap">⚡</div>
+                        <div className="workbench-ai-step-title">正在采集数据中...</div>
+                        <div className="workbench-ai-step-desc">爬虫正在运行，请保持浏览器打开</div>
+                        <div style={{
+                          background: 'rgba(255,255,255,0.8)',
+                          padding: '20px',
+                          borderRadius: '12px',
+                          marginBottom: '20px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                        }}>
+                          <Progress
+                            percent={Math.floor(mockProgress)}
+                            status="active"
+                            strokeColor={{ '0%': '#fdcb6e', '100%': '#e17055' }}
+                            strokeWidth={10}
+                          />
+                          <p style={{ marginTop: '12px', fontSize: '13px', color: '#636e72' }}>
+                            {mockProgress < 30 && '正在初始化爬虫...'}
+                            {mockProgress >= 30 && mockProgress < 60 && '正在采集数据...'}
+                            {mockProgress >= 60 && mockProgress < 85 && '数据采集中...'}
+                            {mockProgress >= 85 && mockProgress < 95 && '正在整理数据...'}
+                            {mockProgress >= 95 && '等待爬虫完成...'}
+                          </p>
+                        </div>
+                        <div style={{ marginBottom: '20px' }}>
+                          <CrawlerTerminal active={true} />
+                        </div>
+                        <Button
+                          danger
+                          size="large"
+                          icon={<StopOutlined />}
+                          onClick={handleStop}
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px'
+                          }}
+                        >
+                          停止采集
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div className="workbench-ai-step-card workbench-ai-step-card--disabled">
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap">🤖</div>
+                        <div className="workbench-ai-step-title">AI智能分析</div>
+                        <div className="workbench-ai-step-desc">请等待采集完成后再分析，将使用本次刚采集的数据</div>
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<RocketOutlined />}
+                          disabled
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(255, 107, 157, 0.3)',
+                            opacity: 0.6
+                          }}
+                        >
+                          请先完成采集
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              )}
 
-            <Col span={12}>
-              <Form.Item
-                name="enableSubComments"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>采集子评论</span>}
-                initialValue={false}
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: false, label: '❌ 不采集子评论（推荐）' },
-                    { value: true, label: '✅ 采集子评论（耗时）' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="saveOption"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>保存格式</span>}
-                initialValue="json"
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: 'json', label: '📄 JSON（推荐）' },
-                    { value: 'csv', label: '📊 CSV' },
-                    { value: 'excel', label: '📗 Excel' },
-                    { value: 'db', label: '💾 数据库' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                name="headless"
-                label={<span style={{ fontSize: '16px', fontWeight: '600', color: '#2d3436' }}>无头模式</span>}
-                initialValue={false}
-              >
-                <Select
-                  style={{ fontSize: '15px' }}
-                  options={[
-                    { value: false, label: '❌ 显示浏览器（推荐）' },
-                    { value: true, label: '✅ 无头模式（后台运行）' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Card>
-
-      {/* 分析执行 */}
-      <Card
-        style={{
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          border: 'none',
-          marginBottom: '24px'
-        }}
-        bodyStyle={{ padding: '40px' }}
-      >
-        <div style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#2d3436',
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <RocketOutlined style={{ marginRight: '12px', color: '#ff6b9d' }} />
-          AI 智能分析
+              {/* completed状态：上侧爬虫完成，下侧AI分析可点击 */}
+              {status === 'completed' && (
+                <Row gutter={[24, 32]} className="workbench-ai-steps-row">
+                  <Col span={24} className="workbench-ai-step-first">
+                    <div className="workbench-ai-step-card workbench-ai-step-card--success">
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap" style={{ color: '#00b894', background: 'rgba(0, 184, 148, 0.12)' }}>
+                          <CheckCircleOutlined style={{ fontSize: 22 }} />
+                        </div>
+                        <div className="workbench-ai-step-title">数据采集完成！</div>
+                        <div className="workbench-ai-step-desc">
+                          {completedStats ? (
+                            <>共采集 {completedStats.total_notes || 0} 条笔记{completedStats.total_comments > 0 && `，${completedStats.total_comments} 条评论`}</>
+                          ) : (
+                            '数据已保存到本地'
+                          )}
+                        </div>
+                        <Button
+                          size="large"
+                          icon={<ReloadOutlined />}
+                          onClick={() => {
+                            setStatus('idle')
+                            setAnalyzing(false)
+                            setMockProgress(0)
+                            setCompletedStats(null)
+                            message.info('可以重新配置参数并开始新的采集')
+                          }}
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px'
+                          }}
+                        >
+                          重新采集
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div
+                      className="workbench-ai-step-card workbench-ai-step-card--highlight"
+                      onClick={() => navigate('/report?auto=true')}
+                    >
+                      <div className="workbench-ai-step-card-inner">
+                        <div className="workbench-ai-step-icon-wrap">🤖</div>
+                        <div className="workbench-ai-step-title">开始AI分析</div>
+                        <div className="workbench-ai-step-desc">使用AI分析本次刚采集的数据，提取风格、色调并生成专业报告</div>
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<RocketOutlined />}
+                          onClick={(e) => { e.stopPropagation(); navigate('/report?auto=true'); }}
+                          style={{
+                            height: '48px',
+                            padding: '0 32px',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+                            border: 'none',
+                            boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)'
+                          }}
+                        >
+                          AI智能分析（分析本次采集数据） →
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              )}
+            </Card>
+          </div>
         </div>
-        <p style={{ fontSize: '15px', color: '#636e72', marginBottom: '32px' }}>
-          使用大模型提取妆容风格、口红特征、用户关键词等信息
-        </p>
+      </Form>
 
-        {/* idle状态：两个独立按钮 */}
-        {status === 'idle' && (
-          <Row gutter={24}>
-            {/* 左侧：启动爬虫 */}
-            <Col span={12}>
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 32px',
-                background: 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)',
-                borderRadius: '12px',
-                height: '100%'
-              }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px' }}>🕷️</div>
-                <p style={{
-                  color: '#2d3436',
-                  marginBottom: '24px',
-                  fontSize: '18px',
-                  fontWeight: '600'
-                }}>
-                  步骤1：采集数据
-                </p>
-                <p style={{
-                  color: '#636e72',
-                  marginBottom: '24px',
-                  fontSize: '14px'
-                }}>
-                  从社交平台爬取笔记和评论数据
-                </p>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<PlayCircleOutlined />}
-                  onClick={handleStart}
-                  style={{
-                    height: '56px',
-                    padding: '0 48px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    borderRadius: '28px',
-                    background: 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)',
-                    border: 'none',
-                    boxShadow: '0 8px 24px rgba(253, 203, 110, 0.4)'
-                  }}
-                >
-                  启动爬虫
-                </Button>
-              </div>
-            </Col>
-
-            {/* 右侧：AI智能分析 */}
-            <Col span={12}>
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 32px',
-                background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-                borderRadius: '12px',
-                height: '100%'
-              }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px' }}>🤖</div>
-                <p style={{
-                  color: '#2d3436',
-                  marginBottom: '24px',
-                  fontSize: '18px',
-                  fontWeight: '600'
-                }}>
-                  步骤2：AI分析
-                </p>
-                <p style={{
-                  color: '#636e72',
-                  marginBottom: '24px',
-                  fontSize: '14px'
-                }}>
-                  使用AI分析刚刚采集的数据，生成报告（需先完成步骤1采集）
-                </p>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<RocketOutlined />}
-                  onClick={() => navigate('/report?auto=true')}
-                  disabled
-                  style={{
-                    height: '56px',
-                    padding: '0 48px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    borderRadius: '28px',
-                    background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-                    border: 'none',
-                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)',
-                    opacity: 0.6
-                  }}
-                >
-                  AI智能分析（请先完成采集）
-                </Button>
-              </div>
-            </Col>
-          </Row>
-        )}
-
-        {/* analyzing状态：左侧爬虫运行中，右侧AI分析不可点 */}
-        {status === 'analyzing' && (
-          <Row gutter={24}>
-            {/* 左侧：爬虫运行中 */}
-            <Col span={12}>
-              <div style={{
-                background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-                padding: '40px 32px',
-                borderRadius: '12px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px' }}>⚡</div>
-                <div style={{ fontSize: '20px', fontWeight: '600', color: '#01579b', marginBottom: '12px' }}>
-                  正在采集数据中...
-                </div>
-                <div style={{ fontSize: '14px', color: '#0277bd', marginBottom: '24px' }}>
-                  爬虫正在运行，请保持浏览器打开
-                </div>
-
-                {/* Mock 进度条 */}
-                <div style={{
-                  background: 'white',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  marginBottom: '20px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                }}>
-                  <Progress
-                    percent={Math.floor(mockProgress)}
-                    status="active"
-                    strokeColor={{
-                      '0%': '#fdcb6e',
-                      '100%': '#e17055'
-                    }}
-                    strokeWidth={10}
-                  />
-                  <p style={{ marginTop: '12px', fontSize: '13px', color: '#636e72' }}>
-                    {mockProgress < 30 && '正在初始化爬虫...'}
-                    {mockProgress >= 30 && mockProgress < 60 && '正在采集数据...'}
-                    {mockProgress >= 60 && mockProgress < 85 && '数据采集中...'}
-                    {mockProgress >= 85 && mockProgress < 95 && '正在整理数据...'}
-                    {mockProgress >= 95 && '等待爬虫完成...'}
-                  </p>
-                </div>
-
-                {/* 实时日志显示 - CrawlerTerminal 直接轮询后端 */}
-                <div style={{ marginBottom: '20px' }}>
-                  <CrawlerTerminal active={true} />
-                </div>
-
-                <Button
-                  danger
-                  size="large"
-                  icon={<StopOutlined />}
-                  onClick={handleStop}
-                  style={{
-                    height: '48px',
-                    padding: '0 32px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    borderRadius: '24px'
-                  }}
-                >
-                  停止采集
-                </Button>
-              </div>
-            </Col>
-
-            {/* 右侧：采集未完成，AI分析不可点 */}
-            <Col span={12}>
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 32px',
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%)',
-                borderRadius: '12px',
-                height: '100%'
-              }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px', opacity: 0.6 }}>🤖</div>
-                <p style={{
-                  color: '#2d3436',
-                  marginBottom: '24px',
-                  fontSize: '18px',
-                  fontWeight: '600'
-                }}>
-                  AI智能分析
-                </p>
-                <p style={{
-                  color: '#636e72',
-                  marginBottom: '24px',
-                  fontSize: '14px'
-                }}>
-                  请等待采集完成后再分析，将使用本次刚采集的数据
-                </p>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<RocketOutlined />}
-                  disabled
-                  style={{
-                    height: '56px',
-                    padding: '0 48px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    borderRadius: '28px',
-                    background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-                    border: 'none',
-                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)',
-                    opacity: 0.6
-                  }}
-                >
-                  请先完成采集
-                </Button>
-              </div>
-            </Col>
-          </Row>
-        )}
-
-        {/* completed状态：左侧爬虫完成，右侧AI分析可点击，分析本次刚采集的数据 */}
-        {status === 'completed' && (
-          <Row gutter={24}>
-            {/* 左侧：爬虫完成 */}
-            <Col span={12}>
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 32px',
-                background: 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
-                borderRadius: '12px'
-              }}>
-                <CheckCircleOutlined
-                  style={{
-                    fontSize: '72px',
-                    color: '#00b894',
-                    marginBottom: '20px',
-                    display: 'block'
-                  }}
-                />
-                <p style={{
-                  fontSize: '20px',
-                  marginBottom: '12px',
-                  fontWeight: '600',
-                  color: '#2d3436'
-                }}>
-                  数据采集完成！
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#636e72',
-                  marginBottom: '24px'
-                }}>
-                  {completedStats ? (
-                    <>
-                      共采集 {completedStats.total_notes || 0} 条笔记
-                      {completedStats.total_comments > 0 && `，${completedStats.total_comments} 条评论`}
-                    </>
-                  ) : (
-                    '数据已保存到本地'
-                  )}
-                </p>
-                <Button
-                  size="large"
-                  icon={<ReloadOutlined />}
-                  onClick={() => {
-                    setStatus('idle')
-                    setAnalyzing(false)
-                    setMockProgress(0)
-                    setCompletedStats(null)
-                    message.info('可以重新配置参数并开始新的采集')
-                  }}
-                  style={{
-                    height: '48px',
-                    padding: '0 32px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    borderRadius: '24px'
-                  }}
-                >
-                  重新采集
-                </Button>
-              </div>
-            </Col>
-
-            {/* 右侧：AI分析 */}
-            <Col span={12}>
-              <div style={{
-                textAlign: 'center',
-                padding: '60px 32px',
-                background: 'linear-gradient(135deg, #fff5f8 0%, #ffe8f0 100%)',
-                borderRadius: '12px',
-                border: '2px solid #ff6b9d'
-              }}>
-                <div style={{ fontSize: '72px', marginBottom: '20px' }}>🤖</div>
-                <p style={{
-                  fontSize: '20px',
-                  marginBottom: '12px',
-                  fontWeight: '600',
-                  color: '#2d3436'
-                }}>
-                  开始AI分析
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#636e72',
-                  marginBottom: '24px'
-                }}>
-                  使用AI分析本次刚采集的数据，提取风格、色调并生成专业报告
-                </p>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<RocketOutlined />}
-                  onClick={() => navigate('/report?auto=true')}
-                  style={{
-                    height: '56px',
-                    padding: '0 48px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    borderRadius: '28px',
-                    background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-                    border: 'none',
-                    boxShadow: '0 8px 24px rgba(255, 107, 157, 0.4)'
-                  }}
-                >
-                  AI智能分析（分析本次采集数据） →
-                </Button>
-              </div>
-            </Col>
-          </Row>
-        )}
-      </Card>
+      {/* Lottie 动画：放在分析历史模块上方 */}
+      <div className="workbench-hero-wrap">
+        <div className="workbench-lottie-inner">
+          <iframe
+            title="Kiss Lottie"
+            src="/lottie-player.html"
+            className="workbench-lottie-iframe"
+          />
+        </div>
+      </div>
 
       {/* 分析历史 */}
       <Card
+        className="workbench-content-card"
         style={{
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          border: 'none'
+          borderRadius: '20px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+          border: '1px solid rgba(0, 0, 0, 0.04)',
+          marginBottom: '24px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)'
         }}
         bodyStyle={{ padding: '40px' }}
       >
@@ -940,7 +778,7 @@ const AnalysisWorkbench = () => {
             dataSource={historyData}
             loading={historyLoading}
             rowKey="analysis_id"
-            pagination={{ pageSize: 10 }}
+            pagination={{ pageSize: 5 }}
             columns={[
               {
                 title: '分析时间',
@@ -1027,6 +865,25 @@ const AnalysisWorkbench = () => {
           />
         )}
       </Card>
+
+      {/* 关键词云图分析 */}
+      <div className="workbench-wordcloud-card">
+        <div className="workbench-wordcloud-bar" />
+        <h3 className="workbench-wordcloud-title">关键词云图分析</h3>
+        <div className="workbench-wordcloud-tags">
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--lg workbench-wordcloud-tag--primary">清冷感</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--md workbench-wordcloud-tag--purple">多巴胺</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--xl workbench-wordcloud-tag--rose">伪素颜</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--sm workbench-wordcloud-tag--muted">哑光</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--md workbench-wordcloud-tag--muted">玻色因</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--sm workbench-wordcloud-tag--muted">早C晚A</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--xl workbench-wordcloud-tag--primary">纯欲风</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--md workbench-wordcloud-tag--purple">美拉德</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--sm workbench-wordcloud-tag--muted">落日妆</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--xs workbench-wordcloud-tag--muted">极简</span>
+          <span className="workbench-wordcloud-tag workbench-wordcloud-tag--md workbench-wordcloud-tag--light">高光</span>
+        </div>
+      </div>
     </div>
   )
 }

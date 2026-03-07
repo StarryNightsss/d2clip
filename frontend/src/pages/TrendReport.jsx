@@ -296,128 +296,131 @@ const TrendReport = () => {
   // 如果显示文件选择器（手动模式且未开始分析）
   if (showFileSelector) {
     return (
-      <div style={{ padding: '40px 48px' }}>
-        {/* 页面标题 */}
-        <div style={{
-          background: 'linear-gradient(135deg, #ffa6c1 0%, #ff6b9d 100%)',
-          padding: '40px 48px',
-          borderRadius: '16px',
-          marginBottom: '32px',
-          boxShadow: '0 8px 24px rgba(255, 107, 157, 0.2)'
-        }}>
-          <h1 style={{
-            color: 'white',
-            fontSize: '36px',
-            fontWeight: '700',
-            margin: 0,
-            marginBottom: '12px'
-          }}>
-            <FolderOpenOutlined style={{ marginRight: '12px' }} />
-            选择数据文件
-          </h1>
-          <p style={{
-            color: 'rgba(255, 255, 255, 0.9)',
-            fontSize: '16px',
-            margin: 0
-          }}>
-            选择历史采集数据，启动 AI 智能分析
-          </p>
-        </div>
+      <div className="page-wrap">
+        <header className="page-header animate-fade-in">
+          <h1 className="page-title">选择数据文件</h1>
+          <p className="page-subtitle">选择历史采集数据，启动 AI 智能分析</p>
+        </header>
 
-        {/* 文件选择界面 */}
-        <Card style={{ maxWidth: 800, margin: '0 auto', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <Alert
-              message="提示"
-              description="请选择爬虫采集的数据文件进行分析。系统会自动关联对应的评论数据。"
-              type="info"
-              showIcon
-            />
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
-                数据文件
-              </label>
-              <Select
-                placeholder="选择要分析的数据文件"
-                value={selectedFile}
-                onChange={setSelectedFile}
-                loading={loadingFiles}
-                style={{ width: '100%' }}
-                size="large"
-              >
-                {availableFiles.map(file => {
-                  const path = file.path || file.file_path
-                  const fileName = path.split('/').pop()
-                  const fileDate = fileName.match(/\d{4}-\d{2}-\d{2}/)?.[0] || ''
-                  return (
-                    <Select.Option key={path} value={path}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{fileName}</span>
-                        {fileDate && <span style={{ color: '#636e72', fontSize: '12px' }}>{fileDate}</span>}
-                      </div>
-                    </Select.Option>
-                  )
-                })}
-              </Select>
-              {availableFiles.length === 0 && !loadingFiles && (
-                <p style={{ color: '#636e72', fontSize: '14px', marginTop: '8px' }}>
-                  未找到数据文件，请先在分析工作台运行爬虫采集数据
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
-                分析数量
-              </label>
-              <InputNumber
-                min={1}
-                max={1000}
-                value={analysisLimit}
-                onChange={setAnalysisLimit}
-                placeholder="输入要分析的笔记数量"
-                style={{ width: '100%' }}
-                size="large"
-                addonAfter="条"
+        <div className="report-selector-row">
+          <div className="report-selector-form-wrap">
+            <Card className="glass card-hover animate-slide-up report-selector-card" style={{ borderRadius: '20px', height: '100%', display: 'flex', flexDirection: 'column' }} bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px' }}>
+            <Space direction="vertical" size="large" style={{ width: '100%', flex: 1 }}>
+              <Alert
+                message="提示"
+                description="请选择爬虫采集的数据文件进行分析。系统会自动关联对应的评论数据。"
+                type="info"
+                showIcon
               />
-              <p style={{ color: '#636e72', fontSize: '14px', marginTop: '8px' }}>
-                建议测试时使用较小数量（如 10 条），正式分析时可增加数量
-              </p>
-            </div>
 
-            <Divider />
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
+                  数据文件
+                </label>
+                <Select
+                  placeholder="选择要分析的数据文件"
+                  value={selectedFile}
+                  onChange={setSelectedFile}
+                  loading={loadingFiles}
+                  style={{ width: '100%' }}
+                  size="large"
+                >
+                  {availableFiles.map(file => {
+                    const path = file.path || file.file_path
+                    const fileName = path.split('/').pop()
+                    const fileDate = fileName.match(/\d{4}-\d{2}-\d{2}/)?.[0] || ''
+                    return (
+                      <Select.Option key={path} value={path}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>{fileName}</span>
+                          {fileDate && <span style={{ color: '#636e72', fontSize: '12px' }}>{fileDate}</span>}
+                        </div>
+                      </Select.Option>
+                    )
+                  })}
+                </Select>
+                {availableFiles.length === 0 && !loadingFiles && (
+                  <p style={{ color: '#636e72', fontSize: '14px', marginTop: '8px' }}>
+                    未找到数据文件，请先在分析工作台运行爬虫采集数据
+                  </p>
+                )}
+              </div>
 
-            <div style={{ textAlign: 'center' }}>
-              <Space size="large">
-                <Button
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
+                  分析数量
+                </label>
+                <InputNumber
+                  min={1}
+                  max={1000}
+                  value={analysisLimit}
+                  onChange={setAnalysisLimit}
+                  placeholder="输入要分析的笔记数量"
+                  style={{ width: '100%' }}
                   size="large"
-                  icon={<ArrowLeftOutlined />}
-                  onClick={() => navigate('/')}
-                >
-                  返回工作台
-                </Button>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<RocketOutlined />}
-                  onClick={handleStartAnalysis}
-                  disabled={!selectedFile || availableFiles.length === 0}
-                  style={{
-                    background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-                    border: 'none',
-                    height: '48px',
-                    padding: '0 40px',
-                    fontSize: '16px',
-                    fontWeight: '600'
-                  }}
-                >
-                  开始 AI 分析
-                </Button>
-              </Space>
-            </div>
-          </Space>
-        </Card>
+                  addonAfter="条"
+                />
+                <p style={{ color: '#636e72', fontSize: '14px', marginTop: '8px' }}>
+                  建议测试时使用较小数量（如 10 条），正式分析时可增加数量
+                </p>
+              </div>
+
+              <Divider />
+
+              <div style={{ textAlign: 'center' }}>
+                <Space size="large">
+                  <Button
+                    size="large"
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => navigate('/')}
+                  >
+                    返回工作台
+                  </Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<RocketOutlined />}
+                    onClick={handleStartAnalysis}
+                    disabled={!selectedFile || availableFiles.length === 0}
+                    style={{
+                      background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+                      border: 'none',
+                      height: '48px',
+                      padding: '0 40px',
+                      fontSize: '16px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    开始 AI 分析
+                  </Button>
+                </Space>
+              </div>
+            </Space>
+          </Card>
+          </div>
+
+          <div className="report-selector-lottie-wrap animate-slide-up">
+            <Card className="report-selector-lottie-card" bodyStyle={{ padding: 0, height: '100%' }}>
+              <div className="report-selector-lottie-grid">
+                {[
+                  { src: '/lottie/Love Calender.lottie', speed: 0.4 },
+                  { src: '/lottie/Love Lock.lottie', speed: 0.7 },
+                  { src: '/lottie/Love Message.lottie', speed: 0.7 },
+                  { src: '/lottie/Valentine Gift Box.lottie', speed: 0.7 }
+                ].map((item, i) => (
+                  <div key={i} className="report-selector-lottie-cell">
+                    <iframe
+                      title={`Lottie ${i + 1}`}
+                      src={`/lottie/player.html?src=${encodeURIComponent(item.src)}&fill=1&speed=${item.speed}`}
+                      className="report-selector-lottie-iframe"
+                      style={{ border: 'none', display: 'block' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     )
   }
@@ -691,16 +694,13 @@ const TrendReport = () => {
   }
 
   return (
-    <div style={{
-      maxWidth: 1400,
-      margin: '0 auto'
-    }}>
+    <div className="page-wrap" style={{ maxWidth: 1400 }}>
       {/* 工具栏 */}
       <Card
+        className="card-hover page-module animate-slide-up"
         style={{
           marginBottom: 20,
-          background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-          border: 'none'
+          borderRadius: '20px'
         }}
         bodyStyle={{ padding: '16px 24px' }}
       >
@@ -790,11 +790,9 @@ const TrendReport = () => {
       </Card>
 
       {/* 报告主体 */}
-      <div className="report-content" style={{
-        background: 'white',
+      <div className="report-content card-hover page-module animate-slide-up" style={{
         padding: '50px 60px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        borderRadius: '8px'
+        borderRadius: '20px'
       }}>
         {/* 标题（AI 生成） */}
         <div style={{ textAlign: 'center', marginBottom: 50, borderBottom: '3px solid #ff6b9d', paddingBottom: 30 }}>

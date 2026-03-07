@@ -50,7 +50,7 @@ const Login = () => {
   }
 
   return (
-    <div style={{
+    <div className="login-page" style={{
       height: '100vh',
       width: '100vw',
       backgroundImage: `url(${loginBg})`,
@@ -79,15 +79,18 @@ const Login = () => {
       }} />
 
       <Card
+        className="login-card-glass"
         style={{
           width: '100%',
           maxWidth: '480px',
-          borderRadius: '24px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
+          borderRadius: '28px',
+          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 107, 157, 0.06)',
           position: 'relative',
           zIndex: 10,
-          background: 'rgba(255, 255, 255, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.8)',
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
           maxHeight: '90vh',
           overflowY: 'auto'
         }}
@@ -105,7 +108,7 @@ const Login = () => {
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
-            boxShadow: '0 10px 30px rgba(255, 107, 157, 0.3)'
+            boxShadow: '0 12px 32px rgba(255, 107, 157, 0.25)'
           }}>
             <LipstickLottie size={70} />
           </div>
@@ -116,7 +119,7 @@ const Login = () => {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             marginBottom: '8px',
-            letterSpacing: '-0.5px'
+            letterSpacing: '-0.02em'
           }}>
             D2C 口红实验室
           </h1>
@@ -194,9 +197,10 @@ const Login = () => {
               htmlType="submit"
               loading={loading}
               block
+              className="login-btn-primary"
               style={{
                 height: '52px',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 fontSize: '16px',
                 fontWeight: '600',
                 background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
@@ -213,12 +217,12 @@ const Login = () => {
         <div style={{
           marginTop: '28px',
           padding: '20px',
-          background: 'linear-gradient(135deg, rgba(255, 182, 193, 0.2) 0%, rgba(255, 192, 203, 0.2) 100%)',
-          borderRadius: '12px',
+          background: 'var(--color-primary-pale, rgba(255, 228, 236, 0.5))',
+          borderRadius: '14px',
           fontSize: '13px',
           color: '#2d3436',
           lineHeight: '1.7',
-          border: '1px solid rgba(255, 182, 193, 0.3)'
+          border: '1px solid rgba(255, 107, 157, 0.15)'
         }}>
           <div style={{
             fontWeight: '600',

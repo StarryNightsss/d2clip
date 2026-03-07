@@ -131,7 +131,7 @@
       "https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=400&h=300&fit=crop"
     ],
     "likes": 42,
-    "comments": 18,
+    "comments": 19,
     "shares": 9,
     "tags": [
       "色彩方案",
@@ -271,6 +271,13 @@
         "role": "设计部门",
         "created_at": "2026-03-01T08:29:33.586137Z",
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin2"
+      },
+      {
+        "author": "testsss@admin.com",
+        "content": "wow",
+        "role": "产品部门",
+        "created_at": "2026-03-07T20:51:16.273855Z",
+        "avatar": "/kuromi-avatar.png"
       }
     ]
   },
@@ -653,5 +660,53 @@
     "attachments": [],
     "type": "report",
     "analysis_id": "fb7436d6-dc0b-48d4-ac86-b451bc3b6918"
+  },
+  {
+    "id": "faf41b08-c40f-4e6b-a73c-94ad047cded4",
+    "group_key": "product",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "产品部门",
+    "created_at": "2026-03-07T20:34:26.539691Z",
+    "title": "化妆风格与色彩分析报告",
+    "preview": "本报告分析了10条化妆笔记的数据，总体分析结果显示韩系妆容和自然裸妆占据了主导地位，各占60%。在色彩方面，珊瑚橘和裸色是主要选择，分别占50%和40%。关键词分析表明，自然、显白和水润是用户最关注的特性。该报告旨在帮助化妆品品牌深入了解用...",
+    "content": "本报告分析了10条化妆笔记的数据，总体分析结果显示韩系妆容和自然裸妆占据了主导地位，各占60%。在色彩方面，珊瑚橘和裸色是主要选择，分别占50%和40%。关键词分析表明，自然、显白和水润是用户最关注的特性。该报告旨在帮助化妆品品牌深入了解用户偏好和市场趋势。",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "趋势报告",
+      "分析"
+    ],
+    "attachments": [],
+    "type": "report",
+    "analysis_id": "d71fc033-a684-4a86-bc2e-25472c9a9775"
+  },
+  {
+    "id": "cc10de44-2f34-46c2-8674-4a03dfc8fa7f",
+    "group_key": "product",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "产品部门",
+    "created_at": "2026-03-07T20:51:33.140111Z",
+    "title": "化妆风格与配色趋势分析报告",
+    "preview": "本报告分析了近期化妆风格与配色的流行趋势，发现'自然裸妆'已成为主流妆容，达到70%的市场占有率。同时，裸色调在颜色选择中占据了60%的比例，反映出消费者对自然妆感的偏好。此外，报告还梳理了关键词的使用频率，以揭示美妆产品在描述上的主要关注...",
+    "content": "本报告分析了近期化妆风格与配色的流行趋势，发现'自然裸妆'已成为主流妆容，达到70%的市场占有率。同时，裸色调在颜色选择中占据了60%的比例，反映出消费者对自然妆感的偏好。此外，报告还梳理了关键词的使用频率，以揭示美妆产品在描述上的主要关注点。",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "趋势报告",
+      "分析"
+    ],
+    "attachments": [],
+    "type": "report",
+    "analysis_id": "14a8b0e1-9529-42fd-866b-33ba057c2ea0"
   }
 ]

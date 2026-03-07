@@ -347,23 +347,11 @@ const DataTable = () => {
   }
 
   return (
-    <div>
-      {/* 顶部标题栏 */}
-      <div
-        style={{
-          marginBottom: 20,
-          padding: '20px 24px',
-          background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
-          borderRadius: '8px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 4px 12px rgba(255, 107, 157, 0.3)'
-        }}
-      >
+    <div className="page-wrap">
+      <header className="page-header animate-fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h2 style={{ color: 'white', margin: 0, fontSize: 24 }}>原始数据列表</h2>
-          <p style={{ color: 'rgba(255,255,255,0.9)', margin: '8px 0 0 0', fontSize: 14 }}>
+          <h1 className="page-title">原始数据列表</h1>
+          <p className="page-subtitle">
             与当前报告为同一次分析 · 共 {total} 条笔记，当前显示 {filteredData.length} 条
           </p>
         </div>
@@ -401,14 +389,14 @@ const DataTable = () => {
             导出Excel
           </Button>
         </Space>
-      </div>
+      </header>
 
       {/* 筛选和搜索区域 */}
       <Card
+        className="card-hover page-module animate-slide-up"
         style={{
           marginBottom: 20,
-          borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          borderRadius: '20px'
         }}
         bodyStyle={{ padding: '20px 24px' }}
       >
@@ -467,11 +455,9 @@ const DataTable = () => {
       </Card>
 
       {dataList.length === 0 ? (
-        <div style={{
-          background: 'white',
+        <div className="card-hover page-module animate-slide-up" style={{
           padding: '100px 32px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+          borderRadius: '20px',
           textAlign: 'center'
         }}>
           <div style={{ fontSize: 64, marginBottom: 24, color: '#ff6b9d' }}>📊</div>
@@ -483,11 +469,9 @@ const DataTable = () => {
           </p>
         </div>
       ) : (
-        <div style={{
-          background: 'white',
+        <div className="card-hover page-module animate-slide-up" style={{
           padding: '32px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
+          borderRadius: '20px'
         }}>
           <Table
             columns={columns}
