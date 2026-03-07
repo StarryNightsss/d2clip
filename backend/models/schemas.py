@@ -25,6 +25,7 @@ class NoteAnalysisResult(BaseModel):
     lipstick_features: LipstickFeatures
     keywords: List[str] = Field(default_factory=list, description="关键词")
     scene: List[str] = Field(default_factory=list, description="使用场景")
+    comments: List[dict] = Field(default_factory=list, description="高赞评论列表")
 
 class StyleStatistics(BaseModel):
     """妆容风格统计"""

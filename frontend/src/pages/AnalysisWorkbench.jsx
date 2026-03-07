@@ -137,6 +137,28 @@ const AnalysisWorkbench = () => {
 
           // 刷新历史记录
           loadHistory()
+        } else if (statusData.status === 'stopped') {
+          // 用户手动停止
+          clearInterval(interval)
+          setPollingInterval(null)
+          stopMockProgress()
+          setAnalyzing(false)
+          setStatus('idle')
+          setMockProgress(0)
+          message.info('采集已停止')
+          if (statusData.current_stats) setCompletedStats(statusData.current_stats)
+          loadHistory()
+        } else if (statusData.status === 'stopped') {
+          // 用户手动停止
+          clearInterval(interval)
+          setPollingInterval(null)
+          stopMockProgress()
+          setAnalyzing(false)
+          setStatus('idle')
+          setMockProgress(0)
+          message.info('采集已停止')
+          if (statusData.current_stats) setCompletedStats(statusData.current_stats)
+          loadHistory()
         } else if (statusData.status === 'error') {
           // 爬虫出错
           clearInterval(interval)
@@ -146,6 +168,16 @@ const AnalysisWorkbench = () => {
           setStatus('idle')
           setMockProgress(0)
           message.error('采集失败: ' + (statusData.error_message || '未知错误'))
+        } else if (statusData.status === 'stopped') {
+          // 用户手动停止
+          clearInterval(interval)
+          setPollingInterval(null)
+          stopMockProgress()
+          setAnalyzing(false)
+          setStatus('idle')
+          message.info('采集已停止')
+          if (statusData.current_stats) setCompletedStats(statusData.current_stats)
+          loadHistory()
         }
         // status === 'running' 时继续轮询
       } catch (error) {

@@ -304,7 +304,8 @@ class AnalysisService:
                     makeup_style=analysis.get('makeup_style', []),
                     lipstick_features=LipstickFeatures(**analysis.get('lipstick_features', {})),
                     keywords=analysis.get('keywords', []),
-                    scene=analysis.get('scene', [])
+                    scene=analysis.get('scene', []),
+                    comments=note.get('comments', [])
                 )
 
                 results.append(result)
@@ -490,10 +491,15 @@ class AnalysisService:
                 comments_by_note = {}
                 for comment in primary_comments:
                     note_id = comment.get('note_id')
-                    if note_id:
-                        if note_id not in comments_by_note:
-                            comments_by_note[note_id] = []
-                        comments_by_note[note_id].append(comment)
+                    if not note_id:
+                        continue
+                    cid = comment.get('comment_id') or comment.get('id') or str(id(comment))
+                    if note_id not in comments_by_note:
+                        comments_by_note[note_id] = {}
+                    comments_by_note[note_id][cid] = comment  # 按 comment_id 去重，避免重复
+
+                for note_id in comments_by_note:
+                    comments_by_note[note_id] = list(comments_by_note[note_id].values())
 
                 merged_count = 0
                 total_comments_attached = 0
@@ -701,7 +707,8 @@ class AnalysisService:
                         "color": r.lipstick_features.color,
                         "texture": r.lipstick_features.texture,
                         "keywords": r.keywords,
-                        "scene": r.scene
+                        "scene": r.scene,
+                        "comments": getattr(r, "comments", [])
                     }
                     for r in response.results
                 ],
@@ -744,7 +751,8 @@ class AnalysisService:
                     "saturation": r.lipstick_features.saturation,
                     "tone": r.lipstick_features.tone,
                     "keywords": r.keywords,
-                    "scene": r.scene
+                    "scene": r.scene,
+                    "comments": getattr(r, "comments", [])
                 }
                 for r in results
             ],

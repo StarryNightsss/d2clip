@@ -1,4 +1,4 @@
-/** 爬虫实时日志终端 - 轮询 /api/crawler/logs，API 地址由 api.js 的 VITE_ANALYSIS_API_BASE 配置 */
+/** 爬虫实时日志终端 - 优先 SSE 实时推送，失败时回退轮询 */
 import { useState, useEffect, useRef } from 'react'
 import { crawlerAPI } from '../services/api'
 
@@ -10,8 +10,8 @@ const levelColors = {
   debug: '#a5b1c2',
 }
 
-// 带超时的 getLogs，避免爬虫启动时后端繁忙导致一直「正在连接」
-const fetchLogsWithTimeout = (ms = 8000) => {
+// 轮询用：带 30s 超时的 getLogs
+const fetchLogsWithTimeout = (ms = 30000) => {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), ms)
   return crawlerAPI.getLogs(100, ctrl.signal).finally(() => clearTimeout(timer))
@@ -21,21 +21,63 @@ const CrawlerTerminal = ({ active = true }) => {
   const [logs, setLogs] = useState([])
   const [error, setError] = useState(null)
   const [hasConnected, setHasConnected] = useState(false)
+  const [usePolling, setUsePolling] = useState(true) // 默认轮询更稳定，SSE 易卡在「正在连接」
   const containerRef = useRef(null)
 
+  // 优先 SSE 实时推送；若 3 秒内未连接则回退轮询，避免一直「正在连接」
   useEffect(() => {
-    if (!active) return
+    if (!active || usePolling) return
+
+    let es = null
+    const url = crawlerAPI.getLogsStreamUrl()
+    const fallbackTimer = setTimeout(() => {
+      if (es && !es.readyState) setUsePolling(true)
+      es?.close()
+    }, 3000)
+
+    try {
+      es = new EventSource(url)
+      es.onopen = () => {
+        clearTimeout(fallbackTimer)
+        setError(null)
+        setHasConnected(true)
+      }
+      es.onmessage = (e) => {
+        try {
+          const log = JSON.parse(e.data)
+          setLogs((prev) => [...prev.slice(-99), log])
+        } catch (_) {}
+      }
+      es.onerror = () => {
+        clearTimeout(fallbackTimer)
+        es?.close()
+        setUsePolling(true)
+      }
+    } catch (err) {
+      clearTimeout(fallbackTimer)
+      setUsePolling(true)
+    }
+
+    return () => {
+      clearTimeout(fallbackTimer)
+      es?.close()
+    }
+  }, [active, usePolling])
+
+  // 轮询回退
+  useEffect(() => {
+    if (!active || !usePolling) return
 
     const fetchLogs = async () => {
       try {
         const res = await fetchLogsWithTimeout()
         setError(null)
         setHasConnected(true)
-        if (res?.logs && Array.isArray(res.logs)) {
-          setLogs(res.logs)
-        }
+        if (res?.logs && Array.isArray(res.logs)) setLogs(res.logs)
       } catch (e) {
-        const msg = e.name === 'AbortError' ? '请求超时，请稍候刷新' : (e.message || '无法连接后端')
+        const msg = e.name === 'AbortError'
+          ? '后端响应较慢（爬虫运行中），正在重试…'
+          : (e.message || '无法连接后端，请确认已启动: uv run python backend/main.py')
         setError(msg)
         setHasConnected(true)
       }
@@ -44,7 +86,7 @@ const CrawlerTerminal = ({ active = true }) => {
     fetchLogs()
     const timer = setInterval(fetchLogs, 1000)
     return () => clearInterval(timer)
-  }, [active])
+  }, [active, usePolling])
 
   useEffect(() => {
     if (containerRef.current) {

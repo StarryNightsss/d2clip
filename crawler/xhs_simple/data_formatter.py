@@ -23,12 +23,17 @@ class DataFormatter:
                     image_list.append(info.get("url", ""))
                     break
 
+        # 标题：优先 display_title，空则用 desc 前80字或 title 字段（部分笔记 display_title 为空）
+        display_title = note_card.get("display_title") or note_card.get("title") or ""
+        desc = note_card.get("desc", "")
+        title = display_title if display_title else (desc[:80] + ("..." if len(desc) > 80 else "") if desc else "")
+
         return {
             # 基本信息
             "note_id": note_id,
             "type": note_card.get("type", "normal"),
-            "title": note_card.get("display_title", ""),
-            "desc": note_card.get("desc", ""),
+            "title": title,
+            "desc": desc,
 
             # 用户信息
             "user_id": user_info.get("user_id", ""),

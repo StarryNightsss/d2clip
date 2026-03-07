@@ -44,6 +44,9 @@ export const crawlerAPI = {
   // 获取日志（可选 signal 用于超时中断）
   getLogs: (limit = 100, signal) =>
     request(`/crawler/logs?limit=${limit}`, { signal }, CRAWLER_API_BASE),
+
+  // SSE 日志流 URL（实时推送，无超时）
+  getLogsStreamUrl: () => `${CRAWLER_API_BASE.replace(/\/$/, '')}/crawler/logs/stream`,
 }
 
 // 分析相关 API（新后端）

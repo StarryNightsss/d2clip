@@ -5,7 +5,7 @@ import time
 from typing import Dict, Optional, Union
 from urllib.parse import quote
 
-from xhs_sign import b64_encode, encode_utf8, get_trace_id, mrc
+from .xhs_sign import b64_encode, encode_utf8, get_trace_id, mrc
 
 
 def _build_sign_string(uri: str, data: Optional[Union[Dict, str]] = None, method: str = "POST") -> str:

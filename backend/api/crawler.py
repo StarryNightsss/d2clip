@@ -1,4 +1,5 @@
 """爬虫 API 路由"""
+import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from typing import Optional
@@ -7,6 +8,8 @@ import json
 import asyncio
 
 from backend.services.crawler_service import crawler_service
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/crawler", tags=["crawler"])
@@ -33,6 +36,9 @@ class CrawlerStartRequest(BaseModel):
 async def start_crawler(request: CrawlerStartRequest, background_tasks: BackgroundTasks):
     """启动爬虫任务"""
     try:
+        # 立即输出到控制台，便于确认请求是否到达
+        print(f"[爬虫] 收到启动请求: 关键词={request.keywords}, 数量={request.max_notes_count}", flush=True)
+        logger.info(f"[爬虫] 收到启动请求: 关键词={request.keywords}, 数量={request.max_notes_count}")
         status = crawler_service.get_status()
         if status["status"] == "running":
             crawler_service.stop_crawl()

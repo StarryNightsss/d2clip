@@ -4,7 +4,7 @@ from typing import Dict, List, Callable, Optional
 import json
 from playwright.sync_api import sync_playwright
 import httpx
-from playwright_sign import sign_with_playwright
+from .playwright_sign import sign_with_playwright
 
 
 def _noop_log(msg: str, level: str = "info"):
@@ -37,13 +37,18 @@ class XhsClient:
     def _init_browser(self):
         """初始化 Playwright 浏览器"""
         self.playwright = sync_playwright().start()
-        # channel='chromium' 使用完整 Chromium（playwright install chromium 安装的），
-        # 避免 chromium_headless_shell 在 Railway/Nixpacks 环境下缺失
-        self.browser = self.playwright.chromium.launch(
-            headless=True,
-            channel='chromium',
-            args=['--disable-blink-features=AutomationControlled']
-        )
+        # 优先用 channel='chromium'（Railway 等环境）；本地 Windows 可能未安装则回退默认
+        try:
+            self.browser = self.playwright.chromium.launch(
+                headless=True,
+                channel='chromium',
+                args=['--disable-blink-features=AutomationControlled']
+            )
+        except Exception:
+            self.browser = self.playwright.chromium.launch(
+                headless=True,
+                args=['--disable-blink-features=AutomationControlled']
+            )
 
         # 解析 Cookie 字符串为字典列表
         cookies = []

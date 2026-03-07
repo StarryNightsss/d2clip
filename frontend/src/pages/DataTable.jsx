@@ -74,24 +74,22 @@ const DataTable = () => {
       )
     }
 
-    // 风格筛选
+    // 风格筛选（兼容 style / makeup_style，确保为数组再调用 includes）
     if (filterStyle) {
-      result = result.filter(item =>
-        item.style && item.style.includes(filterStyle)
-      )
+      const styleArr = (item) => Array.isArray(item?.style) ? item.style : (Array.isArray(item?.makeup_style) ? item.makeup_style : [])
+      result = result.filter(item => styleArr(item).includes(filterStyle))
     }
 
-    // 色调筛选
+    // 色调筛选（兼容 color / lipstick_features.color）
     if (filterColor) {
-      result = result.filter(item =>
-        item.color && item.color === filterColor
-      )
+      const colorVal = (item) => item?.color ?? item?.lipstick_features?.color ?? ''
+      result = result.filter(item => colorVal(item) === filterColor)
     }
 
-    // 场景筛选
+    // 场景筛选（确保为数组再调用 includes）
     if (filterScene) {
       result = result.filter(item =>
-        item.scene && item.scene.includes(filterScene)
+        Array.isArray(item?.scene) && item.scene.includes(filterScene)
       )
     }
 
@@ -113,26 +111,45 @@ const DataTable = () => {
     setDetailModalVisible(true)
   }
 
+  // 安全转为字符串（支持数字、数组、对象等，避免 value.includes is not a function）
+  const safeStr = (v) => {
+    if (v === null || v === undefined) return ''
+    if (typeof v === 'string') return v
+    if (Array.isArray(v)) return v.join(', ')
+    return String(v)
+  }
+
   // 导出Excel
   const handleExportExcel = () => {
     try {
-      // 准备导出数据
-      const exportData = filteredData.map((item, index) => ({
-        '序号': index + 1,
-        '笔记标题': item.title || '',
-        '妆容风格': item.style ? item.style.join(', ') : '',
-        '口红色调': item.color || '',
-        '关键词': item.keywords ? item.keywords.join(', ') : '',
-        '使用场景': item.scene ? item.scene.join(', ') : '',
-        '笔记内容': item.content ? item.content.substring(0, 200) : ''
-      }))
+      if (!filteredData || filteredData.length === 0) {
+        message.warning('暂无数据可导出')
+        return
+      }
+      // 准备导出数据（确保所有字段为字符串，避免 .includes 报错；兼容 style/makeup_style、color/lipstick_features）
+      const exportData = filteredData.map((item, index) => {
+        const comments = item.comments || []
+        const commentsText = Array.isArray(comments)
+          ? comments.map(c => c?.content || c?.comment_content || '').filter(Boolean).join(' | ')
+          : ''
+        return {
+          '序号': index + 1,
+          '笔记标题': safeStr(item.title),
+          '妆容风格': safeStr(item.style ?? item.makeup_style),
+          '口红色调': safeStr(item.color ?? item?.lipstick_features?.color),
+          '关键词': safeStr(item.keywords),
+          '使用场景': safeStr(item.scene),
+          '高赞评论': commentsText,
+          '笔记内容': safeStr(item.content ?? item.desc).substring(0, 200)
+        }
+      })
 
       // 转换为CSV格式
       const headers = Object.keys(exportData[0])
       const csvContent = [
         headers.join(','),
         ...exportData.map(row => headers.map(header => {
-          const value = row[header] || ''
+          const value = safeStr(row[header])
           // 如果包含逗号、换行或引号，需要用引号包裹并转义
           if (value.includes(',') || value.includes('\n') || value.includes('"')) {
             return `"${value.replace(/"/g, '""')}"`
@@ -167,7 +184,9 @@ const DataTable = () => {
       key: 'title',
       width: '30%',
       render: (text) => (
-        <span style={{ fontSize: '14px', fontWeight: '500', color: '#2d3436' }}>{text}</span>
+        <span style={{ fontSize: '14px', fontWeight: '500', color: text ? '#2d3436' : '#95a5a6' }}>
+          {text || '（无标题）'}
+        </span>
       )
     },
     {
@@ -274,6 +293,28 @@ const DataTable = () => {
           )}
         </>
       )
+    },
+    {
+      title: <span style={{ fontWeight: '600', fontSize: '15px' }}>高赞评论</span>,
+      dataIndex: 'comments',
+      key: 'comments',
+      width: '22%',
+      render: (comments) => {
+        if (!comments || !Array.isArray(comments) || comments.length === 0) {
+          return <span style={{ color: '#95a5a6', fontSize: '13px' }}>暂无</span>
+        }
+        const first = comments[0]
+        const text = first?.content || first?.comment_content || ''
+        const preview = text.length > 25 ? text.slice(0, 25) + '...' : text
+        return (
+          <span style={{ fontSize: '13px', color: '#636e72' }} title={text}>
+            {preview || '（空）'}
+            {comments.length > 1 && (
+              <span style={{ color: '#95a5a6', marginLeft: 4 }}>等{comments.length}条</span>
+            )}
+          </span>
+        )
+      }
     },
     {
       title: <span style={{ fontWeight: '600', fontSize: '15px' }}>操作</span>,

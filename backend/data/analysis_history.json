@@ -1,5 +1,75 @@
 [
   {
+    "analysis_id": "fb7436d6-dc0b-48d4-ac86-b451bc3b6918",
+    "created_at": "2026-03-07T16:27:09.959723",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_162615.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "52981861-a1e4-4e46-a398-627bad64a873",
+    "created_at": "2026-03-07T16:21:46.960816",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_162053.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "e6ba064e-137e-4d00-a01d-681b40417b94",
+    "created_at": "2026-03-07T16:12:58.821828",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_161152.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "e3e64156-e5b3-4b71-b0ee-aa515f71331c",
+    "created_at": "2026-03-07T16:01:55.426295",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_160052.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "206c5cd3-0594-4257-84b9-860eb493f2b6",
+    "created_at": "2026-03-07T15:51:20.839124",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_154820.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "bbf59e1b-70ce-483b-963a-634f43138f6a",
+    "created_at": "2026-03-07T15:43:33.273128",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_154006.json",
+    "total_notes": 3,
+    "analyzed_notes": 3,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
+    "analysis_id": "8d6cbb0d-7285-49bb-aeb6-a63dfd42caa6",
+    "created_at": "2026-03-07T13:05:17.247398",
+    "platform": "xhs",
+    "data_file": "xhs/json/search_contents_2026-03-07_130422.json",
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "status": "success"
+  },
+  {
     "analysis_id": "306dba43-df66-426f-a1fb-42c5cb83bf43",
     "created_at": "2026-03-04T02:57:27.299206",
     "platform": "xhs",

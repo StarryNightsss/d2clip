@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import List, Dict, Callable, Optional
 from datetime import datetime
 
-from xhs_client import XhsClient
-from data_formatter import DataFormatter
+from .xhs_client import XhsClient
+from .data_formatter import DataFormatter
 
 
 def _default_log(msg: str):
@@ -41,12 +41,15 @@ class XhsCrawler:
         keyword: str,
         max_notes: int = 20,
         max_comments_per_note: int = 30,
-        crawl_comments: bool = True
+        crawl_comments: bool = True,
+        should_stop: Optional[Callable[[], bool]] = None,
     ) -> Dict:
-        """根据关键词爬取笔记和评论"""
+        """根据关键词爬取笔记和评论。should_stop() 返回 True 时提前退出。"""
         self._log(f"\n🔍 开始爬取关键词: {keyword}")
         self._log(f"   目标笔记数: {max_notes}")
         self._log(f"   每条笔记评论数: {max_comments_per_note}")
+
+        check_stop = should_stop or (lambda: False)
 
         # 1. 搜索笔记
         all_notes = []
@@ -54,6 +57,9 @@ class XhsCrawler:
         page_size = 20
 
         while len(all_notes) < max_notes:
+            if check_stop():
+                self._log("   ⏹️ 收到停止信号，提前退出", "warning")
+                break
             try:
                 self._log(f"\n📄 正在获取第 {page} 页...")
                 result = self.client.search_notes(
@@ -78,7 +84,8 @@ class XhsCrawler:
 
                     formatted_note = self.formatter.format_note(item, keyword)
                     all_notes.append(formatted_note)
-                    self._log(f"   ✅ [{len(all_notes)}/{max_notes}] {formatted_note['title'][:30]}")
+                    title_display = (formatted_note.get('title') or '（无标题）')[:30]
+                    self._log(f"   ✅ [{len(all_notes)}/{max_notes}] {title_display}")
 
                 page += 1
                 time.sleep(1)  # 限速
@@ -91,11 +98,15 @@ class XhsCrawler:
 
         # 2. 爬取评论
         all_comments = []
-        if crawl_comments:
+        if crawl_comments and not check_stop():
             self._log(f"\n💬 开始爬取评论...")
             for i, note in enumerate(all_notes):
+                if check_stop():
+                    self._log("   ⏹️ 收到停止信号，停止爬取评论", "warning")
+                    break
                 note_id = note["note_id"]
-                self._log(f"   [{i+1}/{len(all_notes)}] {note['title'][:30]}")
+                title_display = (note.get('title') or '（无标题）')[:30]
+                self._log(f"   [{i+1}/{len(all_notes)}] {title_display}")
 
                 try:
                     xsec_token = note.get("xsec_token", "")
