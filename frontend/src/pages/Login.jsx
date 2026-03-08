@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import loginBg from '../assets/login-bg.png'
 import { communityAPI } from '../services/api'
 import LipstickLottie from '../components/LipstickLottie'
+import { getDefaultPath } from '../utils/defaultRoute'
 
 const Login = () => {
   const [loading, setLoading] = useState(false)
@@ -43,7 +44,7 @@ const Login = () => {
       }
       localStorage.setItem('userInfo', JSON.stringify(userInfo))
       message.success('登录成功！')
-      setTimeout(() => navigate('/'), 500)
+      setTimeout(() => navigate(getDefaultPath(department)), 500)
     } finally {
       setLoading(false)
     }

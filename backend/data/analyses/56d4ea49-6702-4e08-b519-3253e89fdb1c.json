@@ -1,0 +1,911 @@
+{
+  "analysis_id": "56d4ea49-6702-4e08-b519-3253e89fdb1c",
+  "status": "success",
+  "created_at": "2026-03-08T04:47:02.241470",
+  "results": [
+    {
+      "note_id": "697b44b3000000000a02ccfa",
+      "title": "5min快速出门｜早八速学这个伪素颜裸感妆！😍",
+      "makeup_style": [
+        "自然裸妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性调"
+      },
+      "keywords": [
+        "素颜",
+        "快速",
+        "自然"
+      ],
+      "scene": [
+        "日常通勤"
+      ]
+    },
+    {
+      "note_id": "688a07b4000000002501da54",
+      "title": "“若有似无的全妆”",
+      "makeup_style": [
+        "自然裸妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性调"
+      },
+      "keywords": [
+        "素颜感",
+        "透亮",
+        "清新"
+      ],
+      "scene": [
+        "日常通勤"
+      ]
+    },
+    {
+      "note_id": "6972de1e000000001a0363cf",
+      "title": "清纯伪素颜 | 15分钟速成（详细解析版）",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性"
+      },
+      "keywords": [
+        "清纯",
+        "伪素颜",
+        "裸色"
+      ],
+      "scene": [
+        "日常"
+      ]
+    },
+    {
+      "note_id": "6863adbd000000002201fb1b",
+      "title": "0帧起手无粉底！10min糊弄学～～氛围全妆！",
+      "makeup_style": [
+        "自然裸妆",
+        "韩式水光妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "素颜",
+        "清透",
+        "干皮"
+      ],
+      "scene": [
+        "日常通勤",
+        "晚餐聚会"
+      ]
+    },
+    {
+      "note_id": "68b680e7000000001d018fa0",
+      "title": "无粉底液！伪素颜淡妆，新手全妆跟练！",
+      "makeup_style": [
+        "自然裸妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性"
+      },
+      "keywords": [
+        "伪素颜",
+        "淡妆",
+        "新手"
+      ],
+      "scene": [
+        "日常",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "69453988000000000d03e38b",
+      "title": "新手党的纯净版裸妆 | 不贴睫毛不画眼线~",
+      "makeup_style": [
+        "自然裸妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性"
+      },
+      "keywords": [
+        "素颜",
+        "透明感",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤"
+      ]
+    },
+    {
+      "note_id": "68aad6eb000000001b03086f",
+      "title": "淡颜扁平脸🙋‍♀️新手1min跟练原生感气血妆",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "珊瑚橘",
+        "texture": "水润",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "原生感",
+        "气血妆",
+        "自然"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "6953cb3c000000001e001384",
+      "title": "无底妆伪素颜",
+      "makeup_style": [
+        "自然裸妆",
+        "韩式水光妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "素颜",
+        "透明感",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "689864c20000000025021902",
+      "title": "越素越美！新手5min伪素颜妆🫧淡妆还原美貌",
+      "makeup_style": [
+        "自然裸妆",
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性调"
+      },
+      "keywords": [
+        "显白",
+        "清透",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "69203ebb000000001b021ce4",
+      "title": "素颜VS伪素颜",
+      "makeup_style": [
+        "自然裸妆",
+        "复古风"
+      ],
+      "lipstick_features": {
+        "color": "裸粉色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "素颜感",
+        "显白",
+        "清透"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    }
+  ],
+  "statistics": {
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "styles": [
+      {
+        "name": "自然裸妆",
+        "count": 8,
+        "percentage": 80.0
+      },
+      {
+        "name": "韩系妆容",
+        "count": 3,
+        "percentage": 30.0
+      },
+      {
+        "name": "韩式水光妆",
+        "count": 2,
+        "percentage": 20.0
+      },
+      {
+        "name": "复古风",
+        "count": 1,
+        "percentage": 10.0
+      }
+    ],
+    "colors": [
+      {
+        "name": "裸色",
+        "count": 8,
+        "percentage": 80.0
+      },
+      {
+        "name": "珊瑚橘",
+        "count": 1,
+        "percentage": 10.0
+      },
+      {
+        "name": "裸粉色",
+        "count": 1,
+        "percentage": 10.0
+      }
+    ],
+    "keywords": [
+      {
+        "name": "素颜",
+        "count": 4
+      },
+      {
+        "name": "清透",
+        "count": 3
+      },
+      {
+        "name": "日常",
+        "count": 3
+      },
+      {
+        "name": "自然",
+        "count": 2
+      },
+      {
+        "name": "素颜感",
+        "count": 2
+      },
+      {
+        "name": "伪素颜",
+        "count": 2
+      },
+      {
+        "name": "透明感",
+        "count": 2
+      },
+      {
+        "name": "显白",
+        "count": 2
+      },
+      {
+        "name": "快速",
+        "count": 1
+      },
+      {
+        "name": "透亮",
+        "count": 1
+      },
+      {
+        "name": "清新",
+        "count": 1
+      },
+      {
+        "name": "清纯",
+        "count": 1
+      },
+      {
+        "name": "裸色",
+        "count": 1
+      },
+      {
+        "name": "干皮",
+        "count": 1
+      },
+      {
+        "name": "淡妆",
+        "count": 1
+      },
+      {
+        "name": "新手",
+        "count": 1
+      },
+      {
+        "name": "原生感",
+        "count": 1
+      },
+      {
+        "name": "气血妆",
+        "count": 1
+      }
+    ]
+  },
+  "report": {
+    "report_title": "化妆风格与配色分析报告-伪素颜",
+    "summary": "本报告分析了化妆风格、颜色及关键词的分布情况。根据统计数据，自然裸妆成为最受欢迎的风格，占比达到80%。在颜色选择上，裸色也同样占据主导地位，达到80%。关键词分析显示，'素颜'和'清透'为最常用词汇，反映了消费者对自然妆效的偏好。这些数据为化妆行业的市场策略提供了重要参考。",
+    "sections": [
+      {
+        "section_id": "section-1",
+        "title": "化妆风格分布分析",
+        "content": "在本次化妆风格分布的分析中，自然裸妆显然是2023年最受欢迎的选择，占据了总体样本的80%。这一结果表明消费者更加倾向于清新、自然的妆容，反映出当今社会对“无妆”美的追求趋向。自然裸妆以其简洁和优雅的特点，能够迎合现代女性对日常通勤和日常社交活动的需求，进一步印证了流行趋势对妆容风格的影响。\n\n相较之下，韩系妆容和韩式水光妆分别占据了30%和20%的比例，尽管相对自然裸妆而言，这些韩国风格妆容的受欢迎程度较低，但仍然体现出其在特定消费者群体中的影响力。尤其是在年轻女性中，韩系风格以其甜美、清新的特质，持续吸引着一部分对流行文化持积极态度的消费者。这为品牌在目标市场制定营销策略时提供了机会，可以通过社交媒体与流行文化结合，进一步推动相关化妆品的销售。\n\n最后，复古风妆容仅占10%，显示出其在当前市场中的小众化趋势。尽管复古风有其独特的魅力，但相对而言，消费者对现代、日常化的妆容需求更为强烈。建议品牌在推广自然裸妆及韩系妆容的同时，可以适度引入复古元素，通过创新和融合打造新的合成妆容，以丰富产品线，满足多样化的消费者需求。",
+        "charts": [
+          {
+            "chart_type": "pie",
+            "chart_title": "化妆风格占比",
+            "description": "展示不同化妆风格在样本中的占比情况",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "item",
+                "formatter": "{a} <br/>{b}: {c} ({d}%)"
+              },
+              "legend": {
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle"
+              },
+              "series": [
+                {
+                  "name": "化妆风格占比",
+                  "type": "pie",
+                  "radius": "50%",
+                  "center": [
+                    "50%",
+                    "50%"
+                  ],
+                  "data": [
+                    {
+                      "name": "自然裸妆",
+                      "value": 8
+                    },
+                    {
+                      "name": "韩系妆容",
+                      "value": 3
+                    },
+                    {
+                      "name": "韩式水光妆",
+                      "value": 2
+                    },
+                    {
+                      "name": "复古风",
+                      "value": 1
+                    }
+                  ],
+                  "label": {
+                    "normal": {
+                      "show": true,
+                      "position": "outside"
+                    }
+                  },
+                  "itemStyle": {
+                    "normal": {
+                      "borderWidth": 1,
+                      "borderColor": "#fff"
+                    }
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "化妆风格排名",
+            "description": "对不同化妆风格的数量进行排名对比",
+            "echarts_option": {
+              "tooltip": {},
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "category",
+                "data": [
+                  "自然裸妆",
+                  "韩系妆容",
+                  "韩式水光妆",
+                  "复古风"
+                ],
+                "axisLabel": {
+                  "show": true
+                },
+                "axisLine": {
+                  "show": true
+                }
+              },
+              "yAxis": {
+                "type": "value",
+                "data": []
+              },
+              "series": [
+                {
+                  "name": "化妆风格排名",
+                  "type": "bar",
+                  "data": [
+                    8,
+                    3,
+                    2,
+                    1
+                  ],
+                  "barWidth": "60%",
+                  "itemStyle": {
+                    "color": "#ff6b9d"
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "top"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          }
+        ],
+        "order": 1
+      },
+      {
+        "section_id": "section-2",
+        "title": "颜色使用情况分析",
+        "content": "在本次颜色使用情况分析中，裸色无疑是最受欢迎的选择，所占比例高达80%。这一数据表明，镜头下的裸色妆容正在成为主流，符合当前消费者追求自然、简约的美妆趋势。这一趋势不仅反映了现代女性对肤色的多样化接受度，也突显了其在日常妆容中的重要性，适合多种场合并易于搭配。\n\n从市场的角度来看，珊瑚橘和裸粉色的占比均为10%，这两种颜色尽管相对较少使用，但仍显示出一定的市场潜力。随着季节变化和消费者对色彩需求的不断演变，这些颜色在特定时段或特定主题活动中可能出现爆发式增长。因此，品牌在产品推出时可以考虑在裸色基础上，适度增加这些色彩的比例，以满足日益多样化的消费需求。\n\n建议品牌在后续产品开发及营销策略中，继续聚焦裸色的优势，同时通过限量版或季节性推广来引入珊瑚橘和裸粉色。这种多样化的策略不仅能够吸引现有消费者，也能够尝试触及新的市场群体，增强产品的竞争力和市场覆盖率。",
+        "charts": [
+          {
+            "chart_type": "pie",
+            "chart_title": "颜色使用占比",
+            "description": "展示颜色在化妆中的使用情况",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "item",
+                "formatter": "{a} <br/>{b}: {c} ({d}%)"
+              },
+              "legend": {
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle"
+              },
+              "series": [
+                {
+                  "name": "颜色使用占比",
+                  "type": "pie",
+                  "radius": "50%",
+                  "center": [
+                    "50%",
+                    "50%"
+                  ],
+                  "data": [
+                    {
+                      "name": "裸色",
+                      "value": 8
+                    },
+                    {
+                      "name": "珊瑚橘",
+                      "value": 1
+                    },
+                    {
+                      "name": "裸粉色",
+                      "value": 1
+                    }
+                  ],
+                  "label": {
+                    "show": true,
+                    "position": "outside"
+                  },
+                  "itemStyle": {
+                    "borderColor": "#fff",
+                    "borderWidth": 2
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "颜色选择排名",
+            "description": "对不同颜色的使用频次进行排名分析",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                  "type": "shadow"
+                }
+              },
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "category",
+                "data": [
+                  "裸色",
+                  "珊瑚橘",
+                  "裸粉色"
+                ],
+                "axisLabel": {
+                  "formatter": "{value}"
+                },
+                "axisLine": {
+                  "show": true
+                }
+              },
+              "yAxis": {
+                "type": "value",
+                "data": null
+              },
+              "series": [
+                {
+                  "name": "颜色使用频次",
+                  "type": "bar",
+                  "data": [
+                    {
+                      "value": 8,
+                      "name": "裸色"
+                    },
+                    {
+                      "value": 1,
+                      "name": "珊瑚橘"
+                    },
+                    {
+                      "value": 1,
+                      "name": "裸粉色"
+                    }
+                  ],
+                  "barWidth": "50%",
+                  "itemStyle": {
+                    "normal": {
+                      "barBorderRadius": [
+                        5,
+                        5,
+                        0,
+                        0
+                      ]
+                    }
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "top",
+                    "formatter": "{c}"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ],
+              "title": {
+                "text": "颜色选择排名"
+              }
+            }
+          }
+        ],
+        "order": 2
+      },
+      {
+        "section_id": "section-3",
+        "title": "关键词分析",
+        "content": "根据我们的关键词分析，总体关键词数量为18个，反映出当前美妆市场对自然妆效的强烈关注。其中，“素颜”作为最为突出的关键词，出现频率为4次，显示出消费者对裸妆和轻妆的偏好，以及对肌肤自然状态的追求。此外，“清透”、“日常”各占3次，进一步强调了当下消费者倾向于选择日常妆容的趋势，表明他们更加青睐于能够提升肌肤自然光泽感的产品。\n\n在细分的关键词中，可以看到“素颜感”、“伪素颜”、“透明感”以及“显白”等词汇的使用频率较高，均为2次。这表明美妆产品在功能性上的多样化需求，消费者不仅追求既能遮瑕又能保持自然美感的产品，同时也期待产品能够提供提亮和通透的效果。此外，其他关键词如“新手”、“快速”和“气血妆”也反映出市场对易用性和高效性的关注，暗示了针对特殊人群（如新手用户）的市场机遇。\n\n基于以上分析，我们建议美妆品牌在产品开发和市场推广时，应更加注重“自然妆感”相关产品的创新。同时，结合消费者对便捷性和效果的需求，推出适合日常使用的轻薄妆品，将能够有效吸引新的消费者群体。特别是在社交媒体普及的背景下，强调产品的使用体验和效果，可以借助用户生成内容来增强品牌认知和美誉度。",
+        "charts": [
+          {
+            "chart_type": "scatter",
+            "chart_title": "关键词分布",
+            "description": "展示关键词在样本中的分布情况",
+            "echarts_option": {
+              "tooltip": {
+                "show": true,
+                "formatter": "{b}: {c}"
+              },
+              "grid": {
+                "left": "3%",
+                "right": "3%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "show": false,
+                "type": "value",
+                "min": 0,
+                "max": 20
+              },
+              "yAxis": {
+                "show": false,
+                "type": "value",
+                "min": 0,
+                "max": 20
+              },
+              "series": [
+                {
+                  "type": "scatter",
+                  "symbolSize": 20,
+                  "data": [
+                    [
+                      5,
+                      10,
+                      30,
+                      "素颜"
+                    ],
+                    [
+                      8,
+                      13,
+                      25,
+                      "清透"
+                    ],
+                    [
+                      10,
+                      14,
+                      25,
+                      "日常"
+                    ],
+                    [
+                      6,
+                      7,
+                      20,
+                      "自然"
+                    ],
+                    [
+                      5,
+                      6,
+                      20,
+                      "素颜感"
+                    ],
+                    [
+                      3,
+                      4,
+                      20,
+                      "伪素颜"
+                    ],
+                    [
+                      9,
+                      10,
+                      20,
+                      "透明感"
+                    ],
+                    [
+                      12,
+                      8,
+                      20,
+                      "显白"
+                    ],
+                    [
+                      7,
+                      3,
+                      15,
+                      "快速"
+                    ],
+                    [
+                      11,
+                      5,
+                      15,
+                      "透亮"
+                    ],
+                    [
+                      14,
+                      11,
+                      15,
+                      "清新"
+                    ],
+                    [
+                      15,
+                      9,
+                      15,
+                      "清纯"
+                    ],
+                    [
+                      13,
+                      6,
+                      15,
+                      "裸色"
+                    ],
+                    [
+                      2,
+                      12,
+                      15,
+                      "干皮"
+                    ],
+                    [
+                      4,
+                      8,
+                      15,
+                      "淡妆"
+                    ],
+                    [
+                      16,
+                      5,
+                      15,
+                      "新手"
+                    ],
+                    [
+                      14,
+                      4,
+                      15,
+                      "原生感"
+                    ],
+                    [
+                      17,
+                      6,
+                      15,
+                      "气血妆"
+                    ]
+                  ],
+                  "label": {
+                    "show": true,
+                    "position": "top",
+                    "formatter": "{b}"
+                  },
+                  "itemStyle": {
+                    "opacity": 0.8
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "关键词出现频次排名",
+            "description": "对关键词出现的频次进行排名分析",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                  "type": "shadow"
+                }
+              },
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "category",
+                "data": [
+                  "素颜",
+                  "清透",
+                  "日常",
+                  "自然",
+                  "素颜感",
+                  "伪素颜",
+                  "透明感",
+                  "显白",
+                  "快速",
+                  "透亮",
+                  "清新",
+                  "清纯",
+                  "裸色",
+                  "干皮",
+                  "淡妆",
+                  "新手",
+                  "原生感",
+                  "气血妆"
+                ],
+                "axisLabel": {
+                  "interval": 0,
+                  "rotate": 45
+                },
+                "axisLine": {
+                  "lineStyle": {
+                    "color": "#333"
+                  }
+                }
+              },
+              "yAxis": {
+                "type": "value"
+              },
+              "series": [
+                {
+                  "name": "关键词出现频次",
+                  "type": "bar",
+                  "data": [
+                    4,
+                    3,
+                    3,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "barWidth": "60%",
+                  "itemStyle": {
+                    "barBorderRadius": 5
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "top"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          }
+        ],
+        "order": 3
+      }
+    ]
+  }
+}

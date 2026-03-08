@@ -47,11 +47,8 @@ yarn-error.log*
 *~
 .DS_Store
 
-# Data files (可选：如果数据文件很大，建议排除)
-backend/data/analyses/*.json
-# 允许提交这两份报告，便于部署后点「查看」有内容
-!backend/data/analyses/4e846f04-9857-4f13-8161-9341e4010460.json
-!backend/data/analyses/27f0c137-0447-4e57-bf6f-2a28d77e2286.json
+# Data files（分析报告 JSON 全部纳入版本库）
+# backend/data/analyses/*.json 已不再忽略，所有可视化分析报告均可提交
 backend/data/community_uploads/
 crawler/MediaCrawler/data/**/*.json
 crawler/MediaCrawler/data/**/*.csv

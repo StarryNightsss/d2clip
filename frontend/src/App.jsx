@@ -9,6 +9,7 @@ import ColorDesign from './pages/ColorDesign'
 import VirtualTryOn from './pages/VirtualTryOn'
 import ContentGeneration from './pages/ContentGeneration'
 import Community from './pages/Community'
+import { getDefaultPath } from './utils/defaultRoute'
 
 // 权限控制组件
 const ProtectedRoute = ({ children }) => {
@@ -21,6 +22,25 @@ const ProtectedRoute = ({ children }) => {
   return children
 }
 
+// 根路径 "/"：仅产品/管理员显示分析工作台，其他部门重定向到本部门默认页
+const HomeOrRedirect = () => {
+  try {
+    const raw = localStorage.getItem('userInfo')
+    const userInfo = raw ? JSON.parse(raw) : null
+    const department = (userInfo && userInfo.department) ? userInfo.department.toLowerCase() : ''
+    if (department === 'product' || department === 'admin') {
+      return (
+        <Layout>
+          <AnalysisWorkbench />
+        </Layout>
+      )
+    }
+    return <Navigate to={getDefaultPath(department)} replace />
+  } catch (_) {
+    return <Navigate to="/login" replace />
+  }
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -29,9 +49,7 @@ function App() {
 
         <Route path="/" element={
           <ProtectedRoute>
-            <Layout>
-              <AnalysisWorkbench />
-            </Layout>
+            <HomeOrRedirect />
           </ProtectedRoute>
         } />
 

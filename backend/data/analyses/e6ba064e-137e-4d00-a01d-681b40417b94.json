@@ -1,0 +1,930 @@
+{
+  "analysis_id": "e6ba064e-137e-4d00-a01d-681b40417b94",
+  "status": "success",
+  "created_at": "2026-03-07T16:12:58.814730",
+  "results": [
+    {
+      "note_id": "68f8b85e00000000040134e9",
+      "title": "",
+      "makeup_style": [
+        "自然裸妆",
+        "复古风"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "中性调"
+      },
+      "keywords": [
+        "质感",
+        "保湿",
+        "安全"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "69043ddc000000000301df1c",
+      "title": "",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "粉嫩色",
+        "texture": "水润",
+        "saturation": "中饱和",
+        "tone": "冷调"
+      },
+      "keywords": [
+        "显白",
+        "水润",
+        "日常"
+      ],
+      "scene": [
+        "约会",
+        "日常通勤"
+      ]
+    },
+    {
+      "note_id": "68416f98000000002002b5d7",
+      "title": "6支便宜好看不拔干口红❗️不买后悔一辈子！",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "粉色",
+        "texture": "水润",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "不拔干",
+        "便宜",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "69678fad000000000b01258f",
+      "title": "👆🏻我的4支年度爱用（平价版〈除第一支〉）",
+      "makeup_style": [
+        "复古风"
+      ],
+      "lipstick_features": {
+        "color": "复古红",
+        "texture": "哑光",
+        "saturation": "高饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "种草",
+        "爱用",
+        "平价"
+      ],
+      "scene": [
+        "约会",
+        "晚宴"
+      ]
+    },
+    {
+      "note_id": "68720ad1000000001203cc79",
+      "title": "intoyou中毒！再搞几个！",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "细闪珊瑚橘",
+        "texture": "丝绒雾面",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "显白",
+        "新色",
+        "适合黄皮"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "6822e5af00000000210061c3",
+      "title": "贫穷女大花知晓口红评价帖",
+      "makeup_style": [
+        "韩系妆容",
+        "复古风"
+      ],
+      "lipstick_features": {
+        "color": "珊瑚橘",
+        "texture": "丝绒雾面",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "显白",
+        "不拔干",
+        "日常"
+      ],
+      "scene": [
+        "约会",
+        "日常通勤"
+      ]
+    },
+    {
+      "note_id": "698dcfaf000000001503881d",
+      "title": "消费降级的具象化——口红💄",
+      "makeup_style": [
+        "韩系妆容",
+        "自然裸妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "冷调"
+      },
+      "keywords": [
+        "显白",
+        "不拔干",
+        "大牌",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "68e92a1a0000000005003276",
+      "title": "",
+      "makeup_style": [
+        "自然裸妆",
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "珊瑚橘",
+        "texture": "水润",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "适合新手",
+        "平价好用",
+        "显白"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "67e540ff000000001201e426",
+      "title": "低至十几‼️从高中用到大学的口红分享💕😭",
+      "makeup_style": [
+        "韩系妆容"
+      ],
+      "lipstick_features": {
+        "color": "珊瑚橘",
+        "texture": "丝绒雾面",
+        "saturation": "中饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "显白",
+        "不拔干"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    },
+    {
+      "note_id": "67dac93d000000000d016e8a",
+      "title": "",
+      "makeup_style": [
+        "自然裸妆",
+        "韩式水光妆"
+      ],
+      "lipstick_features": {
+        "color": "裸色",
+        "texture": "水润",
+        "saturation": "低饱和",
+        "tone": "暖调"
+      },
+      "keywords": [
+        "显白",
+        "不拔干",
+        "日常"
+      ],
+      "scene": [
+        "日常通勤",
+        "约会"
+      ]
+    }
+  ],
+  "statistics": {
+    "total_notes": 10,
+    "analyzed_notes": 10,
+    "failed_notes": 0,
+    "styles": [
+      {
+        "name": "韩系妆容",
+        "count": 7,
+        "percentage": 70.0
+      },
+      {
+        "name": "自然裸妆",
+        "count": 4,
+        "percentage": 40.0
+      },
+      {
+        "name": "复古风",
+        "count": 3,
+        "percentage": 30.0
+      },
+      {
+        "name": "韩式水光妆",
+        "count": 1,
+        "percentage": 10.0
+      }
+    ],
+    "colors": [
+      {
+        "name": "裸色",
+        "count": 3,
+        "percentage": 30.0
+      },
+      {
+        "name": "珊瑚橘",
+        "count": 3,
+        "percentage": 30.0
+      },
+      {
+        "name": "粉嫩色",
+        "count": 1,
+        "percentage": 10.0
+      },
+      {
+        "name": "粉色",
+        "count": 1,
+        "percentage": 10.0
+      },
+      {
+        "name": "复古红",
+        "count": 1,
+        "percentage": 10.0
+      },
+      {
+        "name": "细闪珊瑚橘",
+        "count": 1,
+        "percentage": 10.0
+      }
+    ],
+    "keywords": [
+      {
+        "name": "显白",
+        "count": 7
+      },
+      {
+        "name": "日常",
+        "count": 5
+      },
+      {
+        "name": "不拔干",
+        "count": 5
+      },
+      {
+        "name": "质感",
+        "count": 1
+      },
+      {
+        "name": "保湿",
+        "count": 1
+      },
+      {
+        "name": "安全",
+        "count": 1
+      },
+      {
+        "name": "水润",
+        "count": 1
+      },
+      {
+        "name": "便宜",
+        "count": 1
+      },
+      {
+        "name": "种草",
+        "count": 1
+      },
+      {
+        "name": "爱用",
+        "count": 1
+      },
+      {
+        "name": "平价",
+        "count": 1
+      },
+      {
+        "name": "新色",
+        "count": 1
+      },
+      {
+        "name": "适合黄皮",
+        "count": 1
+      },
+      {
+        "name": "大牌",
+        "count": 1
+      },
+      {
+        "name": "适合新手",
+        "count": 1
+      },
+      {
+        "name": "平价好用",
+        "count": 1
+      }
+    ]
+  },
+  "report": {
+    "report_title": "化妆风格与颜色分析报告",
+    "summary": "本报告基于10条化妆笔记的数据分析，揭示了当前流行的化妆风格和颜色应用。主要发现包括韩系妆容占据主导地位，同时裸色和珊瑚橘色备受青睐。此外，显白和日常使用是用户关注的主要关键词。此分析为化妆产品的市场决策提供了重要参考。",
+    "sections": [
+      {
+        "section_id": "section-1",
+        "title": "化妆风格分析",
+        "content": "在近期的化妆风格分析中，数据显示韩系妆容以70%的比例成为最受欢迎的化妆风格。这表明消费者对清新、自然且富有婉约感的妆容需求旺盛，反映出韩流文化在美容行业中的强大影响力。结合目前的美容趋势，强调“水润感”与“自然光泽”成为化妆产品研发的重要方向，品牌应加强对韩系妆容的借鉴与创新，以满足不断增长的市场需求。\n\n与此同时，自然裸妆以40%的市场占有率紧随其后，显示出人们对自然美的追求依然坚定。裸妆风格不仅提高了化妆品的使用频率，也促使消费者更加注重自身肌肤的保养与护理。这一趋势建议品牌在产品研发中加入更多滋养成分，同时强调化妆与护肤的结合，提供满足消费者需求的多功能化妆品。\n\n复古风以30%的比例同样表现出色，显示出市场对于经典、时尚元素的持续兴趣。尽管韩系妆容占主导地位，但复古风潮的回归为品牌创造了新的市场细分机会。建议相关品牌可以尝试推出限量系列，以及结合现代元素进行复古风妆容的创新，以吸引追求个性化的消费者群体，提升品牌的市场竞争力。",
+        "charts": [
+          {
+            "chart_type": "pie",
+            "chart_title": "化妆风格分布",
+            "description": "各化妆风格在笔记中的占比。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "item",
+                "formatter": "{a} <br/>{b} : {c} ({d}%)"
+              },
+              "legend": {
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle"
+              },
+              "series": [
+                {
+                  "name": "化妆风格分布",
+                  "type": "pie",
+                  "radius": "55%",
+                  "center": [
+                    "50%",
+                    "60%"
+                  ],
+                  "data": [
+                    {
+                      "name": "韩系妆容",
+                      "value": 7
+                    },
+                    {
+                      "name": "自然裸妆",
+                      "value": 4
+                    },
+                    {
+                      "name": "复古风",
+                      "value": 3
+                    },
+                    {
+                      "name": "韩式水光妆",
+                      "value": 1
+                    }
+                  ],
+                  "label": {
+                    "normal": {
+                      "show": true,
+                      "position": "outside"
+                    }
+                  },
+                  "itemStyle": {
+                    "normal": {
+                      "borderColor": "#fff",
+                      "borderWidth": 1
+                    }
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "化妆风格排名",
+            "description": "不同风格的具体应用次数排名对比。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                  "type": "shadow"
+                }
+              },
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "category",
+                "data": [
+                  "韩系妆容",
+                  "自然裸妆",
+                  "复古风",
+                  "韩式水光妆"
+                ],
+                "axisLabel": {
+                  "color": "#000"
+                },
+                "axisLine": {
+                  "lineStyle": {
+                    "color": "#000"
+                  }
+                }
+              },
+              "yAxis": {
+                "type": "value"
+              },
+              "series": [
+                {
+                  "name": "化妆风格排名",
+                  "type": "bar",
+                  "data": [
+                    7,
+                    4,
+                    3,
+                    1
+                  ],
+                  "barWidth": "50%",
+                  "itemStyle": {
+                    "color": "#ff6b9d"
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "top",
+                    "color": "#000"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ],
+              "title": {
+                "text": "化妆风格排名",
+                "left": "center"
+              }
+            }
+          }
+        ],
+        "order": 1
+      },
+      {
+        "section_id": "section-2",
+        "title": "颜色偏好分析",
+        "content": "在本次颜色偏好分析中，我们观察到裸色和珊瑚橘色系的受欢迎程度显著，两者各占总受访者的30%。这种趋势反映了现代消费者趋向自然、简约的妆容风格，旨在突出个人的美丽与皮肤的自然色调。裸色唇妆在日常妆容中极具通用性，而珊瑚橘则增添了活力与青春气息，适合多种场合的使用。\n\n此外，粉嫩色、粉色、复古红和细闪珊瑚橘虽然各自的受欢迎程度较低，均为10%，但它们也展现了多样化的市场需求。特别是复古红，随着复古文化的回潮，此色系或许能在未来依托社交媒体快速复兴。品牌在推出新产品时，可以考虑在结合多样性与市场需求的基础上，适度扩展这些小众色系，以满足消费者的个性化需求。\n\n我们建议，美妆品牌在产品开发与市场推广中，重点关注裸色和珊瑚橘的色调，同时适时引入复古色系，营造出既经典又时尚的产品组合。这不仅能增强品牌与消费者之间的情感联系，还能在高竞争的市场环境中脱颖而出，提升市场份额。",
+        "charts": [
+          {
+            "chart_type": "pie",
+            "chart_title": "颜色应用分布",
+            "description": "不同颜色在笔记中的使用情况。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "item",
+                "formatter": "{a} <br/>{b}: {c} ({d}%)"
+              },
+              "legend": {
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle"
+              },
+              "series": [
+                {
+                  "name": "颜色应用分布",
+                  "type": "pie",
+                  "radius": "50%",
+                  "center": [
+                    "50%",
+                    "50%"
+                  ],
+                  "data": [
+                    {
+                      "name": "裸色",
+                      "value": 3
+                    },
+                    {
+                      "name": "珊瑚橘",
+                      "value": 3
+                    },
+                    {
+                      "name": "粉嫩色",
+                      "value": 1
+                    },
+                    {
+                      "name": "粉色",
+                      "value": 1
+                    },
+                    {
+                      "name": "复古红",
+                      "value": 1
+                    },
+                    {
+                      "name": "细闪珊瑚橘",
+                      "value": 1
+                    }
+                  ],
+                  "label": {
+                    "normal": {
+                      "show": true,
+                      "position": "outside"
+                    }
+                  },
+                  "itemStyle": {
+                    "emphasis": {
+                      "shadowBlur": 10,
+                      "shadowOffsetX": 0,
+                      "shadowColor": "rgba(0, 0, 0, 0.5)"
+                    }
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "颜色使用排名",
+            "description": "颜色使用次数的排名对比。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                  "type": "shadow"
+                }
+              },
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "category",
+                "data": [
+                  "裸色",
+                  "珊瑚橘",
+                  "粉嫩色",
+                  "粉色",
+                  "复古红",
+                  "细闪珊瑚橘"
+                ],
+                "axisLabel": {
+                  "interval": 0,
+                  "rotate": 45
+                },
+                "axisLine": {
+                  "lineStyle": {
+                    "color": "#333"
+                  }
+                }
+              },
+              "yAxis": {
+                "type": "value"
+              },
+              "series": [
+                {
+                  "name": "颜色使用次数",
+                  "type": "bar",
+                  "data": [
+                    3,
+                    3,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "barWidth": "60%",
+                  "itemStyle": {
+                    "borderRadius": [
+                      5,
+                      5,
+                      0,
+                      0
+                    ]
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "top",
+                    "formatter": "{c}"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          }
+        ],
+        "order": 2
+      },
+      {
+        "section_id": "section-3",
+        "title": "关键词分析",
+        "content": "在对当前美妆市场的关键词数据进行分析后，我们可以看到“显白”这一关键词以7次的出现频率脱颖而出，成为最受关注的特征。这表明消费者在选择化妆产品时，在追求提升肤色亮度方面的需求尤为强烈，这与当下流行的“显白”妆效趋势相吻合。品牌在产品推广上，应进一步强化这一特性，通过示范和评价来吸引顾客的视线，并提供符合这一需求的产品组合。\n\n其次，“日常”和“不拔干”这两个关键词的出现频率各为5次，显示出消费者对日常使用产品的关注及对舒适度的重视。不拔干表明了消费者对产品在滋润效果上的要求，特别是在面临干燥气候和环境问题时。品牌可以考虑推出更多适合日常妆容的滋润型产品，同时加强用户体验的宣传，以满足其对创新和舒适性的双重需求。\n\n最后，其他关键词如“质感”、“保湿”、“水润”等虽然出现频率较低，但也反映出消费者注重产品的多元属性。建议品牌在产品研发时，关注多项功能的结合，以打造更具竞争力的美妆商品。此外，平价定位和“适合新手”也是值得关注的趋势，提示品牌在开发新产品时应考虑入门级消费者的需求，通过合理定价策略来促进市场拓展。",
+        "charts": [
+          {
+            "chart_type": "scatter",
+            "chart_title": "关键词分布",
+            "description": "不同关键词的出现次数分布情况。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "item"
+              },
+              "grid": {
+                "left": "10%",
+                "right": "10%",
+                "top": "10%",
+                "bottom": "10%"
+              },
+              "xAxis": {
+                "show": false,
+                "type": "value",
+                "min": 0,
+                "max": 16
+              },
+              "yAxis": {
+                "show": false,
+                "type": "value",
+                "min": 0,
+                "max": 16
+              },
+              "series": [
+                {
+                  "type": "scatter",
+                  "symbolSize": 20,
+                  "data": [
+                    [
+                      1,
+                      1,
+                      70,
+                      "显白"
+                    ],
+                    [
+                      2,
+                      2,
+                      50,
+                      "日常"
+                    ],
+                    [
+                      3,
+                      3,
+                      50,
+                      "不拔干"
+                    ],
+                    [
+                      4,
+                      4,
+                      10,
+                      "质感"
+                    ],
+                    [
+                      5,
+                      5,
+                      10,
+                      "保湿"
+                    ],
+                    [
+                      6,
+                      6,
+                      10,
+                      "安全"
+                    ],
+                    [
+                      7,
+                      7,
+                      10,
+                      "水润"
+                    ],
+                    [
+                      8,
+                      8,
+                      10,
+                      "便宜"
+                    ],
+                    [
+                      9,
+                      9,
+                      10,
+                      "种草"
+                    ],
+                    [
+                      10,
+                      10,
+                      10,
+                      "爱用"
+                    ],
+                    [
+                      11,
+                      11,
+                      10,
+                      "平价"
+                    ],
+                    [
+                      12,
+                      12,
+                      10,
+                      "新色"
+                    ],
+                    [
+                      13,
+                      13,
+                      10,
+                      "适合黄皮"
+                    ],
+                    [
+                      14,
+                      14,
+                      10,
+                      "大牌"
+                    ],
+                    [
+                      15,
+                      15,
+                      10,
+                      "适合新手"
+                    ],
+                    [
+                      16,
+                      16,
+                      10,
+                      "平价好用"
+                    ]
+                  ],
+                  "label": {
+                    "show": true,
+                    "formatter": "{@[3]}"
+                  },
+                  "itemStyle": {
+                    "color": "#ff6b9d"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          },
+          {
+            "chart_type": "bar",
+            "chart_title": "关键词使用频率",
+            "description": "关键词使用频率的具体排名。",
+            "echarts_option": {
+              "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                  "type": "shadow"
+                }
+              },
+              "grid": {
+                "left": "3%",
+                "right": "4%",
+                "bottom": "3%",
+                "containLabel": true
+              },
+              "xAxis": {
+                "type": "value",
+                "axisLabel": {
+                  "formatter": "{value}"
+                },
+                "axisLine": {
+                  "show": true
+                }
+              },
+              "yAxis": {
+                "type": "category",
+                "data": [
+                  "显白",
+                  "日常",
+                  "不拔干",
+                  "质感",
+                  "保湿",
+                  "安全",
+                  "水润",
+                  "便宜",
+                  "种草",
+                  "爱用",
+                  "平价",
+                  "新色",
+                  "适合黄皮",
+                  "大牌",
+                  "适合新手",
+                  "平价好用"
+                ]
+              },
+              "series": [
+                {
+                  "name": "关键词使用频率",
+                  "type": "bar",
+                  "data": [
+                    7,
+                    5,
+                    5,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "barWidth": "30%",
+                  "itemStyle": {
+                    "borderRadius": [
+                      4,
+                      4,
+                      0,
+                      0
+                    ]
+                  },
+                  "label": {
+                    "show": true,
+                    "position": "insideRight",
+                    "formatter": "{c}"
+                  }
+                }
+              ],
+              "color": [
+                "#ff6b9d",
+                "#5f27cd",
+                "#00d2d3",
+                "#feca57",
+                "#ee5a6f",
+                "#48dbfb",
+                "#ff9ff3",
+                "#54a0ff"
+              ]
+            }
+          }
+        ],
+        "order": 3
+      }
+    ]
+  }
+}
