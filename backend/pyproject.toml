@@ -41,6 +41,12 @@ dependencies = [
     "python-multipart>=0.0.6",
     "python-dotenv>=1.0.0",
     "aiofiles>=23.2.1",
+
+    # 数据库（可选：仅当配置了 DATABASE_URL 时使用）
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.9",
+    "bcrypt>=4.0.0",
+    "python-jose[cryptography]>=3.3.0",
 ]
 
 [tool.setuptools.package-dir]
@@ -48,5 +54,5 @@ dependencies = [
 
 [tool.setuptools]
 # 显式列出包，避免把 api/data/models 等当作顶层包
-packages = ["backend", "backend.api", "backend.models", "backend.prompts", "backend.services"]
+packages = ["backend", "backend.api", "backend.db", "backend.models", "backend.prompts", "backend.services"]
 

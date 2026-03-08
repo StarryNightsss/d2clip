@@ -1,13 +1,29 @@
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Request
 from typing import Optional, Dict
 
 from backend.models.schemas import NoteAnalysisRequest, AnalysisResponse
 from backend.services.analysis_service import analysis_service
+from backend.auth import decode_token
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
+
+def _current_username(request: Request) -> Optional[str]:
+    """从请求头 Authorization: Bearer <token> 解析出当前用户名，未登录或无效则返回 None"""
+    auth = request.headers.get("Authorization") or ""
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth[7:].strip()
+    if not token:
+        return None
+    payload = decode_token(token)
+    if not payload:
+        return None
+    return (payload.get("username") or payload.get("sub") or "").strip() or None
+
+
 @router.post("/analyze")
-async def analyze_notes(request: NoteAnalysisRequest):
+async def analyze_notes(request: Request, body: NoteAnalysisRequest = Body(...)):
     """
     分析笔记数据
 
@@ -19,10 +35,12 @@ async def analyze_notes(request: NoteAnalysisRequest):
     - 如果成功开始分析，返回完整的 AnalysisResponse
     """
     try:
+        username = _current_username(request)
         result = await analysis_service.analyze_notes(
-            data_file=request.data_file,
-            limit=request.limit,
-            platform=request.platform
+            data_file=body.data_file,
+            limit=body.limit,
+            platform=body.platform or "xhs",
+            user_id=username,
         )
         return result
 
@@ -41,14 +59,13 @@ async def get_status():
     }
 
 @router.get("/results/{analysis_id}")
-async def get_analysis_results(analysis_id: str):
+async def get_analysis_results(request: Request, analysis_id: str):
     """
-    获取指定分析任务的详细结果
-
-    返回每条笔记的分析详情，用于数据列表页面展示
+    获取指定分析任务的详细结果；有 DB 且已登录时仅允许查看自己的分析
     """
     try:
-        results = analysis_service.get_analysis_results(analysis_id)
+        username = _current_username(request)
+        results = analysis_service.get_analysis_results(analysis_id, user_id=username)
         if not results:
             raise HTTPException(
                 status_code=404,
@@ -61,14 +78,13 @@ async def get_analysis_results(analysis_id: str):
         raise HTTPException(status_code=500, detail=f"获取结果失败: {str(e)}")
 
 @router.get("/latest-results")
-async def get_latest_results(limit: Optional[int] = 100):
+async def get_latest_results(request: Request, limit: Optional[int] = 100):
     """
-    获取最近一次分析的结果列表
-
-    用于数据列表页面快速展示最新分析数据
+    获取最近一次分析的结果；有 DB 且已登录时返回该用户最近一次
     """
     try:
-        results = analysis_service.get_latest_results(limit)
+        username = _current_username(request)
+        results = analysis_service.get_latest_results(limit, user_id=username)
         if not results:
             return {
                 "total": 0,
@@ -94,45 +110,29 @@ async def get_analysis_progress():
 
 @router.get("/history")
 async def get_analysis_history(
+    request: Request,
     limit: Optional[int] = 10,
     offset: Optional[int] = 0,
-    platform: Optional[str] = None
+    platform: Optional[str] = None,
 ):
     """
-    获取分析历史记录
-
-    - **limit**: 返回数量限制（默认 10）
-    - **offset**: 跳过数量，用于分页（默认 0）
-    - **platform**: 平台筛选，如 xhs/dy（可选）
-
-    返回：
-    {
-        "total": 总记录数,
-        "items": [历史记录列表]
-    }
+    获取分析历史记录；有 DB 且已登录时仅返回当前用户的历史
     """
     try:
-        history = analysis_service.get_analysis_history(limit, offset, platform)
+        username = _current_username(request)
+        history = analysis_service.get_analysis_history(limit, offset, platform, user_id=username)
         return history
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取历史失败: {str(e)}")
 
 @router.put("/report/{analysis_id}")
-async def update_report(analysis_id: str, updated_report: Dict = Body(...)):
+async def update_report(request: Request, analysis_id: str, updated_report: Dict = Body(...)):
     """
-    更新指定分析任务的报告内容
-
-    - **analysis_id**: 分析任务 ID
-    - **updated_report**: 更新后的报告对象（包含 report_title, summary, sections）
-
-    返回：
-    {
-        "success": true,
-        "message": "报告更新成功"
-    }
+    更新指定分析任务的报告内容；有 DB 且已登录时仅允许更新自己的分析
     """
     try:
-        success = analysis_service.update_report(analysis_id, updated_report)
+        username = _current_username(request)
+        success = analysis_service.update_report(analysis_id, updated_report, user_id=username)
         if not success:
             raise HTTPException(status_code=404, detail=f"未找到分析任务: {analysis_id}")
         return {"success": True, "message": "报告更新成功"}

@@ -55,8 +55,9 @@ class AnalysisService:
             print(f"⚠️ 保存历史记录失败: {e}")
 
     def _add_to_history(self, analysis_id: str, platform: str, data_file: str,
-                       total_notes: int, analyzed_notes: int, failed_notes: int, status: str):
-        """添加一条历史记录"""
+                       total_notes: int, analyzed_notes: int, failed_notes: int, status: str,
+                       user_id: str = None):
+        """添加一条历史记录；有 DB 时写库（含 user_id 按用户区分），否则写 JSON 文件"""
         history_entry = {
             "analysis_id": analysis_id,
             "created_at": datetime.now().isoformat(),
@@ -65,8 +66,32 @@ class AnalysisService:
             "total_notes": total_notes,
             "analyzed_notes": analyzed_notes,
             "failed_notes": failed_notes,
-            "status": status
+            "status": status,
         }
+        if user_id is not None:
+            history_entry["user_id"] = user_id
+        try:
+            from backend.db import is_db_configured, SessionLocal
+            from backend.db.models import AnalysisTask
+            if is_db_configured():
+                db = SessionLocal()
+                try:
+                    db.add(AnalysisTask(
+                        analysis_id=analysis_id,
+                        user_id=user_id or None,
+                        platform=platform,
+                        data_file=data_file,
+                        total_notes=total_notes,
+                        analyzed_notes=analyzed_notes,
+                        failed_notes=failed_notes,
+                        status=status,
+                    ))
+                    db.commit()
+                finally:
+                    db.close()
+                    return
+        except Exception:
+            pass
         self._history.insert(0, history_entry)
         self._history = self._history[:50]
         self._save_history()
@@ -205,7 +230,7 @@ class AnalysisService:
             print(f"⚠️ 加载分析结果失败: {e}")
             return None
 
-    async def analyze_notes(self, data_file: str, limit: int = None, platform: str = "xhs") -> AnalysisResponse:
+    async def analyze_notes(self, data_file: str, limit: int = None, platform: str = "xhs", user_id: str = None) -> AnalysisResponse:
         """分析笔记数据（使用 Chain）"""
         if self._current_task_status == "running":
             return {
@@ -273,7 +298,8 @@ class AnalysisService:
                 total_notes=len(notes),
                 analyzed_notes=len(results),
                 failed_notes=failed_count,
-                status="success" if results else "failed"
+                status="success" if results else "failed",
+                user_id=user_id,
             )
 
             print(f"\n✅ 分析完成！成功: {len(results)}, 失败: {failed_count}")
@@ -651,9 +677,34 @@ class AnalysisService:
             keywords=keywords
         )
 
-    def get_analysis_results(self, analysis_id: str) -> Dict:
-        """获取指定分析任务的结果（优先内存，然后文件）"""
+    def _analysis_belongs_to_user(self, analysis_id: str, user_id: str) -> bool:
+        """有 DB 时校验该分析是否属于该用户（user_id 为空或未配置 DB 时视为通过）"""
+        if not user_id:
+            return True
         try:
+            from backend.db import is_db_configured, SessionLocal
+            from backend.db.models import AnalysisTask
+            if not is_db_configured():
+                return True
+            db = SessionLocal()
+            try:
+                t = db.query(AnalysisTask).filter(AnalysisTask.analysis_id == analysis_id).first()
+                if not t:
+                    return False
+                # 未归属的旧数据视为仅管理员可访问（与 backfill_analysis_admin 一致）
+                if t.user_id is None:
+                    return user_id == "admin@d2clip.com"
+                return t.user_id == user_id
+            finally:
+                db.close()
+        except Exception:
+            return False
+
+    def get_analysis_results(self, analysis_id: str, user_id: str = None) -> Dict:
+        """获取指定分析任务的结果；有 DB 且传 user_id 时校验归属"""
+        try:
+            if user_id and not self._analysis_belongs_to_user(analysis_id, user_id):
+                return None
             # 先从内存缓存获取
             response = self._analysis_cache.get(analysis_id)
 
@@ -726,12 +777,56 @@ class AnalysisService:
             print(f"⚠️ get_analysis_results 异常: {e}")
             return None
 
-    def get_latest_results(self, limit: int = 100) -> Dict:
-        """获取最近一次分析的结果"""
+    def get_latest_results(self, limit: int = 100, user_id: str = None) -> Dict:
+        """获取最近一次分析的结果；有 DB 且传 user_id 时取该用户最近一次"""
+        try:
+            from backend.db import is_db_configured, SessionLocal
+            from backend.db.models import AnalysisTask
+            if is_db_configured() and user_id:
+                db = SessionLocal()
+                try:
+                    t = db.query(AnalysisTask).filter(
+                        AnalysisTask.user_id == user_id
+                    ).order_by(AnalysisTask.created_at.desc()).first()
+                    if t:
+                        response = self._analysis_cache.get(t.analysis_id) or self._load_analysis_from_file(t.analysis_id)
+                        if response:
+                            results = response.results[:limit] if limit else response.results
+                            return {
+                                "analysis_id": response.analysis_id,
+                                "status": response.status,
+                                "created_at": response.created_at.isoformat() if response.created_at else "",
+                                "total": len(response.results),
+                                "limit": limit,
+                                "results": [
+                                    {"key": r.note_id, "note_id": r.note_id, "title": r.title, "style": r.makeup_style,
+                                     "color": r.lipstick_features.color, "texture": r.lipstick_features.texture,
+                                     "saturation": r.lipstick_features.saturation, "tone": r.lipstick_features.tone,
+                                     "keywords": r.keywords, "scene": r.scene, "comments": getattr(r, "comments", [])}
+                                    for r in results
+                                ],
+                                "statistics": {
+                                    "total_notes": response.statistics.total_notes,
+                                    "analyzed_notes": response.statistics.analyzed_notes,
+                                    "failed_notes": response.statistics.failed_notes,
+                                    "styles": [{"name": s.name, "count": s.count, "percentage": s.percentage} for s in response.statistics.styles],
+                                    "colors": [{"name": c.name, "count": c.count, "percentage": c.percentage} for c in response.statistics.colors],
+                                    "keywords": [{"name": k.name, "count": k.count} for k in response.statistics.keywords]
+                                }
+                            }
+                finally:
+                    db.close()
+                return None
+        except Exception:
+            pass
         if not self._latest_analysis_id:
             return None
 
-        response = self._analysis_cache[self._latest_analysis_id]
+        response = self._analysis_cache.get(self._latest_analysis_id)
+        if not response:
+            response = self._load_analysis_from_file(self._latest_analysis_id)
+        if not response:
+            return None
         results = response.results[:limit] if limit else response.results
 
         return {
@@ -774,23 +869,61 @@ class AnalysisService:
             "total": self._total_notes
         }
 
-    def get_analysis_history(self, limit: int = 10, offset: int = 0, platform: str = None) -> Dict:
-        """获取分析历史记录"""
+    def get_analysis_history(self, limit: int = 10, offset: int = 0, platform: str = None, user_id: str = None) -> Dict:
+        """获取分析历史记录；有 DB 时按 user_id 过滤（未传则返回空），否则从内存/文件"""
+        try:
+            from backend.db import is_db_configured, SessionLocal
+            from backend.db.models import AnalysisTask
+            if is_db_configured():
+                db = SessionLocal()
+                try:
+                    # 有 DB 时未传 user_id 则只返回空（不暴露他人历史）
+                    if user_id is None:
+                        return {"total": 0, "items": []}
+                    # 管理员可见「归属自己」+「未归属的旧数据」；其他用户仅可见自己的
+                    if user_id == "admin@d2clip.com":
+                        from sqlalchemy import or_
+                        q = db.query(AnalysisTask).filter(
+                            or_(AnalysisTask.user_id == user_id, AnalysisTask.user_id.is_(None))
+                        ).order_by(AnalysisTask.created_at.desc())
+                    else:
+                        q = db.query(AnalysisTask).filter(AnalysisTask.user_id == user_id).order_by(AnalysisTask.created_at.desc())
+                    if platform:
+                        q = q.filter(AnalysisTask.platform == platform)
+                    total = q.count()
+                    rows = q.offset(offset).limit(limit).all()
+                    items = [
+                        {
+                            "analysis_id": r.analysis_id,
+                            "created_at": r.created_at.isoformat() if r.created_at else "",
+                            "platform": r.platform or "",
+                            "data_file": r.data_file or "",
+                            "total_notes": r.total_notes or 0,
+                            "analyzed_notes": r.analyzed_notes or 0,
+                            "failed_notes": r.failed_notes or 0,
+                            "status": r.status or "",
+                        }
+                        for r in rows
+                    ]
+                    return {"total": total, "items": items}
+                finally:
+                    db.close()
+        except Exception:
+            pass
         filtered_history = self._history
+        if user_id is not None:
+            filtered_history = [h for h in filtered_history if h.get("user_id") == user_id]
         if platform:
-            filtered_history = [h for h in self._history if h.get('platform') == platform]
-
+            filtered_history = [h for h in filtered_history if h.get('platform') == platform]
         total = len(filtered_history)
         items = filtered_history[offset:offset + limit]
+        return {"total": total, "items": items}
 
-        return {
-            "total": total,
-            "items": items
-        }
-
-    def update_report(self, analysis_id: str, updated_report: Dict) -> bool:
-        """更新指定分析任务的报告内容"""
+    def update_report(self, analysis_id: str, updated_report: Dict, user_id: str = None) -> bool:
+        """更新指定分析任务的报告内容；有 DB 且传 user_id 时校验归属"""
         try:
+            if user_id and not self._analysis_belongs_to_user(analysis_id, user_id):
+                return False
             # 1. 从内存或文件加载完整的分析结果
             response = self._analysis_cache.get(analysis_id)
             if not response:

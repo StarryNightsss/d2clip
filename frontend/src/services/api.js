@@ -4,13 +4,18 @@ const ANALYSIS_API_BASE = import.meta.env.VITE_ANALYSIS_API_BASE
   || (import.meta.env.DEV ? 'http://localhost:8000/api' : `${window.location.origin}/api`)
 const CRAWLER_API_BASE = ANALYSIS_API_BASE
 
-// 通用请求封装（注意：crawler/data 与 analysis 同端口）
+// 从本地存储读取 JWT（登录成功后写入）
+const getToken = () => localStorage.getItem('token')
+
+// 通用请求封装（注意：crawler/data 与 analysis 同端口）；带 token 时自动加 Authorization
 const request = async (url, options = {}, baseUrl = ANALYSIS_API_BASE) => {
   try {
+    const token = getToken()
     const response = await fetch(`${baseUrl}${url}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
     })
@@ -85,10 +90,48 @@ export const analysisAPI = {
   }, ANALYSIS_API_BASE),
 }
 
+// 登录与用户信息（DB 配置时生效）
+export const authAPI = {
+  login: (username, password, department) =>
+    request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, department: department || undefined }),
+    }),
+}
+
+// 职员管理 CRUD（仅当后端配置 DATABASE_URL 时存在 /api/users）
+export const usersAPI = {
+  getList: () => request('/users'),
+  create: (body) =>
+    request('/users', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  update: (id, body) =>
+    request(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  delete: (id) =>
+    fetch(`${ANALYSIS_API_BASE}/users/${id}`, {
+      method: 'DELETE',
+      headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {},
+    }).then((res) => {
+      if (!res.ok) {
+        return res.json().then((err) => { throw new Error(err.detail || `HTTP ${res.status}`) })
+      }
+    }),
+}
+
 // 企业社群 API（与后端 community 路由对接）
 export const communityAPI = {
   getUsers: () => request('/community/users', {}, ANALYSIS_API_BASE),
-  getGroups: (userId) => request(`/community/groups${userId ? `?user_id=${encodeURIComponent(userId)}` : ''}`, {}, ANALYSIS_API_BASE),
+  getGroups: (userId, department) => {
+    const params = new URLSearchParams()
+    if (userId) params.append('user_id', userId)
+    if (department) params.append('department', department)
+    return request(`/community/groups${params.toString() ? `?${params.toString()}` : ''}`, {}, ANALYSIS_API_BASE)
+  },
   markGroupRead: (groupKey, userId) => request(`/community/groups/${groupKey}/read`, {
     method: 'POST',
     body: JSON.stringify({ user_id: userId || '' }),

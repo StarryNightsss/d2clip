@@ -27,6 +27,7 @@ const Layout = ({ children }) => {
       cancelText: '取消',
       onOk: () => {
         localStorage.removeItem('userInfo')
+        localStorage.removeItem('token')
         message.success('已退出登录')
         navigate('/login')
       }

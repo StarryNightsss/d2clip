@@ -3,7 +3,7 @@ import { UserOutlined, LockOutlined, BarChartOutlined, ExperimentOutlined, Smile
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import loginBg from '../assets/login-bg.png'
-import { communityAPI } from '../services/api'
+import { authAPI, communityAPI } from '../services/api'
 import LipstickLottie from '../components/LipstickLottie'
 import { getDefaultPath } from '../utils/defaultRoute'
 
@@ -16,19 +16,39 @@ const Login = () => {
     const { username, password, department } = values
 
     try {
-      // 简单模拟验证
+      // 优先走 DB 登录（配置了 DATABASE_URL 时）；传部门，非 admin 只能选自己部门才能进
+      try {
+        const res = await authAPI.login(username, password, department)
+        if (res && res.token) {
+          const userInfo = res.userInfo || {}
+          localStorage.setItem('token', res.token)
+          localStorage.setItem('userInfo', JSON.stringify(userInfo))
+          message.success('登录成功！')
+          setTimeout(() => navigate(getDefaultPath(userInfo.department)), 500)
+          return
+        }
+      } catch (e) {
+        // 后端明确拒绝（如部门不对、密码错误）时直接提示，不兜底到 mock 登录
+        const msg = e?.message || (e?.detail ?? '登录失败')
+        if (msg && (msg.includes('部门') || msg.includes('密码') || msg.includes('用户名') || msg.includes('请选择'))) {
+          message.error(msg)
+          return
+        }
+        // 503/网络错误等再走下方兜底
+      }
+
+      // 兜底：未配置 DB 或登录失败时，沿用原有表单校验
       if (password !== '123456') {
         message.error('密码错误！')
         return
       }
-      // 从后端员工列表取当前用户头像，统一与社区发帖/评论一致
       let avatar
       try {
         const users = await communityAPI.getUsers()
         const me = Array.isArray(users) ? users.find(u => u && (u.username === username || u.email === username)) : null
-        avatar = me?.avatar || ((username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined)
+        avatar = me?.avatar || ((username === 'admin@d2clip.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined)
       } catch (_) {
-        avatar = (username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined
+        avatar = (username === 'admin@d2clip.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined
       }
       const userInfo = {
         username,

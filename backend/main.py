@@ -6,15 +6,19 @@ _root = Path(__file__).resolve().parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import uvicorn
+from sqlalchemy.exc import OperationalError, InterfaceError
 
 from backend.config import settings
 from backend.api.analysis import router as analysis_router
 from backend.api.community import router as community_router
 from backend.api.crawler import router as crawler_router
 from backend.api.data import router as data_router
+from backend.api.auth import router as auth_router
+from backend.db import is_db_configured
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -36,10 +40,29 @@ app.add_middleware(
 )
 
 # 注册路由
+app.include_router(auth_router, prefix="/api")
 app.include_router(analysis_router, prefix="/api")
 app.include_router(community_router, prefix="/api")
 app.include_router(crawler_router, prefix="/api")
 app.include_router(data_router, prefix="/api")
+# 职员管理 CRUD（仅当配置了 DATABASE_URL 时挂载）
+if is_db_configured():
+    from backend.api.users import router as users_router
+    app.include_router(users_router, prefix="/api")
+
+
+@app.exception_handler(OperationalError)
+@app.exception_handler(InterfaceError)
+async def db_unavailable_handler(request: Request, exc: Exception):
+    """配置了 DB 但运行中连接失败（如 PostgreSQL 停了）时，返回 503 与明确原因，便于排查"""
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "数据库暂时不可用，请检查 PostgreSQL 是否运行、网络与 DATABASE_URL 是否正确。",
+            "error_type": type(exc).__name__,
+        },
+    )
+
 
 @app.get("/")
 async def root():

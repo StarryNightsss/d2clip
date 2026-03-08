@@ -1,65 +1,22 @@
 import { Table, Button, Space, Tag, Modal, Form, Input, Select, message, Card } from 'antd'
-import { UserAddOutlined, EditOutlined, DeleteOutlined, TeamOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { UserAddOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { useState, useEffect } from 'react'
+import { usersAPI } from '../services/api'
 
 const UserManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [users, setUsers] = useState([])
   const [form] = Form.useForm()
 
-  // 模拟用户数据
-  const [users, setUsers] = useState([
-    {
-      key: '1',
-      username: 'zhangsan',
-      name: '张三',
-      department: 'product',
-      departmentName: '产品部门',
-      role: 'user',
-      email: 'zhangsan@d2clips.com',
-      status: 'active'
-    },
-    {
-      key: '2',
-      username: 'lisi',
-      name: '李四',
-      department: 'rd',
-      departmentName: '研发部门',
-      role: 'user',
-      email: 'lisi@d2clips.com',
-      status: 'active'
-    },
-    {
-      key: '3',
-      username: 'wangwu',
-      name: '王五',
-      department: 'market',
-      departmentName: '市场部门',
-      role: 'user',
-      email: 'wangwu@d2clips.com',
-      status: 'active'
-    },
-    {
-      key: '4',
-      username: 'zhaoliu',
-      name: '赵六',
-      department: 'operation',
-      departmentName: '运营部门',
-      role: 'user',
-      email: 'zhaoliu@d2clips.com',
-      status: 'active'
-    },
-    {
-      key: '5',
-      username: 'admin',
-      name: '管理员',
-      department: 'admin',
-      departmentName: '管理员',
-      role: 'admin',
-      email: 'admin@d2clips.com',
-      status: 'active'
-    }
-  ])
+  useEffect(() => {
+    usersAPI
+      .getList()
+      .then((list) => setUsers(Array.isArray(list) ? list : []))
+      .catch(() => setUsers([]))
+      .finally(() => setLoading(false))
+  }, [])
 
   const departmentColors = {
     product: 'blue',
@@ -194,14 +151,19 @@ const UserManagement = () => {
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        setUsers(users.filter(u => u.key !== record.key))
-        message.success('删除成功')
+        usersAPI
+          .delete(record.id)
+          .then(() => {
+            setUsers((prev) => prev.filter((u) => u.id !== record.id))
+            message.success('删除成功')
+          })
+          .catch((err) => message.error(err?.message || '删除失败'))
       }
     })
   }
 
   const handleModalOk = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values) => {
       const departmentNameMap = {
         product: '产品部门',
         rd: '研发部门',
@@ -211,27 +173,41 @@ const UserManagement = () => {
       }
 
       if (editingUser) {
-        // 编辑
-        setUsers(users.map(u =>
-          u.key === editingUser.key
-            ? { ...u, ...values, departmentName: departmentNameMap[values.department] }
-            : u
-        ))
-        message.success('修改成功')
+        usersAPI
+          .update(editingUser.id, {
+            name: values.name,
+            department: values.department,
+            email: values.email,
+            role: values.role,
+            ...(values.password ? { password: values.password } : {}),
+          })
+          .then((updated) => {
+            setUsers((prev) =>
+              prev.map((u) => (u.id === editingUser.id ? { ...u, ...updated } : u))
+            )
+            message.success('修改成功')
+            setIsModalOpen(false)
+            form.resetFields()
+          })
+          .catch((err) => message.error(err?.message || '修改失败'))
       } else {
-        // 新增
-        const newUser = {
-          key: Date.now().toString(),
-          ...values,
-          departmentName: departmentNameMap[values.department],
-          status: 'active'
-        }
-        setUsers([...users, newUser])
-        message.success('添加成功')
+        usersAPI
+          .create({
+            username: values.username,
+            name: values.name,
+            department: values.department,
+            email: values.email,
+            role: values.role || 'user',
+            password: values.password || '123456',
+          })
+          .then((newUser) => {
+            setUsers((prev) => [...prev, newUser])
+            message.success('添加成功')
+            setIsModalOpen(false)
+            form.resetFields()
+          })
+          .catch((err) => message.error(err?.message || '添加失败'))
       }
-
-      setIsModalOpen(false)
-      form.resetFields()
     })
   }
 
@@ -282,6 +258,8 @@ const UserManagement = () => {
         borderRadius: '20px'
       }}>
         <Table
+          rowKey="key"
+          loading={loading}
           columns={columns}
           dataSource={users}
           pagination={{

@@ -1,6 +1,6 @@
 import { Card, List, Avatar, Space, Button, Tag, Input, Badge, Dropdown, message, Divider, Empty, Modal, Spin } from 'antd'
 import { MessageOutlined, LikeOutlined, ShareAltOutlined, SendOutlined, MoreOutlined, UserOutlined, AimOutlined, ExperimentOutlined, SoundOutlined, EditOutlined, SearchOutlined, PlusOutlined, FileTextOutlined, ClockCircleOutlined, TeamOutlined, DeleteOutlined } from '@ant-design/icons'
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { communityAPI, analysisAPI } from '../services/api'
 
@@ -10,8 +10,8 @@ const { Search } = Input
 // 部门/群 key -> 图标（保留原有界面风格）
 const DEPT_ICONS = {
   product: <AimOutlined />,
-  design: <ExperimentOutlined />,
-  marketing: <SoundOutlined />,
+  rd: <ExperimentOutlined />,
+  market: <SoundOutlined />,
   operation: <EditOutlined />,
   product_small: <TeamOutlined />,
   product_rd: <MessageOutlined />,
@@ -19,8 +19,9 @@ const DEPT_ICONS = {
 }
 
 function formatTime(createdAt) {
-  if (!createdAt) return '刚刚'
+  if (createdAt == null || createdAt === '') return '刚刚'
   const d = new Date(createdAt)
+  if (Number.isNaN(d.getTime())) return '刚刚'
   const now = new Date()
   const diff = (now - d) / 1000
   if (diff < 60) return '刚刚'
@@ -30,10 +31,11 @@ function formatTime(createdAt) {
   return d.toLocaleDateString('zh-CN')
 }
 
-/** 完整日期时间（历史记录持久化，带日期时间） */
+/** 完整日期时间（历史记录持久化，带日期时间）；无效日期返回 '-' 避免 NaN */
 function formatDateTime(createdAt) {
-  if (!createdAt) return '-'
+  if (createdAt == null || createdAt === '') return '-'
   const d = new Date(createdAt)
+  if (Number.isNaN(d.getTime())) return '-'
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
@@ -44,8 +46,9 @@ function formatDateTime(createdAt) {
 
 /** 列表用日期分组标题：今天 / 昨天 / 2月25日 */
 function formatDateGroup(createdAt) {
-  if (!createdAt) return ''
+  if (createdAt == null || createdAt === '') return ''
   const d = new Date(createdAt)
+  if (Number.isNaN(d.getTime())) return ''
   const now = new Date()
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
   if (sameDay(d, now)) return '今天'
@@ -88,7 +91,7 @@ const Community = () => {
   const [editContent, setEditContent] = useState('')
   const [editSubmitting, setEditSubmitting] = useState(false)
 
-  // 当前用户部门（用于过滤可见群组）
+  // 当前用户部门（登录时选择的身份，用于过滤可见群组）
   const userDepartment = (() => {
     try {
       const raw = localStorage.getItem('userInfo')
@@ -107,6 +110,23 @@ const Community = () => {
       return info.avatar || undefined
     } catch {
       return undefined
+    }
+  })()
+
+  // 当前登录用户身份（用于帖子编辑/删除权限：仅本人或 admin 可操作）
+  const { currentUsername, currentUserName, isAdminUser } = (() => {
+    try {
+      const raw = localStorage.getItem('userInfo')
+      const info = raw ? JSON.parse(raw) : {}
+      const username = (info.username || '').trim()
+      const name = (info.name || '').trim()
+      return {
+        currentUsername: username,
+        currentUserName: name,
+        isAdminUser: username === 'admin@d2clip.com' || (info.department || '').toLowerCase() === 'admin'
+      }
+    } catch {
+      return { currentUsername: '', currentUserName: '', isAdminUser: false }
     }
   })()
 
@@ -212,27 +232,37 @@ const Community = () => {
     }
   }
 
-  // 拉取群组列表（带当前用户 id 时后端返回 has_unread，用于红点角标）
-  useEffect(() => {
-    let cancelled = false
-    setLoadingGroups(true)
+  // 拉取群组列表（带当前用户 id 时后端返回 has_unread 红点；部门用登录时选择的身份）
+  const fetchGroups = useCallback(() => {
     let userId = ''
+    let department = ''
     try {
       const raw = localStorage.getItem('userInfo')
       const info = raw ? JSON.parse(raw) : {}
       userId = info.username || info.name || info.email || ''
+      department = (info.department || '').trim()
     } catch (_) {}
-    communityAPI.getGroups(userId || undefined)
-      .then(data => {
-        if (!cancelled) setGroups(Array.isArray(data) ? data : [])
-      })
+    return communityAPI.getGroups(userId || undefined, department || undefined)
+      .then(data => setGroups(Array.isArray(data) ? data : []))
       .catch(() => {
-        if (!cancelled) setGroups([])
+        setGroups([])
         message.error('加载群组失败')
       })
-      .finally(() => { if (!cancelled) setLoadingGroups(false) })
-    return () => { cancelled = true }
   }, [])
+  useEffect(() => {
+    let cancelled = false
+    setLoadingGroups(true)
+    fetchGroups().finally(() => { if (!cancelled) setLoadingGroups(false) })
+    return () => { cancelled = true }
+  }, [fetchGroups])
+
+  // 定期刷新群列表以更新「新消息」红点（别人发帖后无需手动刷新页面）
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchGroups()
+    }, 45000)
+    return () => clearInterval(interval)
+  }, [fetchGroups])
 
   // 拉取员工列表（name/username -> avatar），评论和帖子作者无论显示名还是登录名都能对上头像
   useEffect(() => {
@@ -252,7 +282,7 @@ const Community = () => {
       .catch(() => {})
   }, [])
 
-  // 进入某群时标记已读（持久化到后端）；先乐观更新角标，再请求后端
+  // 进入某群时标记已读（持久化到后端）；先乐观更新角标，再请求后端；无 userId 时后端会从 JWT 取当前用户
   useEffect(() => {
     if (!activeDept) return
     setGroups(prev => prev.map(g => g.key === activeDept ? { ...g, has_unread: false } : g))
@@ -260,9 +290,17 @@ const Community = () => {
     try {
       const raw = localStorage.getItem('userInfo')
       const info = raw ? JSON.parse(raw) : {}
-      userId = info.username || info.name || info.email || ''
+      userId = (info.username || info.name || info.email || '').trim()
     } catch (_) {}
-    communityAPI.markGroupRead(activeDept, userId).catch(() => {})
+    communityAPI
+      .markGroupRead(activeDept, userId)
+      .then((res) => {
+        if (res && res.ok === false && res.message) console.warn('标记已读:', res.message)
+        else fetchGroups()
+      })
+      .catch((err) => {
+        console.error('标记已读失败（红点可能不会持久化）', err)
+      })
   }, [activeDept])
 
   // 一进来就拉取所有可见群的帖子，这样角标（有消息的群）在进页时就有，点进某群后该群角标消失
@@ -312,10 +350,14 @@ const Community = () => {
     return () => { cancelled = true }
   }, [activeDept, postsByGroup, visibleGroupKeys.length])
 
-  // 选中当前群组第一条帖子
+  // 切换群组时选第一条；同一群内帖子列表更新时（点赞/评论/转发后）保留当前选中并同步最新数据，不跳到第一条
   useEffect(() => {
     const posts = postsByGroup[activeDept] || []
-    if (posts.length > 0) {
+    const currentId = selectedPost?.id
+    const found = posts.find(p => String(p.id) === String(currentId))
+    if (found) {
+      setSelectedPost(found)
+    } else if (posts.length > 0) {
       setSelectedPost(posts[0])
     } else {
       setSelectedPost(null)
@@ -913,7 +955,7 @@ const Community = () => {
                       }}
                     >
                       <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
-                        <Avatar src={post.avatar} size={40} icon={!post.avatar && <UserOutlined />} />
+                        <Avatar src={post.avatar || userAvatarMap[post.author]} size={40} icon={!(post.avatar || userAvatarMap[post.author]) && <UserOutlined />} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontWeight: '500', fontSize: 14 }}>{post.author}</span>
@@ -963,7 +1005,7 @@ const Community = () => {
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f0f0f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Space size={12}>
-                  <Avatar src={selectedPost.avatar} size={48} icon={!selectedPost.avatar && <UserOutlined />} />
+                  <Avatar src={selectedPost.avatar || userAvatarMap[selectedPost.author]} size={48} icon={!(selectedPost.avatar || userAvatarMap[selectedPost.author]) && <UserOutlined />} />
                   <div>
                     <div style={{ fontWeight: 'bold', fontSize: 16 }}>{selectedPost.author}</div>
                     <Space size={8}>
@@ -977,11 +1019,14 @@ const Community = () => {
                 </Space>
                 <Dropdown
                   menu={{
-                    items: [
-                      { key: 'forward', label: '转发到其他部门', icon: <ShareAltOutlined /> },
-                      { key: 'edit', label: '编辑', icon: <EditOutlined /> },
-                      { key: 'delete', label: '删除', danger: true, icon: <DeleteOutlined /> }
-                    ],
+                    items: (() => {
+                      const canEditDelete = isAdminUser || selectedPost.author_username === currentUsername || selectedPost.author === currentUserName || selectedPost.author === currentUsername
+                      const list = [
+                        { key: 'forward', label: '转发到其他部门', icon: <ShareAltOutlined /> },
+                        ...(canEditDelete ? [{ key: 'edit', label: '编辑', icon: <EditOutlined /> }, { key: 'delete', label: '删除', danger: true, icon: <DeleteOutlined /> }] : [])
+                      ]
+                      return list
+                    })(),
                     onClick: ({ key }) => {
                       if (key === 'forward') handleShare()
                       else if (key === 'edit') handleEditOpen()

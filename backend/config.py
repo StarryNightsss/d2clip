@@ -44,6 +44,14 @@ class Settings(BaseSettings):
     ]
     FRONTEND_ORIGIN: str = ""
 
+    # 数据库（可选：不设则所有现有逻辑仍走 JSON，不影响原功能）
+    DATABASE_URL: str = ""
+
+    # JWT（仅当使用 DB 登录时生效）
+    JWT_SECRET: str = "d2clip-secret-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 天
+
     class Config:
         env_file = ".env"
         case_sensitive = True

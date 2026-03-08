@@ -102,31 +102,26 @@ def _ensure_data_dir():
 
 
 def _default_users() -> List[Dict]:
-    """默认员工列表：帖子/评论里出现的人 + 登录用户。除 testsss 管理员用库洛米外，其余头像均来自 dicebear 7.x。"""
+    """默认员工列表：全员均可登录（与 seed 一致，username=姓名全拼@d2clip.com），无「仅发帖」的区分。"""
     base = "https://api.dicebear.com/7.x/avataaars/svg?seed="
     return [
-        # 管理员（库洛米）
-        {"username": "testsss@admin.com", "name": "管理员", "department": "admin", "avatar": "/kuromi-avatar.png"},
-        {"username": "admin", "name": "管理员", "department": "admin", "avatar": "/kuromi-avatar.png"},
-        # 登录用户（用户管理里的）
-        {"username": "zhangsan", "name": "张三", "department": "product", "avatar": f"{base}zhangsan"},
-        {"username": "lisi", "name": "李四", "department": "rd", "avatar": f"{base}lisi"},
-        {"username": "wangwu", "name": "王五", "department": "market", "avatar": f"{base}wangwu"},
-        {"username": "zhaoliu", "name": "赵六", "department": "operation", "avatar": f"{base}zhaoliu"},
-        # 帖子/评论里出现的员工（dicebear 7.x）
-        {"name": "张晓雯", "department": "product", "avatar": f"{base}zhang"},
-        {"name": "李明", "department": "product", "avatar": f"{base}liming"},
-        {"name": "王芳", "department": "design", "avatar": f"{base}wangfang"},
-        {"name": "陈悦", "department": "marketing", "avatar": f"{base}chenyue"},
-        {"name": "刘洋", "department": "operation", "avatar": f"{base}liuyang"},
-        {"name": "周敏", "department": "product", "avatar": f"{base}zhoumin"},
-        {"name": "赵琳", "department": "design", "avatar": f"{base}zhaolin"},
-        {"name": "孙婷", "department": "product", "avatar": f"{base}sunting"},
-        {"name": "吴倩", "department": "operation", "avatar": f"{base}wuqian"},
-        {"name": "郑浩", "department": "design", "avatar": f"{base}zhenghao"},
-        {"name": "林娜", "department": "marketing", "avatar": f"{base}linna"},
-        {"name": "黄磊", "department": "operation", "avatar": f"{base}huanglei"},
-        {"name": "何静", "department": "product", "avatar": f"{base}hejing"},
+        {"username": "admin@d2clip.com", "name": "管理员", "department": "admin", "avatar": "/kuromi-avatar.png"},
+        {"username": "zhangxiaowen@d2clip.com", "name": "张晓雯", "department": "product", "avatar": f"{base}zhang"},
+        {"username": "lisi@d2clip.com", "name": "李四", "department": "rd", "avatar": f"{base}lisi"},
+        {"username": "wangwu@d2clip.com", "name": "王五", "department": "market", "avatar": f"{base}wangwu"},
+        {"username": "zhaoliu@d2clip.com", "name": "赵六", "department": "operation", "avatar": f"{base}zhaoliu"},
+        {"username": "liming@d2clip.com", "name": "李明", "department": "product", "avatar": f"{base}liming"},
+        {"username": "wangfang@d2clip.com", "name": "王芳", "department": "rd", "avatar": f"{base}wangfang"},
+        {"username": "chenyue@d2clip.com", "name": "陈悦", "department": "market", "avatar": f"{base}chenyue"},
+        {"username": "liuyang@d2clip.com", "name": "刘洋", "department": "operation", "avatar": f"{base}liuyang"},
+        {"username": "zhoumin@d2clip.com", "name": "周敏", "department": "product", "avatar": f"{base}zhoumin"},
+        {"username": "zhaolin@d2clip.com", "name": "赵琳", "department": "rd", "avatar": f"{base}zhaolin"},
+        {"username": "sunting@d2clip.com", "name": "孙婷", "department": "product", "avatar": f"{base}sunting"},
+        {"username": "wuqian@d2clip.com", "name": "吴倩", "department": "operation", "avatar": f"{base}wuqian"},
+        {"username": "zhenghao@d2clip.com", "name": "郑浩", "department": "rd", "avatar": f"{base}zhenghao"},
+        {"username": "linna@d2clip.com", "name": "林娜", "department": "market", "avatar": f"{base}linna"},
+        {"username": "huanglei@d2clip.com", "name": "黄磊", "department": "operation", "avatar": f"{base}huanglei"},
+        {"username": "hejing@d2clip.com", "name": "何静", "department": "product", "avatar": f"{base}hejing"},
     ]
 
 
@@ -194,9 +189,12 @@ def mark_group_read(user_id: str, group_key: str) -> None:
     _save_read_state(state)
 
 
-def load_groups(user_id: Optional[str] = None) -> List[Dict]:
-    """加载群组列表。若传 user_id，则每个群附带 has_unread：该群是否有该用户未读的新帖（有帖子且最新帖晚于该用户在此群的已读时间）"""
+def load_groups(user_id: Optional[str] = None, department: Optional[str] = None) -> List[Dict]:
+    """加载群组列表。传 department 时只返回该部门可见的群（产品人只看产品/产品小群/产品+研发等）。传 user_id 时附带 has_unread。"""
     groups = _default_groups()
+    if department:
+        dept = (department or "").strip().lower()
+        groups = [g for g in groups if (g.get("member_departments") or []) and dept in (g.get("member_departments") or [])]
     if not user_id:
         return groups
     posts = load_posts()
@@ -225,8 +223,8 @@ def _default_groups() -> List[Dict]:
     return [
         # 部门频道（全员可见）
         {"key": "product", "name": "产品部门", "description": "需求分析、趋势报告", "color": "#ff6b9d", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
-        {"key": "design", "name": "设计部门", "description": "色彩设计、命名方案", "color": "#a29bfe", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
-        {"key": "marketing", "name": "市场部门", "description": "虚拟试妆、效果验证", "color": "#74b9ff", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
+        {"key": "rd", "name": "研发部门", "description": "色彩设计、命名方案、研发协作", "color": "#a29bfe", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
+        {"key": "market", "name": "市场部门", "description": "虚拟试妆、效果验证、营销推广", "color": "#74b9ff", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
         {"key": "operation", "name": "运营部门", "description": "内容生成、宣发推广", "color": "#55efc4", "type": "department", "member_departments": ["product", "rd", "market", "operation"]},
         # 小群（按部门可见，members 为群成员列表，前端用于展示）
         {"key": "product_small", "name": "产品小群", "description": "产品部门内部沟通", "color": "#ff6b9d", "type": "small", "member_departments": ["product"], "members": [{"name": "张晓雯", "role": "产品经理"}, {"name": "李明", "role": "数据分析师"}, {"name": "王芳", "role": "产品助理"}, {"name": "刘洋", "role": "需求分析师"}]},
@@ -305,13 +303,13 @@ def _seed_posts() -> List[Dict]:
             "type": "text",
             "comment_list": [
                 {"author": "周敏", "content": "裸色系占比好高，下季主推可以侧重这块。", "role": "产品部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhoumin"},
-                {"author": "赵琳", "content": "豆沙色数据很稳，研发可以多出几个色号。", "role": "设计部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"},
+                {"author": "赵琳", "content": "豆沙色数据很稳，研发可以多出几个色号。", "role": "研发部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaolin"},
                 {"author": "孙婷", "content": "收到，已同步给设计做色卡参考。", "role": "产品部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=sunting"},
             ],
         },
         {
             "id": "3",
-            "group_key": "design",
+            "group_key": "rd",
             "author": "王芳",
             "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang",
             "role": "色彩设计师",
@@ -339,7 +337,7 @@ def _seed_posts() -> List[Dict]:
         },
         {
             "id": "4",
-            "group_key": "marketing",
+            "group_key": "market",
             "author": "陈悦",
             "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue",
             "role": "市场专员",
@@ -356,7 +354,7 @@ def _seed_posts() -> List[Dict]:
             "type": "text",
             "comment_list": [
                 {"author": "刘洋", "content": "黄一白效果图能先发我们吗？做首图用。", "role": "运营部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liuyang"},
-                {"author": "王芳", "content": "粉二白那组数据很实用，已记入色彩报告。", "role": "设计部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"},
+                {"author": "王芳", "content": "粉二白那组数据很实用，已记入色彩报告。", "role": "研发部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"},
                 {"author": "李明", "content": "饱和度+5% 的调整建议收到，下周会出修订版色卡。", "role": "产品部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=liming"},
             ],
         },
@@ -380,7 +378,7 @@ def _seed_posts() -> List[Dict]:
             "comment_list": [
                 {"author": "陈悦", "content": "方案A的文案可以直接用，我们周三准时发。试妆图市场确认了。", "role": "市场部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"},
                 {"author": "张晓雯", "content": "抖音那边排期也好了，和微博同天发。", "role": "产品经理", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"},
-                {"author": "王芳", "content": "首图用桃夭主色那张，已导出给运营。", "role": "设计部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"},
+                {"author": "王芳", "content": "首图用桃夭主色那张，已导出给运营。", "role": "研发部门", "created_at": base_time, "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang"},
             ],
         },
     ]
