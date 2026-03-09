@@ -1,5 +1,0 @@
-{
-  "name": "Aura Beauty AI",
-  "description": "Intelligent beauty trend analysis platform with a sleek, collapsible sidebar interface and immersive animations.",
-  "requestFramePermissions": ["camera"]
-}
