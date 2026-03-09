@@ -10,10 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.18.3",
     "antd": "^6.3.0",
     "docx": "^9.6.0",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.6",
+    "fabric": "^5.3.0",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.0",

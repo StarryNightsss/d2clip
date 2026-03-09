@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import MouseFollowRabbit from './components/MouseFollowRabbit'
 import Login from './pages/Login'
 import AnalysisWorkbench from './pages/AnalysisWorkbench'
 import TrendReport from './pages/TrendReport'
@@ -11,15 +12,38 @@ import ContentGeneration from './pages/ContentGeneration'
 import Community from './pages/Community'
 import { getDefaultPath } from './utils/defaultRoute'
 
-// 权限控制组件
+/** 路由与允许访问的部门（与 Layout 侧栏一致，路由级隔离） */
+const ROUTE_DEPARTMENTS = {
+  '/': ['product', 'admin'],
+  '/report': ['product', 'admin'],
+  '/data': ['product', 'admin'],
+  '/rd': ['rd', 'admin'],
+  '/market': ['market', 'admin'],
+  '/operation': ['operation', 'admin'],
+  '/community': ['product', 'rd', 'market', 'operation', 'admin'],
+  '/users': ['admin']
+}
+
 const ProtectedRoute = ({ children }) => {
   const userInfo = localStorage.getItem('userInfo')
+  if (!userInfo) return <Navigate to="/login" replace />
+  return children
+}
 
-  if (!userInfo) {
+/** 部门隔离：当前路径不允许当前部门访问则重定向到该部门默认页 */
+const DepartmentGuard = ({ path, children }) => {
+  try {
+    const raw = localStorage.getItem('userInfo')
+    const userInfo = raw ? JSON.parse(raw) : null
+    const department = (userInfo?.department || '').toLowerCase()
+    const allowed = ROUTE_DEPARTMENTS[path]
+    if (allowed && !allowed.includes(department)) {
+      return <Navigate to={getDefaultPath(department)} replace />
+    }
+    return children
+  } catch (_) {
     return <Navigate to="/login" replace />
   }
-
-  return children
 }
 
 // 根路径 "/"：仅产品/管理员显示分析工作台，其他部门重定向到本部门默认页
@@ -44,6 +68,7 @@ const HomeOrRedirect = () => {
 function App() {
   return (
     <BrowserRouter>
+      <MouseFollowRabbit />
       <Routes>
         <Route path="/login" element={<Login />} />
 
@@ -55,57 +80,57 @@ function App() {
 
         <Route path="/report" element={
           <ProtectedRoute>
-            <Layout>
-              <TrendReport />
-            </Layout>
+            <DepartmentGuard path="/report">
+              <Layout><TrendReport /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/data" element={
           <ProtectedRoute>
-            <Layout>
-              <DataTable />
-            </Layout>
+            <DepartmentGuard path="/data">
+              <Layout><DataTable /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/users" element={
           <ProtectedRoute>
-            <Layout>
-              <UserManagement />
-            </Layout>
+            <DepartmentGuard path="/users">
+              <Layout><UserManagement /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/rd" element={
           <ProtectedRoute>
-            <Layout>
-              <ColorDesign />
-            </Layout>
+            <DepartmentGuard path="/rd">
+              <Layout><ColorDesign /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/market" element={
           <ProtectedRoute>
-            <Layout>
-              <VirtualTryOn />
-            </Layout>
+            <DepartmentGuard path="/market">
+              <Layout><VirtualTryOn /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/operation" element={
           <ProtectedRoute>
-            <Layout>
-              <ContentGeneration />
-            </Layout>
+            <DepartmentGuard path="/operation">
+              <Layout><ContentGeneration /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
 
         <Route path="/community" element={
           <ProtectedRoute>
-            <Layout>
-              <Community />
-            </Layout>
+            <DepartmentGuard path="/community">
+              <Layout><Community /></Layout>
+            </DepartmentGuard>
           </ProtectedRoute>
         } />
       </Routes>
