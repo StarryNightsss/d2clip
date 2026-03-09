@@ -792,6 +792,20 @@ class AnalysisService:
                         response = self._analysis_cache.get(t.analysis_id) or self._load_analysis_from_file(t.analysis_id)
                         if response:
                             results = response.results[:limit] if limit else response.results
+                            report_data = None
+                            if response.report:
+                                report_data = {
+                                    "report_title": response.report.report_title,
+                                    "summary": response.report.summary,
+                                    "sections": [
+                                        {"section_id": s.section_id, "title": s.title, "content": s.content,
+                                         "charts": [{"chart_type": c.chart_type, "chart_title": c.chart_title, "description": c.description, "echarts_option": c.echarts_option} for c in s.charts],
+                                         "order": s.order}
+                                        for s in response.report.sections
+                                    ]
+                                }
+                            else:
+                                report_data = {"report_title": "", "summary": "", "sections": []}
                             return {
                                 "analysis_id": response.analysis_id,
                                 "status": response.status,
@@ -812,7 +826,9 @@ class AnalysisService:
                                     "styles": [{"name": s.name, "count": s.count, "percentage": s.percentage} for s in response.statistics.styles],
                                     "colors": [{"name": c.name, "count": c.count, "percentage": c.percentage} for c in response.statistics.colors],
                                     "keywords": [{"name": k.name, "count": k.count} for k in response.statistics.keywords]
-                                }
+                                },
+                                "report": report_data,
+                                "charts": getattr(response, "charts", None)
                             }
                 finally:
                     db.close()
@@ -828,7 +844,20 @@ class AnalysisService:
         if not response:
             return None
         results = response.results[:limit] if limit else response.results
-
+        report_data = None
+        if response.report:
+            report_data = {
+                "report_title": response.report.report_title,
+                "summary": response.report.summary,
+                "sections": [
+                    {"section_id": s.section_id, "title": s.title, "content": s.content,
+                     "charts": [{"chart_type": c.chart_type, "chart_title": c.chart_title, "description": c.description, "echarts_option": c.echarts_option} for c in s.charts],
+                     "order": s.order}
+                    for s in response.report.sections
+                ]
+            }
+        else:
+            report_data = {"report_title": "", "summary": "", "sections": []}
         return {
             "analysis_id": response.analysis_id,
             "status": response.status,
@@ -854,9 +883,13 @@ class AnalysisService:
             "statistics": {
                 "total_notes": response.statistics.total_notes,
                 "analyzed_notes": response.statistics.analyzed_notes,
-                "failed_notes": response.statistics.failed_notes
+                "failed_notes": response.statistics.failed_notes,
+                "styles": [{"name": s.name, "count": s.count, "percentage": s.percentage} for s in response.statistics.styles],
+                "colors": [{"name": c.name, "count": c.count, "percentage": c.percentage} for c in response.statistics.colors],
+                "keywords": [{"name": k.name, "count": k.count} for k in response.statistics.keywords]
             },
-            "charts": response.charts
+            "report": report_data,
+            "charts": getattr(response, "charts", None)
         }
 
     def get_task_progress(self):

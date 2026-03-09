@@ -27,6 +27,8 @@ const TrendReport = () => {
   const [selectedFile, setSelectedFile] = useState(null) // 选中的文件
   const [analysisLimit, setAnalysisLimit] = useState(10) // 分析数量
   const [loadingFiles, setLoadingFiles] = useState(false) // 加载文件列表中
+  // 无报告时的后端诊断：null | 'checking' | 'no_connection' | 'no_files' | 'has_files'
+  const [backendDiagnosis, setBackendDiagnosis] = useState(null)
 
   // 从 localStorage 读取分析数量配置
   const getAnalysisLimit = () => {
@@ -190,6 +192,26 @@ const TrendReport = () => {
       setShowFileSelector(true)
     }
   }
+
+  // 无报告时做一次后端诊断（用于区分「连不上」和「没有文件」）
+  useEffect(() => {
+    if (reportData?.report || loading || showFileSelector) {
+      setBackendDiagnosis(null)
+      return
+    }
+    let cancelled = false
+    setBackendDiagnosis('checking')
+    dataAPI.check()
+      .then((res) => {
+        if (cancelled) return
+        setBackendDiagnosis(res.files_count > 0 ? 'has_files' : 'no_files')
+      })
+      .catch(() => {
+        if (cancelled) return
+        setBackendDiagnosis('no_connection')
+      })
+    return () => { cancelled = true }
+  }, [reportData, loading, showFileSelector])
 
   // 从后端加载分析数据（自动模式或查看历史报告）
   useEffect(() => {
@@ -469,22 +491,41 @@ const TrendReport = () => {
     )
   }
 
-  // 如果没有数据，返回错误提示
+  // 如果没有数据，返回错误提示（根据后端诊断区分原因）
   if (!reportData || !reportData.report) {
+    const isNoConnection = backendDiagnosis === 'no_connection'
+    const isNoFiles = backendDiagnosis === 'no_files'
+    const isChecking = backendDiagnosis === 'checking' || backendDiagnosis === null
     return (
-      <div style={{ textAlign: 'center', padding: '200px 0' }}>
+      <div style={{ textAlign: 'center', padding: '200px 24px' }}>
         <div style={{ fontSize: 64, marginBottom: 24, color: '#ff6b9d' }}>⚠️</div>
         <p style={{ fontSize: 24, color: '#2d3436', fontWeight: '600', marginBottom: 12 }}>
           无法加载分析报告
         </p>
-        <p style={{ fontSize: 16, color: '#636e72', marginBottom: 24 }}>
-          后端服务未连接或没有可用的数据文件
+        <p style={{ fontSize: 16, color: '#636e72', marginBottom: 16 }}>
+          {isChecking && '正在检查后端…'}
+          {isNoConnection && '无法连接后端。请确认：Vercel 已配置 VITE_ANALYSIS_API_BASE 指向 Railway 地址，并已重新部署（Redeploy）；或后端服务已启动。'}
+          {isNoFiles && '后端连接正常，但当前没有可用的数据文件。'}
+          {backendDiagnosis === 'has_files' && '后端有数据文件，但尚未生成报告。请先选择文件并完成一次分析。'}
         </p>
-        <p style={{ fontSize: 14, color: '#95a5a6' }}>
-          请确保：<br/>
-          1. 后端服务已启动（端口8000）<br/>
-          2. 已在分析工作台运行爬虫采集数据
-        </p>
+        {(isNoFiles || backendDiagnosis === 'has_files') && (
+          <p style={{ fontSize: 14, color: '#95a5a6', marginBottom: 24 }}>
+            Railway 部署时，爬虫依赖 Cookie：若未配置 <code>crawler_config/xhs_cookies_default.txt</code>，点击「启动爬虫」会失败且不会产生文件。
+          </p>
+        )}
+        {!isChecking && (
+          <Button
+            type="primary"
+            size="large"
+            onClick={() => navigate('/')}
+            style={{
+              background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
+              border: 'none'
+            }}
+          >
+            去分析工作台选择文件并分析
+          </Button>
+        )}
       </div>
     )
   }

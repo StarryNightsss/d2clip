@@ -97,6 +97,21 @@ async def get_file_content(
         raise HTTPException(status_code=500, detail=f"读取文件失败: {str(e)}")
 
 
+@router.get("/check")
+async def check_data_available():
+    """用于前端诊断：后端是否可连、是否有数据文件（不暴露路径）"""
+    xhs_json_dir = DATA_DIR / "xhs" / "json"
+    exists = xhs_json_dir.exists()
+    count = 0
+    if exists:
+        count = sum(1 for _ in xhs_json_dir.glob("*.json"))
+    return {
+        "ok": True,
+        "files_count": count,
+        "message": "无数据文件，请先在分析工作台运行爬虫" if (exists and count == 0) else None,
+    }
+
+
 @router.get("/stats")
 async def get_data_stats():
     """获取数据统计"""

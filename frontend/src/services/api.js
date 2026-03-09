@@ -210,6 +210,9 @@ export const dataAPI = {
   // 获取数据统计
   getStats: () => request('/data/stats', {}, CRAWLER_API_BASE),
 
+  // 诊断：后端是否可连、是否有数据文件（用于无报告时的错误提示）
+  check: () => request('/data/check', {}, CRAWLER_API_BASE),
+
   // 下载文件
   downloadFile: (filePath) => {
     window.open(`${CRAWLER_API_BASE}/data/download/${filePath}`, '_blank')
