@@ -7,6 +7,7 @@ import TrendReport from './pages/TrendReport'
 import DataTable from './pages/DataTable'
 import UserManagement from './pages/UserManagement'
 import ColorDesign from './pages/ColorDesign'
+import ColorInspiration from './pages/ColorInspiration'
 import VirtualTryOn from './pages/VirtualTryOn'
 import ContentGeneration from './pages/ContentGeneration'
 import Community from './pages/Community'
@@ -16,10 +17,11 @@ import { getDefaultPath } from './utils/defaultRoute'
 /** 路由与允许访问的部门（与 Layout 侧栏一致，路由级隔离） */
 const ROUTE_DEPARTMENTS = {
   '/': ['product', 'admin'],
-  '/report': ['product', 'admin'],
+  '/report': ['product', 'rd', 'market', 'operation', 'admin'], // 所有部门只读查看，产品/管理员可编辑
   '/data': ['product', 'admin'],
   '/agent': ['product', 'admin'],
   '/rd': ['rd', 'admin'],
+  '/rd/inspiration': ['rd', 'admin'],
   '/market': ['market', 'admin'],
   '/operation': ['operation', 'admin'],
   '/community': ['product', 'rd', 'market', 'operation', 'admin'],
@@ -108,6 +110,14 @@ function App() {
           <ProtectedRoute>
             <DepartmentGuard path="/rd">
               <Layout><ColorDesign /></Layout>
+            </DepartmentGuard>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/rd/inspiration" element={
+          <ProtectedRoute>
+            <DepartmentGuard path="/rd/inspiration">
+              <Layout><ColorInspiration /></Layout>
             </DepartmentGuard>
           </ProtectedRoute>
         } />

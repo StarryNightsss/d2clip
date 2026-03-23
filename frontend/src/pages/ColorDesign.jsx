@@ -1,14 +1,11 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Card, Row, Col, Button, Input, Space, message, Tag, Spin, Empty, Tooltip } from 'antd'
 import {
   ExperimentOutlined,
   HistoryOutlined,
   SaveOutlined,
-  ShareAltOutlined,
-  UploadOutlined,
-  FileTextOutlined,
-  ThunderboltOutlined,
+  ImportOutlined,
   DeleteOutlined,
   BgColorsOutlined,
   BarChartOutlined,
@@ -16,12 +13,14 @@ import {
 } from '@ant-design/icons'
 import SwatchCanvas from '../components/SwatchCanvas'
 import HeartLottieRow from '../components/HeartLottieRow'
+import HeartLottieStatic from '../components/HeartLottieStatic'
 import ColorPicker from '../components/ColorPicker'
 import { agentAPI, rdAPI } from '../services/api'
 
 const TEXTURES = ['哑光', '缎面', '镜面', '金属']
 
 const ColorDesign = () => {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const sessionIdFromUrl = searchParams.get('session_id')
 
@@ -254,32 +253,13 @@ const ColorDesign = () => {
                 {showReportPanel ? '隐藏' : '查看'}趋势数据
               </Button>
             )}
-            <label className="rd-upload-trigger">
-              <UploadOutlined />
-              <span>上传产品报告</span>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx,.xlsx"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) setReportFile(f)  // 存完整文件对象
-                }}
-              />
-            </label>
-            {reportFile && (
-              <span style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <FileTextOutlined /> 当前依据：{reportFile.name}
-              </span>
-            )}
             <Button
               type="primary"
-              icon={aiSchemesLoading ? <LoadingOutlined /> : <ThunderboltOutlined />}
-              onClick={handleAiColor}
+              icon={<ImportOutlined />}
+              onClick={() => navigate('/rd/inspiration')}
               className="rd-btn-primary"
-              disabled={!reportFile && !sessionIdFromUrl && !reportData}
             >
-              AI 智能配色
+              导入配色方案
             </Button>
           </Space>
         </div>
@@ -501,109 +481,21 @@ const ColorDesign = () => {
                 </div>
               </div>
       
-              <Space style={{ width: '100%', marginTop: 4 }}>
-                <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} className="rd-btn-primary" style={{ flex: 1 }}>
+              <div style={{ width: '100%', marginTop: 4, display: 'flex', justifyContent: 'center' }}>
+                <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} className="rd-btn-primary">
                   保存配方
                 </Button>
-                <Button icon={<ShareAltOutlined />} className="rd-btn-default" />
-              </Space>
+              </div>
             </Space>
           </Card>
         </Col>
       </Row>
 
-      {/* AI 推荐配色 */}
-      <div style={{ marginTop: 40 }}>
-        <div className="page-section-label" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ExperimentOutlined style={{ color: 'var(--color-primary)' }} />
-          AI 推荐配色
-          {!aiSchemes && !sessionIdFromUrl && !reportData && (
-            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400, marginLeft: 4 }}>· 从趋势报告页跳转并点击「AI 智能配色」生成</span>
-          )}
-        </div>
-
-        {aiSchemes ? (
-          // 已生成：展示三张配色卡
-          <Row gutter={[24, 24]}>
-            {aiSchemes.map((scheme, idx) => (
-              <Col xs={24} md={8} key={idx}>
-                <Card
-                  className="card-hover"
-                  style={{ borderRadius: 20, cursor: 'pointer' }}
-                  bodyStyle={{ padding: 24 }}
-                  onClick={() => scheme.colors.forEach((c) => addToPalette(c))}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      height: 56,
-                      borderRadius: 16,
-                      overflow: 'hidden',
-                      boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.06)',
-                      marginBottom: 16
-                    }}
-                  >
-                    {scheme.colors.map((c) => (
-                      <div
-                        key={c}
-                        style={{ flex: 1, backgroundColor: c, cursor: 'pointer' }}
-                        onClick={(e) => { e.stopPropagation(); addToPalette(c) }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.transition = 'transform 0.2s' }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{scheme.name}</span>
-                    <span style={{ color: '#cbd5e1', fontSize: 18 }}>→</span>
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          // 未生成：一张大占位卡（参考分析工作台轮播样式）
-          <div
-            className="workbench-carousel-slide workbench-carousel-slide-1 rd-scheme-placeholder"
-            style={{
-              borderRadius: 20,
-              minHeight: 180,
-              position: 'relative',
-              overflow: 'visible',
-              clipPath: 'inset(0 round 20px)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              border: '1.5px dashed rgba(255,107,157,0.3)',
-              cursor: reportFile || sessionIdFromUrl || reportData ? 'pointer' : 'default',
-            }}
-            onClick={reportFile || sessionIdFromUrl || reportData ? handleAiColor : undefined}
-          >
-            {/* 浮动色块装饰动画 */}
-            <div className="rd-scheme-blob rd-scheme-blob-1" />
-            <div className="rd-scheme-blob rd-scheme-blob-2" />
-            <div className="rd-scheme-blob rd-scheme-blob-3" />
-
-            {aiSchemesLoading ? (
-              <>
-                <Spin indicator={<LoadingOutlined style={{ fontSize: 28, color: 'var(--color-primary)' }} spin />} />
-                <span style={{ fontSize: 14, color: '#64748b', marginTop: 8, position: 'relative', zIndex: 1 }}>正在根据报告生成配色…</span>
-              </>
-            ) : (
-              <>
-                <span className="workbench-carousel-title" style={{ position: 'relative', zIndex: 1 }}>色彩驱动 · 趋势开发</span>
-                <span className="workbench-carousel-desc" style={{ position: 'relative', zIndex: 1 }}>
-                  {reportFile || sessionIdFromUrl || reportData
-                    ? '点击此处或顶部「AI 智能配色」，基于报告生成配色方案'
-                    : '上传产品报告后，点击「AI 智能配色」生成方案'
-                  }
-                </span>
-              </>
-            )}
-          </div>
-        )}
+      {/* 底部装饰：静态心形动画 */}
+      <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' }}>
+        {Array.from({ length: 12 }).map((_, i) => (
+          <HeartLottieStatic key={i} />
+        ))}
       </div>
     </div>
   )
