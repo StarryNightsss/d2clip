@@ -54,42 +54,6 @@ export const crawlerAPI = {
   getLogsStreamUrl: () => `${CRAWLER_API_BASE.replace(/\/$/, '')}/crawler/logs/stream`,
 }
 
-// 分析相关 API（新后端）
-export const analysisAPI = {
-  // 分析笔记
-  analyze: (params) => request('/analysis/analyze', {
-    method: 'POST',
-    body: JSON.stringify(params),
-  }, ANALYSIS_API_BASE),
-
-  // 获取分析状态
-  getStatus: () => request('/analysis/status', {}, ANALYSIS_API_BASE),
-
-  // 获取指定分析任务的结果详情
-  getResults: (analysisId) => request(`/analysis/results/${analysisId}`, {}, ANALYSIS_API_BASE),
-
-  // 获取最近一次分析的结果列表
-  getLatestResults: (limit = 100) => request(`/analysis/latest-results?limit=${limit}`, {}, ANALYSIS_API_BASE),
-
-  // 获取当前分析任务进度
-  getProgress: () => request('/analysis/progress', {}, ANALYSIS_API_BASE),
-
-  // 获取分析历史记录
-  getHistory: (limit = 10, offset = 0, platform = null) => {
-    const params = new URLSearchParams()
-    if (limit) params.append('limit', limit)
-    if (offset) params.append('offset', offset)
-    if (platform) params.append('platform', platform)
-    return request(`/analysis/history?${params.toString()}`, {}, ANALYSIS_API_BASE)
-  },
-
-  // 更新报告内容
-  updateReport: (analysisId, updatedReport) => request(`/analysis/report/${analysisId}`, {
-    method: 'PUT',
-    body: JSON.stringify(updatedReport),
-  }, ANALYSIS_API_BASE),
-}
-
 // 登录与用户信息（DB 配置时生效）
 export const authAPI = {
   login: (username, password, department) =>
@@ -207,6 +171,10 @@ export const dataAPI = {
   getFileContent: (filePath, preview = true, limit = 100) =>
     request(`/data/files/${filePath}?preview=${preview}&limit=${limit}`, {}, CRAWLER_API_BASE),
 
+  // 预览文件（别名，与 getFileContent 相同）
+  previewFile: (filePath, limit = 100) =>
+    request(`/data/files/${filePath}?preview=true&limit=${limit}`, {}, CRAWLER_API_BASE),
+
   // 获取数据统计
   getStats: () => request('/data/stats', {}, CRAWLER_API_BASE),
 
@@ -232,4 +200,71 @@ export const configAPI = {
 export const healthCheck = {
   crawler: () => request('/health', {}, CRAWLER_API_BASE),
   analysis: () => request('/api/health', {}, ANALYSIS_API_BASE),
+}
+
+// Agent 相关 API
+export const agentAPI = {
+  // 获取当前用户的会话列表（历史记录）
+  // filePath: 可选，筛选特定数据文件关联的会话
+  getSessions: (limit = 20, filePath = null) => {
+    let url = `/agent/sessions?limit=${limit}`
+    if (filePath) {
+      url += `&file_path=${encodeURIComponent(filePath)}`
+    }
+    return request(url)
+  },
+
+  // 获取指定会话详情
+  getSession: (sessionId) => request(`/agent/session/${sessionId}`),
+
+  // 创建新会话
+  createSession: (body = {}) => request('/agent/session', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }),
+
+  // 删除会话
+  deleteSession: (sessionId) => request(`/agent/session/${sessionId}`, { method: 'DELETE' }),
+
+  // 发送聊天消息
+  chat: (data) => request('/agent/chat', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  // 执行计划（PLAN 模式用户确认后调用）
+  execute: (sessionId, stepIds = null) => request('/agent/execute', {
+    method: 'POST',
+    body: JSON.stringify({ session_id: sessionId, step_ids: stepIds }),
+  }),
+
+  // 更新执行计划（用户调整步骤后调用）
+  updatePlan: (sessionId, plan) => request(`/agent/session/${sessionId}/plan`, {
+    method: 'POST',
+    body: JSON.stringify(plan),
+  }),
+
+  // 暂停执行
+  pause: (sessionId) => request(`/agent/session/${sessionId}/pause`, { method: 'POST' }),
+
+  // 继续执行
+  resume: (sessionId) => request(`/agent/session/${sessionId}/resume`, { method: 'POST' }),
+
+  // 获取快速模板
+  getTemplates: () => request('/agent/templates'),
+
+  // 获取会话的分析数据（供 DataTable 使用）
+  getSessionData: (sessionId) => request(`/agent/session/${sessionId}/data`),
+
+  // 更新会话的最终报告（用户编辑后保存）
+  updateReport: (sessionId, report) => request(`/agent/session/${sessionId}/report`, {
+    method: 'PATCH',
+    body: JSON.stringify(report),
+  }),
+
+  // WebSocket 连接（用于实时状态更新）
+  createWebSocket: (sessionId) => {
+    const wsBase = ANALYSIS_API_BASE.replace(/^http/, 'ws')
+    return new WebSocket(`${wsBase}/agent/ws/${sessionId}`)
+  }
 }

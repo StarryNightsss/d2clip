@@ -27,7 +27,7 @@ from backend.services.community_service import (
     get_uploaded_file_path,
     get_uploaded_file_name,
 )
-from backend.services.analysis_service import analysis_service
+from backend.services.agent_service import agent_service
 
 router = APIRouter(prefix="/community", tags=["community"])
 
@@ -195,20 +195,19 @@ async def add_report_post(group_key: str, body: CreateReportBody = Body(default=
     """在群组下发布一条「报告」类型的帖子。有 DB 时写库，否则写 JSON。"""
     if body is None:
         body = CreateReportBody()
-    analysis_id = body.analysis_id
-    if not analysis_id:
-        rid = getattr(analysis_service, "_latest_analysis_id", None)
-        if not rid:
-            raise HTTPException(
-                status_code=400,
-                detail="暂无分析报告，请先在分析工作台完成一次分析",
-            )
-        analysis_id = rid
-    result = analysis_service.get_analysis_results(analysis_id)
-    if not result:
+    session_id = body.analysis_id
+    if not session_id:
+        raise HTTPException(
+            status_code=400,
+            detail="暂无分析报告，请先在分析工作台完成一次分析",
+        )
+    session = await agent_service.get_session(session_id)
+    if not session:
         raise HTTPException(status_code=404, detail="该分析报告不存在或已失效")
-    total = result.get("total", 0)
-    report_data = result.get("report") or {}
+    final_report = session.final_report or {}
+    total = len(final_report.get("results", []))
+    # 报告正文结构与 TrendReport 一致：dynamic_report 在 final_report["dynamic_report"] 中
+    report_data = final_report.get("dynamic_report") or final_report.get("report") or {}
     report_title = (report_data.get("report_title") or "").strip() or "趋势分析报告"
     summary = (report_data.get("summary") or "").strip() or f"共分析 {total} 条笔记，点击查看详情。"
     content = summary if len(summary) > 50 else f"本报告共分析 {total} 条笔记。\n\n{summary}"
@@ -234,7 +233,7 @@ async def add_report_post(group_key: str, body: CreateReportBody = Body(default=
                 tags=["趋势报告", "分析"],
                 attachments=[],
                 post_type="report",
-                analysis_id=analysis_id,
+                analysis_id=session_id,
             )
         finally:
             db.close()
@@ -253,7 +252,7 @@ async def add_report_post(group_key: str, body: CreateReportBody = Body(default=
         tags=["趋势报告", "分析"],
         attachments=[],
         type="report",
-        analysis_id=analysis_id,
+        analysis_id=session_id,
     )
 
 

@@ -130,3 +130,20 @@ class AnalysisTask(Base):
     failed_notes = Column(Integer, default=0)
     status = Column(String(32), default="completed")  # running | completed | failed
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AgentSession(Base):
+    """8. Agent 会话表（对话历史、执行计划、最终报告）"""
+    __tablename__ = "agent_sessions"
+
+    id = Column(String(64), primary_key=True)           # UUID
+    user_id = Column(String(64), nullable=True, index=True)
+    title = Column(String(256), default="新对话")         # 自动从第一条用户消息生成
+    mode = Column(String(16), default="agent")          # ask | plan | agent
+    status = Column(String(16), default="pending")      # pending | running | completed | error
+    messages = Column(JSONB, default=list)              # 完整对话历史
+    plan = Column(JSONB, nullable=True)                 # DAG 执行计划
+    final_report = Column(JSONB, nullable=True)         # 最终报告
+    file_path = Column(String(512), default="")         # 关联的数据文件
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

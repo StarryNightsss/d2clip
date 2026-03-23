@@ -1,28 +1,41 @@
 import { Card, Row, Col, Statistic, Typography, Divider, Button, Space, message, Input, Spin, Progress, Select, InputNumber, Alert } from 'antd'
 import ReactECharts from 'echarts-for-react'
-import { FileTextOutlined, EditOutlined, SaveOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, LoadingOutlined, ArrowLeftOutlined, RocketOutlined, FolderOpenOutlined } from '@ant-design/icons'
+import { FileTextOutlined, EditOutlined, SaveOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, LoadingOutlined, ArrowLeftOutlined, RocketOutlined, FolderOpenOutlined, RobotOutlined, HistoryOutlined, MessageOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { analysisAPI, dataAPI } from '../services/api'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
+import { dataAPI, agentAPI } from '../services/api'
 
 const { Title, Paragraph, Text } = Typography
 const { TextArea } = Input
 
 const TrendReport = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const isAutoMode = searchParams.get('auto') === 'true' // 是否是从工作台自动跳转
-  const analysisIdFromUrl = searchParams.get('analysis_id') // 从 URL 获取 analysis_id
+  // Agent 直接传入的报告（通过 navigate('/report', { state: { agentReport } }) 传入）
+  const agentReportFromState = location.state?.agentReport || null
+  const agentSessionIdFromState = location.state?.sessionId || null
+  // 支持 URL 参数 session_id（用于直接访问或刷新页面）
+  const sessionIdFromUrl = searchParams.get('session_id')
+  const agentSessionId = agentSessionIdFromState || sessionIdFromUrl || null
 
   const [isEditing, setIsEditing] = useState(false)
-  const [loading, setLoading] = useState(isAutoMode || !!analysisIdFromUrl) // 自动模式或有 analysis_id 时直接加载
+  const [loading, setLoading] = useState((isAutoMode && !agentReportFromState) || !!sessionIdFromUrl)
   const [loadingStep, setLoadingStep] = useState('正在初始化...') // 加载步骤提示
-  const [loadingProgress, setLoadingProgress] = useState(0) // 分析进度
-  const [reportData, setReportData] = useState(null)
-  const [editableReport, setEditableReport] = useState(null) // 可编辑的报告副本
+  const [loadingProgress, setLoadingProgress] = useState(0) // 加载进度（0-100）
+  const [reportData, setReportData] = useState(
+    agentReportFromState
+      ? { ...agentReportFromState }  // Agent 报告已经是完整格式
+      : null
+  )
+  const [editableReport, setEditableReport] = useState(
+    agentReportFromState?.report || null
+  ) // 可编辑的报告副本
 
   // 文件选择相关状态
-  const [showFileSelector, setShowFileSelector] = useState(!isAutoMode && !analysisIdFromUrl) // 只有手动模式且没有 analysis_id 时显示
+  // 如果有 URL 的 session_id，也不显示文件选择器（尝试加载报告）
+  const [showFileSelector, setShowFileSelector] = useState(!isAutoMode && !agentReportFromState && !sessionIdFromUrl)
   const [availableFiles, setAvailableFiles] = useState([]) // 可用文件列表
   const [selectedFile, setSelectedFile] = useState(null) // 选中的文件
   const [analysisLimit, setAnalysisLimit] = useState(10) // 分析数量
@@ -30,22 +43,44 @@ const TrendReport = () => {
   // 无报告时的后端诊断：null | 'checking' | 'no_connection' | 'no_files' | 'has_files'
   const [backendDiagnosis, setBackendDiagnosis] = useState(null)
 
-  // 从 localStorage 读取分析数量配置
-  const getAnalysisLimit = () => {
-    try {
-      const saved = localStorage.getItem('analysisLimit')
-      return saved ? JSON.parse(saved) : 10  // 默认 10 条
-    } catch {
-      return 10
-    }
-  }
-
   // 加载可用的数据文件列表（手动模式）
   useEffect(() => {
     if (!isAutoMode && showFileSelector) {
       loadAvailableFiles()
     }
   }, [isAutoMode, showFileSelector])
+
+  // 从 URL 的 session_id 加载报告数据（直接访问或刷新页面时）
+  useEffect(() => {
+    if (sessionIdFromUrl && !agentReportFromState) {
+      loadReportFromSession(sessionIdFromUrl)
+    }
+  }, [sessionIdFromUrl])
+
+  const loadReportFromSession = async (sid) => {
+    try {
+      setLoading(true)
+      setLoadingStep('正在加载报告...')
+      const sessionData = await agentAPI.getSession(sid)
+      if (sessionData && sessionData.final_report) {
+        const finalReport = sessionData.final_report
+        setReportData(finalReport)
+        setEditableReport(finalReport.report || null)
+        setShowFileSelector(false)
+      } else {
+        message.error('该会话尚未生成报告，请返回 AI 报告助手生成报告')
+        // 显示文件选择器让用户可以选择其他方式
+        setShowFileSelector(true)
+      }
+    } catch (error) {
+      console.error('加载报告失败:', error)
+      message.error('加载报告失败: ' + error.message)
+      // 显示文件选择器让用户可以选择其他方式
+      setShowFileSelector(true)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const loadAvailableFiles = async () => {
     try {
@@ -76,121 +111,15 @@ const TrendReport = () => {
     }
   }
 
-  // 加载指定 ID 的报告（从历史记录查看）
-  const loadReportById = async (analysisId) => {
-    try {
-      setLoading(true)
-      setLoadingStep('加载历史报告...')
-
-      const response = await analysisAPI.getResults(analysisId)
-
-      if (!response) {
-        message.error('无法加载该分析报告，可能已被删除')
-        setLoading(false)
-        setShowFileSelector(true)
-        return
-      }
-
-      setLoadingStep('报告加载完成！')
-      setReportData(response)
-      setEditableReport(response.report)
-      setLoading(false)
-
-      console.log('📄 已加载历史报告:', analysisId)
-    } catch (error) {
-      console.error('加载报告失败:', error)
-      message.error('加载报告失败: ' + error.message)
-      setLoading(false)
-      setShowFileSelector(true)
-    }
-  }
-
-  // 轮询分析进度（组件级，供 handleStartAnalysis 和 useEffect 共用）
-  const startProgressPolling = () => {
-    const interval = setInterval(async () => {
-      try {
-        const progress = await analysisAPI.getProgress()
-        if (progress.progress !== undefined) {
-          setLoadingProgress(progress.progress)
-          if (progress.progress < 20) {
-            setLoadingStep('正在加载数据到向量数据库...')
-          } else if (progress.progress < 50) {
-            setLoadingStep('AI 正在提取妆容风格和色调...')
-          } else if (progress.progress < 80) {
-            setLoadingStep('正在生成统计分析和图表...')
-          } else if (progress.progress < 100) {
-            setLoadingStep('AI 正在撰写分析报告...')
-          }
-        }
-        if (progress.status === 'completed') {
-          clearInterval(interval)
-          setLoadingStep('加载分析结果...')
-          message.success('分析完成！正在加载结果...')
-          const latestResults = await analysisAPI.getLatestResults(100)
-          // 必须有 report（含骨架与图表）才视为有效结果，避免空结果覆盖
-          if (latestResults && latestResults.report) {
-            setReportData(latestResults)
-            setEditableReport(latestResults.report)
-          } else if (latestResults && latestResults.message) {
-            message.warning(latestResults.message)
-          }
-          setLoading(false)
-        } else if (progress.status === 'error') {
-          clearInterval(interval)
-          setLoadingStep('分析失败')
-          message.error('分析任务失败，请重试')
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('获取进度失败:', error)
-        clearInterval(interval)
-        setLoadingStep('连接失败')
-        setLoading(false)
-      }
-    }, 3000)
-  }
-
-  // 手动开始分析
+  // 手动开始分析 - 改为跳转到 Agent 界面
   const handleStartAnalysis = async () => {
     if (!selectedFile) {
       message.error('请选择要分析的数据文件')
       return
     }
 
-    try {
-      setShowFileSelector(false)
-      setLoading(true)
-      setLoadingStep('启动 AI 智能分析...')
-
-      const platform = selectedFile.split('/')[0] || 'xhs'
-
-      console.log('📁 使用数据文件:', selectedFile)
-      console.log('🎯 平台:', platform)
-      console.log('📊 分析数量:', analysisLimit)
-
-      const response = await analysisAPI.analyze({
-        data_file: selectedFile,
-        platform: platform,
-        limit: analysisLimit
-      })
-
-      if (response.status === 'running') {
-        setLoadingStep('AI 正在分析数据...')
-        message.info('分析任务已启动，正在处理...')
-        startProgressPolling()
-        return
-      }
-
-      setLoadingStep('报告生成完成！')
-      setReportData(response)
-      setEditableReport(response.report)
-      setLoading(false)
-    } catch (error) {
-      console.error('启动分析失败:', error)
-      message.error(`启动分析失败: ${error.message}`)
-      setLoading(false)
-      setShowFileSelector(true)
-    }
+    // 直接跳转到 Agent 界面，自动开始分析
+    navigate(`/agent?file=${encodeURIComponent(selectedFile)}`)
   }
 
   // 无报告时做一次后端诊断（用于区分「连不上」和「没有文件」）
@@ -213,107 +142,40 @@ const TrendReport = () => {
     return () => { cancelled = true }
   }, [reportData, loading, showFileSelector])
 
-  // 从后端加载分析数据（自动模式或查看历史报告）
+  // 自动模式：直接跳转到 Agent 界面
   useEffect(() => {
-    if (analysisIdFromUrl) {
-      // 模式 1: 从历史记录查看特定报告
-      loadReportById(analysisIdFromUrl)
-      return
-    }
-
-    if (!isAutoMode) return // 手动模式不自动加载
-    const loadAnalysisData = async () => {
-      try {
-        setLoading(true)
-        setLoadingStep('检查分析任务状态...')
-
-        // 1. 先检查是否有分析任务正在运行
-        const progressResponse = await analysisAPI.getProgress()
-
-        if (progressResponse.status === 'running') {
-          // 有任务正在运行，轮询进度
-          setLoadingStep('检测到分析任务正在进行中，等待完成...')
-          setLoadingProgress(progressResponse.progress || 0)
-          message.info(`分析任务进行中 (${progressResponse.progress || 0}%)`)
-          startProgressPolling()
-          return
-        }
-
-        // 如果之前的任务已完成，尝试加载缓存的结果
-        if (progressResponse.status === 'completed') {
-          setLoadingStep('加载缓存的分析结果...')
-          const latestResults = await analysisAPI.getLatestResults(100)
-          if (latestResults && latestResults.results && latestResults.results.length > 0) {
-            // 有缓存结果，直接使用
-            setLoadingStep('报告加载完成！')
-            setReportData(latestResults)
-            setEditableReport(latestResults.report)
+    if (isAutoMode && !agentReportFromState) {
+      // 自动模式下，获取最新数据文件并跳转到 Agent
+      const autoStartAgent = async () => {
+        try {
+          setLoading(true)
+          setLoadingStep('查找最新数据文件...')
+          
+          const filesResponse = await dataAPI.getFiles(null, 'json')
+          if (!filesResponse.files || filesResponse.files.length === 0) {
+            message.error('没有找到数据文件，请先完成数据采集')
             setLoading(false)
             return
           }
-          // 如果没有缓存结果，继续执行新的分析
+          
+          // 获取最新的数据文件
+          const sortedFiles = filesResponse.files.sort((a, b) => 
+            new Date(b.created_at || b.modified) - new Date(a.created_at || a.modified)
+          )
+          const latestFile = sortedFiles[0]
+          
+          // 跳转到 Agent 界面
+          navigate(`/agent?file=${encodeURIComponent(latestFile.path)}`)
+        } catch (error) {
+          console.error('自动启动失败:', error)
+          message.error('自动启动分析失败: ' + error.message)
+          setLoading(false)
         }
-
-        // 2. 没有任务运行（或没有缓存结果），获取最新的数据文件列表
-        setLoadingStep('查找爬虫采集的数据文件...')
-        const filesResponse = await dataAPI.getFiles(null, 'json')
-
-        if (!filesResponse.files || filesResponse.files.length === 0) {
-          throw new Error('没有找到可用的数据文件，请先在分析工作台运行爬虫采集数据')
-        }
-
-        // 3. 选择数据文件（必须选择 contents 文件，后端会自动关联 comments）
-        setLoadingStep('解析数据文件格式...')
-        let contentsFile = filesResponse.files.find(f => {
-          const path = f.path || f.file_path
-          return path.includes('contents') || path.includes('content')
-        })
-
-        if (!contentsFile) {
-          throw new Error('没有找到 contents 数据文件，请先运行爬虫采集帖子内容')
-        }
-
-        const dataFilePath = contentsFile.path || contentsFile.file_path
-
-        // 从文件路径推断平台（例如：xhs/json/xxx.json -> xhs）
-        const platform = dataFilePath.split('/')[0] || 'xhs'
-
-        const analysisLimit = getAnalysisLimit()
-
-        console.log('📁 使用数据文件:', dataFilePath)
-        console.log('🔗 后端会自动关联对应的评论文件')
-        console.log('🎯 平台:', platform)
-        console.log('📊 分析数量:', analysisLimit === null ? '全部' : `${analysisLimit} 条`)
-
-        // 4. 调用分析API
-        setLoadingStep('启动 AI 智能分析...')
-        const response = await analysisAPI.analyze({
-          data_file: dataFilePath,
-          platform: platform,
-          limit: analysisLimit
-        })
-
-        // 5. 如果返回的是"任务正在运行"的响应，开始轮询
-        if (response.status === 'running') {
-          setLoadingStep('AI 正在分析数据...')
-          message.info('分析任务已启动，正在处理...')
-          startProgressPolling()
-          return
-        }
-
-        setLoadingStep('报告生成完成！')
-        setReportData(response)
-        setEditableReport(response.report)
-        setLoading(false)
-      } catch (error) {
-        console.error('加载分析数据失败:', error)
-        message.error(`后端服务调用失败: ${error.message}`)
-        setLoading(false)
       }
+      
+      autoStartAgent()
     }
-
-    loadAnalysisData()
-  }, [])
+  }, [isAutoMode, agentReportFromState])
 
   // 如果显示文件选择器（手动模式且未开始分析）
   if (showFileSelector) {
@@ -389,34 +251,56 @@ const TrendReport = () => {
 
               <Divider />
 
-              <div style={{ textAlign: 'center' }}>
-                <Space size="large">
-                  <Button
-                    size="large"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/')}
-                  >
-                    返回工作台
-                  </Button>
+              {/* AI 分析按钮组 */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', color: '#2d3436' }}>
+                  AI 智能分析
+                </label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <Button
                     type="primary"
                     size="large"
-                    icon={<RocketOutlined />}
+                    icon={<RobotOutlined />}
                     onClick={handleStartAnalysis}
                     disabled={!selectedFile || availableFiles.length === 0}
                     style={{
                       background: 'linear-gradient(135deg, #ff6b9d 0%, #c44569 100%)',
                       border: 'none',
                       height: '48px',
-                      padding: '0 40px',
-                      fontSize: '16px',
-                      fontWeight: '600'
+                      padding: '0 32px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      borderRadius: '24px',
+                      boxShadow: '0 8px 24px rgba(255, 107, 157, 0.3)',
+                      flex: 1,
+                      minWidth: '200px'
                     }}
                   >
-                    开始 AI 分析
+                    分析当前数据
                   </Button>
-                </Space>
+                  <Button
+                    size="large"
+                    icon={<HistoryOutlined />}
+                    onClick={() => navigate('/agent?tab=history')}
+                    style={{
+                      height: '48px',
+                      padding: '0 32px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      borderRadius: '24px',
+                      border: '2px solid #e0e0e0',
+                      color: '#636e72',
+                      background: 'transparent',
+                      flex: 1,
+                      minWidth: '200px'
+                    }}
+                  >
+                    历史分析记录
+                  </Button>
+                </div>
               </div>
+
+
             </Space>
           </Card>
           </div>
@@ -532,9 +416,6 @@ const TrendReport = () => {
 
   const report = editableReport || reportData.report
 
-  // 报告数据来源：reportData 来自 API getLatestResults / getResults(analysis_id)，
-  // 对应后端 backend/data/analyses/<analysis_id>.json 与内存缓存
-
   // 数据概览统计
   const overview = {
     totalNotes: reportData.statistics?.total_notes || 0,
@@ -543,23 +424,21 @@ const TrendReport = () => {
   }
 
   const handleSave = async () => {
-    if (!reportData || !reportData.analysis_id) {
-      message.error('无法保存：缺少分析 ID')
+    if (!reportData) {
+      message.error('无法保存：没有报告数据')
       return
     }
-
+    if (!agentSessionId) {
+      message.warning('无法保存：当前会话 ID 不存在')
+      return
+    }
     try {
       message.loading('正在保存报告...', 0)
-
-      await analysisAPI.updateReport(reportData.analysis_id, editableReport)
-
-      setIsEditing(false)
+      await agentAPI.updateReport(agentSessionId, editableReport)
       message.destroy()
-      message.success('报告已保存到服务器')
-
-      console.log('✅ 报告已保存:', reportData.analysis_id)
+      message.success('报告已保存到云端')
+      setIsEditing(false)
     } catch (error) {
-      console.error('保存报告失败:', error)
       message.destroy()
       message.error('保存失败: ' + error.message)
     }

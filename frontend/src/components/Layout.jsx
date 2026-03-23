@@ -105,7 +105,10 @@ const Layout = ({ children }) => {
 
   const menuItems = getMenuItems()
   const isWorkbench = location.pathname === '/'
-  const sidebarBallCount = isWorkbench ? 16 : 6
+  const sidebarBallCount = isWorkbench ? 10 : 6
+  
+  // Both /report and /agent should highlight the '可视化报告' menu item
+  const selectedKey = location.pathname === '/agent' ? '/report' : location.pathname
 
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
@@ -234,7 +237,7 @@ const Layout = ({ children }) => {
             <div className="sidebar-menu-wrap">
               <Menu
                 mode="inline"
-                selectedKeys={[location.pathname]}
+                selectedKeys={[selectedKey]}
                 items={menuItems}
                 onClick={({ key }) => navigate(key)}
                 inlineCollapsed={siderCollapsed}

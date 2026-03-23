@@ -1,0 +1,29 @@
+"""
+CHAIN CODE BACKUP - analysis_service.py
+This is the old Chain-based analysis service, replaced by Agent architecture.
+Kept for reference only.
+"""
+
+# Original file content was 994 lines, containing:
+# - AnalysisService class with Chain-based orchestration
+# - File-based persistence (backend/data/analyses/)
+# - analysis_history.json tracking
+# - PostgreSQL AnalysisTask model integration
+# - Methods: analyze_notes, get_analysis_results, get_latest_results, 
+#   get_analysis_history, update_report, get_task_progress
+#
+# All functionality has been migrated to:
+# - backend/services/agent_service.py (Agent orchestration)
+# - backend/services/agent_tools.py (Tool implementations)
+# - PostgreSQL agent_sessions table (persistence)
+
+# Key differences between Chain and Agent:
+# - Chain: Linear pipeline (load -> analyze -> stats -> report)
+# - Agent: Dynamic planning with replanning capability
+# - Chain: File-based storage
+# - Agent: Redis + PostgreSQL storage
+# - Chain: Synchronous progress tracking
+# - Agent: Async state machine with SSE streaming
+
+# This file is no longer used in production.
+# See agent_service.py for the current implementation.

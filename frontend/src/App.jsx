@@ -10,6 +10,7 @@ import ColorDesign from './pages/ColorDesign'
 import VirtualTryOn from './pages/VirtualTryOn'
 import ContentGeneration from './pages/ContentGeneration'
 import Community from './pages/Community'
+import ReportAgent from './pages/ReportAgent'
 import { getDefaultPath } from './utils/defaultRoute'
 
 /** 路由与允许访问的部门（与 Layout 侧栏一致，路由级隔离） */
@@ -17,6 +18,7 @@ const ROUTE_DEPARTMENTS = {
   '/': ['product', 'admin'],
   '/report': ['product', 'admin'],
   '/data': ['product', 'admin'],
+  '/agent': ['product', 'admin'],
   '/rd': ['rd', 'admin'],
   '/market': ['market', 'admin'],
   '/operation': ['operation', 'admin'],
@@ -130,6 +132,14 @@ function App() {
           <ProtectedRoute>
             <DepartmentGuard path="/community">
               <Layout><Community /></Layout>
+            </DepartmentGuard>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/agent" element={
+          <ProtectedRoute>
+            <DepartmentGuard path="/agent">
+              <Layout><ReportAgent /></Layout>
             </DepartmentGuard>
           </ProtectedRoute>
         } />

@@ -2,7 +2,7 @@ import { Card, List, Avatar, Space, Button, Tag, Input, Badge, Dropdown, message
 import { MessageOutlined, LikeOutlined, ShareAltOutlined, SendOutlined, MoreOutlined, UserOutlined, AimOutlined, ExperimentOutlined, SoundOutlined, EditOutlined, SearchOutlined, PlusOutlined, FileTextOutlined, ClockCircleOutlined, TeamOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { communityAPI, analysisAPI } from '../services/api'
+import { communityAPI, agentAPI } from '../services/api'
 
 const { TextArea } = Input
 const { Search } = Input
@@ -621,14 +621,14 @@ const Community = () => {
     setPublishModalOpen(true)
   }
 
-  // 打开「选择报告」弹窗时拉取分析历史
+  // 打开「选择报告」弹窗时拉取 Agent 会话列表
   useEffect(() => {
     if (!reportSelectModalOpen) return
     let cancelled = false
     setAnalysisHistoryLoading(true)
-    analysisAPI.getHistory(20, 0, null)
+    agentAPI.getSessions(20)
       .then(res => {
-        if (!cancelled) setAnalysisHistoryList(res.items || [])
+        if (!cancelled) setAnalysisHistoryList(res.sessions || [])
       })
       .catch(() => {
         if (!cancelled) message.error('加载分析历史失败')
@@ -704,7 +704,8 @@ const Community = () => {
 
   const handleViewReport = (post) => {
     if (post.type === 'report' && post.analysis_id) {
-      navigate(`/report?analysis_id=${post.analysis_id}`)
+      // Agent 生成的报告使用 session_id 参数
+      navigate(`/report?session_id=${post.analysis_id}`)
     }
   }
 
@@ -1353,7 +1354,7 @@ const Community = () => {
           <div style={{ maxHeight: 360, overflowY: 'auto' }}>
             {analysisHistoryList.map(item => (
               <div
-                key={item.analysis_id}
+                key={item.id}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -1369,17 +1370,17 @@ const Community = () => {
                     {item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {item.data_file || item.platform || item.analysis_id}
+                    {item.title || item.id}
                   </div>
                   <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-                    笔记数 {item.analyzed_notes ?? item.total_notes ?? 0} · {item.status === 'success' ? '成功' : item.status || '-'}
+                    {item.status === 'completed' ? '分析完成' : item.status || '-'}
                   </div>
                 </div>
                 <Button
                   type="primary"
                   size="small"
-                  loading={publishingReportId === item.analysis_id}
-                  onClick={() => handlePublishReport(item.analysis_id)}
+                  loading={publishingReportId === item.id}
+                  onClick={() => handlePublishReport(item.id)}
                   style={{ marginLeft: 12, flexShrink: 0, background: currentDept.color || '#ff6b9d', borderColor: currentDept.color || '#ff6b9d' }}
                 >
                   发布

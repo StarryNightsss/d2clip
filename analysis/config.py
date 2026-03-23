@@ -1,7 +1,7 @@
 # 配置文件
 
 # GPT API 配置
-API_KEY = "sk-guu0pkgYYHPkkNCjOXrnovpwVOQ0Vzw9S91FBPr8bzYnumzr"
+API_KEY = "sk-S8EsuBGprC7HfOXtGCfyBkfGApbpwf1bN8k27dKgazQH8Ybm"
 API_BASE_URL = "https://api.chatanywhere.tech/v1"
 MODEL = "gpt-3.5-turbo"
 

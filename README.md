@@ -1,6 +1,6 @@
 # D2C 口红实验室 🎨
 
-基于 **LangChain + RAG** 的美妆趋势分析系统
+基于 **LangChain Agent + RAG** 的美妆趋势分析系统
 
 ---
 
@@ -11,17 +11,30 @@ d2clips/
 ├── backend/                   # 后端服务（uv 管理）
 │   ├── pyproject.toml         # uv 配置
 │   ├── main.py                # FastAPI 入口
-│   └── services/              # LangChain RAG 核心
+│   ├── api/                   # API 路由
+│   │   ├── agent.py           # Agent 会话管理
+│   │   └── crawler.py         # 爬虫控制
+│   ├── services/              # 核心服务
+│   │   ├── agent_service.py   # Agent 执行引擎
+│   │   ├── agent_tools.py     # Agent 工具集
+│   │   ├── crawler_service.py # 爬虫服务（xhs_simple）
+│   │   └── session_store.py   # 会话持久化
+│   └── db/                    # 数据库模型
 │
 ├── frontend/                  # 前端界面（npm 管理）
 │   └── src/
-│       ├── pages/             # 5个功能页面
+│       ├── pages/             # 功能页面
+│       │   ├── AnalysisWorkbench.jsx  # 分析工作台
+│       │   ├── ReportAgent.jsx        # AI 报告助手
+│       │   ├── DataTable.jsx          # 数据列表
+│       │   ├── TrendReport.jsx        # 趋势报告
+│       │   └── Community.jsx          # 企业社群
 │       └── services/api.js    # API 服务
 │
-├── crawler/                   # 爬虫程序（uv 管理）
-│   └── MediaCrawler/
-│       ├── pyproject.toml     # 支持7个平台
-│       └── data/              # 采集数据输出
+├── crawler/                   # 爬虫程序
+│   └── xhs_simple/            # 自研小红书爬虫
+│       ├── crawler.py
+│       └── ...
 │
 ├── knowledge/                 # 知识库
 │   ├── raw/                   # 原始 JSON
@@ -62,12 +75,6 @@ uv sync
 
 # 2. 首次需向量化知识库
 uv run python scripts/vectorize_knowledge.py
-```
-
-爬虫为 Git 子模块，若需使用请先初始化：
-
-```bash
-git submodule update --init
 ```
 
 根目录的 `pyproject.toml` 已配置 uv 工作区，成员为 `backend`，因此上述命令均在根目录执行即可，无需再 `cd backend`。
@@ -120,9 +127,8 @@ bash start.sh
 
 | 服务 | 端口 | 启动命令 | 说明 |
 |------|------|----------|------|
-| **分析后端** | 8000 | 见下 | 笔记分析、趋势报告、RAG；前端 `api.js` 里 `ANALYSIS_API_BASE = 'http://localhost:8000/api'` |
-| **前端** | 5173 | 见下 | Vite 开发；会请求 8000（分析）和 8080（爬虫） |
-| **爬虫后端** | 8080 | 见下「启动爬虫后端」 | 前端 `api.js` 里 `CRAWLER_API_BASE = 'http://localhost:8080/api'`，用于启动/停止爬虫、数据文件列表等 |
+| **主后端** | 8000 | 见下 | 笔记分析、趋势报告、RAG、爬虫控制；前端 `api.js` 里 `ANALYSIS_API_BASE = 'http://localhost:8000/api'` |
+| **前端** | 5173 | 见下 | Vite 开发；请求 8000 端口 |
 
 ### 启动分析后端（必选）
 
@@ -154,82 +160,54 @@ npm run dev
 访问：http://localhost:5173
 
 前端会调用：
-- **分析接口**：`http://localhost:8000/api`（分析笔记、报告、历史等）
-- **爬虫接口**：`http://localhost:8080/api`（爬虫任务、数据文件列表等；若未起 8080 服务则对应功能不可用）
+- **主后端接口**：`http://localhost:8000/api`（分析笔记、报告、历史、爬虫控制等）
 
-### 启动爬虫后端（8080，供前端调用）
+### 爬虫功能
 
-爬虫代码在 **MediaCrawler** 子模块里，自带 `api/main.py`，可在 8080 端口提供 API（前端会请求该端口拉取文件列表、控制爬虫等）。
+爬虫已集成到主后端（8000 端口），使用自研的 `xhs_simple` 小红书爬虫。在「分析工作台」页面可直接启动爬虫采集数据。
 
-**1. 初始化子模块（首次）**
-
-在**项目根目录**执行：
-
-```bash
-git submodule update --init
-```
-
-**2. 安装依赖并启动爬虫 API**
-
-**方案 A：用根目录 uv 环境（推荐，Playwright 已加入根项目）**
-
-在**项目根目录**执行：
-
-```bash
-# 安装 Playwright 浏览器驱动（首次）
-uv run python -m playwright install
-
-# 启动爬虫 API（8080）
-uv run python scripts/run_crawler_api.py
-```
-
-**方案 B：在 crawler/MediaCrawler 下用本地环境**
-
-```bash
-cd crawler/MediaCrawler
-uv sync
-uv run python -m playwright install
-uv run uvicorn api.main:app --host 0.0.0.0 --port 8080
-```
-
-访问：http://localhost:8080。前端会请求 `http://localhost:8080/api` 获取数据文件列表、爬虫状态等。
-
-**3. 仅命令行跑爬虫（不启 8080 也可）**
-
-若只想要数据、不用前端的「选择数据文件」列表，可直接命令行采集，数据仍会写到 `crawler/MediaCrawler/data/`，分析后端从该目录读：
-
-```bash
-cd crawler/MediaCrawler
-uv run python main.py --platform xhs --lt qrcode --type search
-```
-
-- **数据流**：爬虫把采集结果写到 `crawler/MediaCrawler/data/`（如 `xhs/json/xxx.json`），分析后端的 `data_file` 即指向该目录下的文件。
+**数据流**：爬虫采集结果保存到 `backend/data/crawler_output/xhs/json/`，分析后端直接从该目录读取数据文件。
 
 ---
 
-## 📊 功能1：笔记分析 + 趋势报告
+## 📊 核心功能
 
-### 技术流程
+### 1. AI 报告助手（Agent 架构）
+
+基于 LangChain Agent 的交互式数据分析：
 
 ```
-爬虫采集（7平台）
-    ↓ JSON
-LangChain RAG 分析
-    ↓ (Chroma 向量检索知识库)
-GPT-3.5 提取结构化数据
-    ↓ FastAPI 统计聚合
-React + ECharts 可视化
+用户输入分析需求
+    ↓
+Agent 生成分析计划（DAG）
+    ↓
+自动执行：数据加载 → 色调分析 → 风格分析 → 生成图表 → 生成报告
+    ↓
+实时 WebSocket 推送进度
+    ↓
+可视化报告展示
 ```
+
+**特性**：
+- 支持多轮对话式分析
+- 自动生成分析计划并执行
+- 历史会话持久化存储
+- 支持问答模式（直接回答）和计划模式（生成计划后手动执行）
+
+### 2. 数据列表
+
+- 查看原始爬虫数据
+- 查看 AI 分析结果（按会话筛选）
+- 支持搜索、筛选、导出 Excel
+
+### 3. 趋势报告
+
+- 基于 Agent 分析结果生成可视化报告
+- 支持口红色调分布、妆容风格占比等图表
 
 ### 支持平台
 
-- **xhs** - 小红书（主要）
-- **dy** - 抖音
-- **ks** - 快手
-- **bili** - B站
-- **wb** - 微博
-- **tieba** - 贴吧
-- **zhihu** - 知乎
+- **xhs** - 小红书（当前主要支持）
 
 ---
 
@@ -336,7 +314,6 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 4. **填环境变量（重要）**
    - 在 **Environment Variables** 里添加：
      - 名称：`VITE_ANALYSIS_API_BASE`，值：`https://你的后端域名.railway.app/api`（上一步记下的那个 + `/api`）。
-     - 若暂时不部署爬虫，可以不填 `VITE_CRAWLER_API_BASE`（前端会 fallback 到本地地址，线上爬虫功能会不可用；要爬虫再单独部署后填这里）。
    - 然后点 **Deploy**，等构建完成。
 
 5. **拿到前端链接**
@@ -349,31 +326,13 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 
 ---
 
-### 三、爬虫 API（可选）
-
-若需要在线「爬虫 / 数据文件列表」功能，在 Railway 再建一个服务。仓库里已提供 **railway.crawler.toml**，可让该服务用爬虫启动命令。
-
-1. **Railway** → 当前项目（exciting-grace）里点 **+ New** → **GitHub Repo** → 仍选 **d2clip**，创建第二个服务。
-2. 点进这个**新服务**（不要动原来的 d2clip 后端）：
-   - **Settings** → **Deploy**（或 **Config**）：若有 **Config file path** / **Config as code**，填 **`railway.crawler.toml`**，则启动命令会自动用爬虫脚本。
-   - 若没有该选项，则在 **Start Command** 里填：`uv run python scripts/railway_crawler_start.py`。
-   - **Variables**：如需固定端口可加 **`PORT`** = **`8080`**（否则用 Railway 自动注入的 PORT）。
-3. **Settings** → **Networking** → **Generate Domain**，端口填 **8080**（与 Variables 里 PORT 一致），得到爬虫公网地址，例如 `https://xxx.up.railway.app`。
-4. **Vercel** → d2clip 前端项目 → **Settings** → **Environment Variables**，新增：
-   - **Name**：`VITE_CRAWLER_API_BASE`
-   - **Value**：`https://爬虫域名.up.railway.app/api`（上一步的域名 + `/api`）
-5. 保存后到 Vercel **Deployments** 里对前端做一次 **Redeploy**，使新变量生效。
-
----
-
-### 四、小结
+### 三、小结
 
 | 步骤 | 平台 | 你要做的 |
 |------|------|----------|
 | 1 | Railway | 用 GitHub 部署仓库，Build: `uv sync`，Start: `uv run python -m backend.main`，填 `OPENAI_API_KEY` 等，Generate Domain |
 | 2 | Vercel | 用 GitHub 导入仓库，Root 选 `frontend`，填 `VITE_ANALYSIS_API_BASE` = 后端地址+`/api`，Deploy |
 | 3 | Railway | 同一后端服务 Variables 里填 `FRONTEND_ORIGIN` = 你的 Vercel 地址 |
-| 4（可选） | Railway | 再建一个服务跑爬虫，前端填 `VITE_CRAWLER_API_BASE` |
 
 完成后，把 Vercel 的访问链接发给别人，对方打开即可使用，无需自己起终端。
 
@@ -392,7 +351,6 @@ OPENAI_API_BASE = "https://api.openai.com/v1"
 | 变量名 | 必填 | 说明 |
 |--------|------|------|
 | `VITE_ANALYSIS_API_BASE` | 是 | 后端公网地址 + `/api`，如 `https://xxx.up.railway.app/api` |
-| `VITE_CRAWLER_API_BASE` | 否 | 爬虫 API 地址 + `/api`，不部署爬虫可不填 |
 
 ---
 
@@ -429,7 +387,9 @@ print('向量库:', langchain_service.vectorstore is not None)
 - **LLM：** GPT-3.5
 - **后端：** FastAPI
 - **前端：** React + Vite + ECharts
-- **爬虫：** Playwright（7平台）
+- **爬虫：** Playwright（小红书）
+- **Agent 框架：** LangChain Agent + 自定义工具集
+- **持久化：** PostgreSQL + Redis（可选）
 
 ---
 
@@ -449,9 +409,14 @@ uv sync --refresh
 
 ### 爬虫启动失败
 
+爬虫已集成到主后端，在「分析工作台」页面点击「开始采集」即可启动。
+
+如需命令行运行：
 ```bash
-cd crawler/MediaCrawler
-uv run python main.py --platform xhs --type search --keywords "口红"
+uv run python -c "
+from backend.services.crawler_service import crawler_service
+crawler_service.start_crawl(['关键词1', '关键词2'], 10, True)
+"
 ```
 
 ---
@@ -459,7 +424,8 @@ uv run python main.py --platform xhs --type search --keywords "口红"
 ## 📖 文档
 
 - 后端：`backend/README.md`
-- 爬虫：`crawler/MediaCrawler/README.md`
+- 爬虫：`crawler/xhs_simple/README.md`
+- Agent 架构：`docs/AGENT_ARCHITECTURE.md`
 
 ---
 
@@ -471,7 +437,7 @@ uv run python main.py --platform xhs --type search --keywords "口红"
 |------|----------|------|
 | 工具/脚本 | `scripts/` | 与 `vectorize_knowledge.py` 同级，用 `uv run python scripts/xxx.py` 运行 |
 | 后端 API/服务 | `backend/api/` 或 `backend/services/` | 在 `backend/main.py` 或对应路由中注册 |
-| 爬虫相关 | `crawler/MediaCrawler/` 子模块内 | 需先 `git submodule update --init` |
+| 爬虫相关 | `crawler/xhs_simple/` | 自研小红书爬虫 |
 | 分析流水线 | `analysis/` | 当前用 `requirements.txt`，可后续改为 uv workspace 成员 |
 
 把三个文件的**路径或内容**发给我后，我可以帮你写进项目并接好入口。

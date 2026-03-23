@@ -3,7 +3,7 @@ from openai import OpenAI
 from pathlib import Path
 
 client = OpenAI(
-    api_key="sk-guu0pkgYYHPkkNCjOXrnovpwVOQ0Vzw9S91FBPr8bzYnumzr",
+    api_key="sk-S8EsuBGprC7HfOXtGCfyBkfGApbpwf1bN8k27dKgazQH8Ybm",
     base_url="https://api.chatanywhere.tech/v1"
 )
 

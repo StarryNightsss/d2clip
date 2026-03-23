@@ -23,14 +23,21 @@ engine = None
 SessionLocal = None
 
 _db_url = getattr(settings, "DATABASE_URL", "") or ""
+print(f"[DB INIT] DATABASE_URL from settings: {_db_url[:20]}..." if _db_url else "[DB INIT] DATABASE_URL is empty!")
 if _db_url and str(_db_url).strip():
     try:
         engine = create_engine(_db_url, pool_pre_ping=True)
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         import backend.db.models  # noqa: F401 - 注册表到 Base.metadata
-    except Exception:
+        # 自动创建表（如果不存在）
+        Base.metadata.create_all(bind=engine)
+        print(f"[DB INIT] Database engine created successfully, tables created")
+    except Exception as e:
+        print(f"[DB INIT] Failed to create engine: {e}")
         engine = None
         SessionLocal = None
+else:
+    print(f"[DB INIT] Skipping DB initialization (no DATABASE_URL)")
 
 
 def get_db():

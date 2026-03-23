@@ -1,3 +1,9 @@
+"""
+CHAIN CODE BACKUP - analysis.py
+This is the old Chain-based analysis API, replaced by Agent architecture.
+Kept for reference only.
+"""
+
 from fastapi import APIRouter, HTTPException, Body, Request
 from typing import Optional, Dict
 
@@ -25,14 +31,7 @@ def _current_username(request: Request) -> Optional[str]:
 @router.post("/analyze")
 async def analyze_notes(request: Request, body: NoteAnalysisRequest = Body(...)):
     """
-    分析笔记数据
-
-    - **data_file**: 数据文件路径（相对于 crawler/MediaCrawler/data/）
-    - **limit**: 分析数量限制（可选）
-
-    返回：
-    - 如果有任务正在运行，返回 {"status": "running", ...}
-    - 如果成功开始分析，返回完整的 AnalysisResponse
+    分析笔记数据 (CHAIN VERSION - DEPRECATED)
     """
     try:
         username = _current_username(request)
@@ -50,6 +49,7 @@ async def analyze_notes(request: Request, body: NoteAnalysisRequest = Body(...))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
 
+
 @router.get("/status")
 async def get_status():
     """获取分析服务状态"""
@@ -58,18 +58,17 @@ async def get_status():
         "vectorstore_loaded": analysis_service is not None
     }
 
+
 @router.get("/results/{analysis_id}")
 async def get_analysis_results(request: Request, analysis_id: str):
-    """
-    获取指定分析任务的详细结果；有 DB 且已登录时仅允许查看自己的分析
-    """
+    """获取指定分析任务的详细结果"""
     try:
         username = _current_username(request)
         results = analysis_service.get_analysis_results(analysis_id, user_id=username)
         if not results:
             raise HTTPException(
                 status_code=404,
-                detail=f"未找到分析任务: {analysis_id}（可能结果文件已丢失，请重新运行分析）"
+                detail=f"未找到分析任务: {analysis_id}"
             )
         return results
     except HTTPException:
@@ -77,11 +76,10 @@ async def get_analysis_results(request: Request, analysis_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取结果失败: {str(e)}")
 
+
 @router.get("/latest-results")
 async def get_latest_results(request: Request, limit: Optional[int] = 100):
-    """
-    获取最近一次分析的结果；有 DB 且已登录时返回该用户最近一次
-    """
+    """获取最近一次分析的结果"""
     try:
         username = _current_username(request)
         results = analysis_service.get_latest_results(limit, user_id=username)
@@ -89,24 +87,22 @@ async def get_latest_results(request: Request, limit: Optional[int] = 100):
             return {
                 "total": 0,
                 "results": [],
-                "message": "暂无分析数据，请先在分析工作台运行分析"
+                "message": "暂无分析数据"
             }
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取结果失败: {str(e)}")
 
+
 @router.get("/progress")
 async def get_analysis_progress():
-    """
-    获取当前分析任务的进度
-
-    返回任务状态、进度百分比、已完成数量等
-    """
+    """获取当前分析任务的进度"""
     try:
         progress = analysis_service.get_task_progress()
         return progress
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取进度失败: {str(e)}")
+
 
 @router.get("/history")
 async def get_analysis_history(
@@ -115,9 +111,7 @@ async def get_analysis_history(
     offset: Optional[int] = 0,
     platform: Optional[str] = None,
 ):
-    """
-    获取分析历史记录；有 DB 且已登录时仅返回当前用户的历史
-    """
+    """获取分析历史记录"""
     try:
         username = _current_username(request)
         history = analysis_service.get_analysis_history(limit, offset, platform, user_id=username)
@@ -125,11 +119,10 @@ async def get_analysis_history(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取历史失败: {str(e)}")
 
+
 @router.put("/report/{analysis_id}")
 async def update_report(request: Request, analysis_id: str, updated_report: Dict = Body(...)):
-    """
-    更新指定分析任务的报告内容；有 DB 且已登录时仅允许更新自己的分析
-    """
+    """更新指定分析任务的报告内容"""
     try:
         username = _current_username(request)
         success = analysis_service.update_report(analysis_id, updated_report, user_id=username)

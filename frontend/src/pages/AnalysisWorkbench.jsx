@@ -1,8 +1,8 @@
 import { Card, Form, Input, Select, Button, Space, Alert, Row, Col, Divider, message, Table, Tag, Progress, Carousel } from 'antd'
-import { PlayCircleOutlined, CheckCircleOutlined, RocketOutlined, DatabaseOutlined, HistoryOutlined, ThunderboltOutlined, EyeOutlined, ReloadOutlined, DeleteOutlined, StopOutlined, MobileOutlined, SearchOutlined, CommentOutlined, LoginOutlined } from '@ant-design/icons'
+import { PlayCircleOutlined, CheckCircleOutlined, RocketOutlined, DatabaseOutlined, HistoryOutlined, ThunderboltOutlined, EyeOutlined, ReloadOutlined, DeleteOutlined, StopOutlined, MobileOutlined, SearchOutlined, CommentOutlined, LoginOutlined, FileTextOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { crawlerAPI, dataAPI, analysisAPI } from '../services/api'
+import { crawlerAPI, dataAPI, agentAPI } from '../services/api'
 import CrawlerTerminal from '../components/CrawlerTerminal'
 
 const { TextArea } = Input
@@ -53,7 +53,7 @@ const AnalysisWorkbench = () => {
     }
   }, [])
 
-  // 加载分析历史
+  // 加载 Agent 历史会话
   useEffect(() => {
     loadHistory()
   }, [])
@@ -61,8 +61,8 @@ const AnalysisWorkbench = () => {
   const loadHistory = async () => {
     try {
       setHistoryLoading(true)
-      const response = await analysisAPI.getHistory(10, 0, null)
-      setHistoryData(response.items || [])
+      const response = await agentAPI.getSessions(10)
+      setHistoryData(response.sessions || [])
     } catch (error) {
       console.error('加载历史记录失败:', error)
     } finally {
@@ -269,6 +269,45 @@ const AnalysisWorkbench = () => {
       message.success('已停止数据采集')
     } catch (error) {
       message.error('停止失败: ' + error.message)
+    }
+  }
+
+  // Start AI analysis - navigate to Agent interface with latest data file
+  const startAIAnalysis = async () => {
+    try {
+      message.loading('正在获取最新数据文件...', 0)
+      
+      // Get the list of data files
+      const filesResponse = await dataAPI.getFiles()
+      const files = filesResponse.files || []
+      
+      // Filter for contents files only (not comments)
+      const contentsFiles = files.filter(file => {
+        const path = file.path || ''
+        return path.includes('contents') && !path.includes('comments')
+      })
+      
+      if (contentsFiles.length === 0) {
+        message.destroy()
+        message.error('没有找到数据文件，请先完成数据采集')
+        return
+      }
+      
+      // Sort by created_at descending to get the latest file
+      const sortedFiles = contentsFiles.sort((a, b) => {
+        return new Date(b.created_at) - new Date(a.created_at)
+      })
+      
+      const latestFile = sortedFiles[0]
+      message.destroy()
+      
+      // Navigate to Agent interface with the file path
+      navigate(`/agent?file=${encodeURIComponent(latestFile.path)}`)
+      
+    } catch (error) {
+      message.destroy()
+      console.error('获取数据文件失败:', error)
+      message.error('获取数据文件失败: ' + (error.message || '未知错误'))
     }
   }
 
@@ -660,7 +699,7 @@ const AnalysisWorkbench = () => {
                   <Col span={24}>
                     <div
                       className="workbench-ai-step-card workbench-ai-step-card--highlight"
-                      onClick={() => navigate('/report?auto=true')}
+                      onClick={() => startAIAnalysis()}
                     >
                       <div className="workbench-ai-step-card-inner">
                         <div className="workbench-ai-step-icon-wrap">🤖</div>
@@ -670,7 +709,7 @@ const AnalysisWorkbench = () => {
                           type="primary"
                           size="large"
                           icon={<RocketOutlined />}
-                          onClick={(e) => { e.stopPropagation(); navigate('/report?auto=true'); }}
+                          onClick={(e) => { e.stopPropagation(); startAIAnalysis(); }}
                           style={{
                             height: '48px',
                             padding: '0 32px',
@@ -705,166 +744,24 @@ const AnalysisWorkbench = () => {
         </div>
       </div>
 
-      {/* 分析历史 */}
-      <Card
-        className="workbench-content-card"
-        style={{
-          borderRadius: '20px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
-          border: '1px solid rgba(0, 0, 0, 0.04)',
-          marginBottom: '24px',
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)'
-        }}
-        bodyStyle={{ padding: '40px' }}
-      >
-        <div style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#2d3436',
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            <HistoryOutlined style={{ marginRight: '12px', color: '#ff6b9d' }} />
-            分析历史
-          </div>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={loadHistory}
-            loading={historyLoading}
-          >
-            刷新
-          </Button>
-        </div>
-        <p style={{ fontSize: '15px', color: '#636e72', marginBottom: '32px' }}>
-          查看历史分析记录，随时重新导出报告
-        </p>
-
-        {historyData.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '80px 0',
-            background: 'linear-gradient(135deg, #f5f6fa 0%, #e4e6eb 100%)',
-            borderRadius: '12px'
-          }}>
-            <div style={{
-              fontSize: '64px',
-              marginBottom: '20px',
-              opacity: 0.5
-            }}>
-              📋
-            </div>
-            <p style={{
-              fontSize: '18px',
-              color: '#95a5a6',
-              fontWeight: '500'
-            }}>
-              暂无历史记录
-            </p>
-            <p style={{
-              fontSize: '14px',
-              color: '#b2bec3',
-              marginTop: '8px'
-            }}>
-              完成第一次分析后，历史记录会显示在这里
-            </p>
-          </div>
-        ) : (
-          <Table
-            dataSource={historyData}
-            loading={historyLoading}
-            rowKey="analysis_id"
-            pagination={{ pageSize: 5 }}
-            columns={[
-              {
-                title: '分析时间',
-                dataIndex: 'created_at',
-                key: 'created_at',
-                width: 180,
-                render: (text) => new Date(text).toLocaleString('zh-CN')
-              },
-              {
-                title: '平台',
-                dataIndex: 'platform',
-                key: 'platform',
-                width: 100,
-                render: (platform) => {
-                  const platformMap = {
-                    xhs: '📱 小红书',
-                    dy: '🎵 抖音',
-                    wb: '🐦 微博',
-                    bili: '📺 B站',
-                    ks: '⚡ 快手',
-                    zhihu: '💡 知乎',
-                    tieba: '💬 贴吧'
-                  }
-                  return platformMap[platform] || platform
-                }
-              },
-              {
-                title: '数据文件',
-                dataIndex: 'data_file',
-                key: 'data_file',
-                ellipsis: true
-              },
-              {
-                title: '总笔记数',
-                dataIndex: 'total_notes',
-                key: 'total_notes',
-                width: 100,
-                align: 'center'
-              },
-              {
-                title: '成功/失败',
-                key: 'result',
-                width: 120,
-                align: 'center',
-                render: (_, record) => (
-                  <span>
-                    <Tag color="success">{record.analyzed_notes}</Tag>
-                    /
-                    <Tag color="error">{record.failed_notes}</Tag>
-                  </span>
-                )
-              },
-              {
-                title: '状态',
-                dataIndex: 'status',
-                key: 'status',
-                width: 100,
-                align: 'center',
-                render: (status) => (
-                  <Tag color={status === 'success' ? 'success' : 'error'}>
-                    {status === 'success' ? '成功' : '失败'}
-                  </Tag>
-                )
-              },
-              {
-                title: '操作',
-                key: 'action',
-                width: 100,
-                align: 'center',
-                render: (_, record) => (
-                  <Button
-                    type="link"
-                    icon={<EyeOutlined />}
-                    onClick={() => {
-                      // 跳转到报告页面，携带 analysis_id
-                      navigate(`/report?analysis_id=${record.analysis_id}`)
-                    }}
-                  >
-                    查看
-                  </Button>
-                )
-              }
-            ]}
-          />
-        )}
-      </Card>
+      {/* 分析历史（已废弃：统一由 AI 报告助手管理，因此这里整体移除） */}
+      {false && (
+        <Card
+          className="workbench-content-card"
+          style={{
+            borderRadius: '20px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+            border: '1px solid rgba(0, 0, 0, 0.04)',
+            marginBottom: '24px',
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
+          bodyStyle={{ padding: '40px' }}
+        >
+          {/* 原分析历史内容已禁用 */}
+        </Card>
+      )}
 
       {/* 关键词云图分析 */}
       <div className="workbench-wordcloud-card">

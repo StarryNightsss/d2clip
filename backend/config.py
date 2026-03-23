@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     BASE_DIR: Path = _resolve_project_root()
 
     # OpenAI 配置
-    OPENAI_API_KEY: str = "sk-guu0pkgYYHPkkNCjOXrnovpwVOQ0Vzw9S91FBPr8bzYnumzr"
+    OPENAI_API_KEY: str = "sk-S8EsuBGprC7HfOXtGCfyBkfGApbpwf1bN8k27dKgazQH8Ybm"
     OPENAI_API_BASE: str = "https://api.chatanywhere.tech/v1"
     OPENAI_MODEL: str = "gpt-4o-mini"    # 笔记分析、报告骨架、板块内容（升级到4o-mini）
     OPENAI_CHART_MODEL: str = "gpt-4o"   # 图表生成（需要更强的结构化输出能力）
@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "d2clip-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 天
+
+    # Redis（Agent 会话持久化，Railway 通过 REDIS_URL 注入）
+    REDIS_URL: str = ""   # 空字符串 = 降级为内存存储
+    AGENT_SESSION_TTL: int = 60 * 60 * 24 * 7  # 7 天
 
     class Config:
         env_file = ".env"
