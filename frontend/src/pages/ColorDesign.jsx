@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
-import { Card, Row, Col, Button, Input, Space, message } from 'antd'
+import { useState, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Card, Row, Col, Button, Input, Space, message, Tag, Spin, Empty, Tooltip } from 'antd'
 import {
   ExperimentOutlined,
   HistoryOutlined,
@@ -9,36 +10,106 @@ import {
   FileTextOutlined,
   ThunderboltOutlined,
   DeleteOutlined,
-  BgColorsOutlined
+  BgColorsOutlined,
+  BarChartOutlined,
+  LoadingOutlined
 } from '@ant-design/icons'
 import SwatchCanvas from '../components/SwatchCanvas'
 import HeartLottieRow from '../components/HeartLottieRow'
-
-const HISTORY_MOCK = [
-  { id: '1', color: '#ff6b9d', name: 'Aura Pink', date: '2024-03-20' },
-  { id: '2', color: '#ffa6c1', name: 'Soft Petal', date: '2024-03-19' },
-  { id: '3', color: '#c44569', name: 'Deep Rose', date: '2024-03-18' }
-]
-
-const AI_SCHEMES = [
-  { name: '落日余晖', colors: ['#ff6b6b', '#feca57', '#ff9f43'] },
-  { name: '午夜玫瑰', colors: ['#5f27cd', '#341f97', '#c44569'] },
-  { name: '清新薄荷', colors: ['#1dd1a1', '#00d2d3', '#48dbfb'] }
-]
+import ColorPicker from '../components/ColorPicker'
+import { agentAPI, rdAPI } from '../services/api'
 
 const TEXTURES = ['哑光', '缎面', '镜面', '金属']
 
 const ColorDesign = () => {
+  const [searchParams] = useSearchParams()
+  const sessionIdFromUrl = searchParams.get('session_id')
+
+  // 色板画布状态
   const [palette, setPalette] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [selectedColor, setSelectedColor] = useState('#ff6b9d')
-  const [history, setHistory] = useState(HISTORY_MOCK)
+  const [history, setHistory] = useState([])         // 左侧历史：从后端加载
+  const [historyLoading, setHistoryLoading] = useState(false)
   const [reportFile, setReportFile] = useState(null)
   const [colorName, setColorName] = useState('')
-  const [hue, setHue] = useState(350)
-  const [sat, setSat] = useState(85)
-  const [val, setVal] = useState(92)
+  const [hue, setHue] = useState(336)
+  const [opacity, setOpacity] = useState(100)
+
+  // 报告数据状态
+  const [reportData, setReportData] = useState(null)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [showReportPanel, setShowReportPanel] = useState(false)
+
   const [textureIndex, setTextureIndex] = useState(0)
+
+  // 加载研发历史色号
+  useEffect(() => {
+    setHistoryLoading(true)
+    rdAPI.getHistory()
+      .then(data => setHistory(Array.isArray(data) ? data : []))
+      .catch(() => setHistory([]))
+      .finally(() => setHistoryLoading(false))
+  }, [])
+
+  // AI 推荐配色状态：null=骨架, 有数据=展示
+  const [aiSchemes, setAiSchemes] = useState(null)
+  const [aiSchemesLoading, setAiSchemesLoading] = useState(false)
+
+  // ColorPicker 颜色变化回调：同步到画布选中色块
+  const handleColorChange = useCallback((hex, newOpacity) => {
+    setSelectedColor(hex)
+    if (newOpacity !== undefined) setOpacity(newOpacity)
+    if (selectedId) {
+      setPalette((prev) =>
+        prev.map((p) => (p.id === selectedId ? { ...p, color: hex } : p))
+      )
+    }
+  }, [selectedId])
+
+  // 从 URL 的 session_id 加载报告数据
+  useEffect(() => {
+    if (sessionIdFromUrl) {
+      loadReportData(sessionIdFromUrl)
+    }
+  }, [sessionIdFromUrl])
+
+  const loadReportData = async (sid) => {
+    setReportLoading(true)
+    try {
+      const session = await agentAPI.getSession(sid)
+      if (session?.final_report) {
+        const finalReport = session.final_report
+        const report = finalReport.dynamic_report || finalReport.report || {}
+        
+        // 提取色彩相关的分析数据
+        const results = finalReport.results || []
+        const colorAnalysis = results.filter(r => 
+          r.section_id?.includes('color') || 
+          r.title?.includes('色彩') ||
+          r.title?.includes('色调') ||
+          r.title?.includes('风格')
+        )
+        
+        setReportData({
+          title: report.report_title || '趋势分析报告',
+          summary: report.summary || '',
+          colorAnalysis: colorAnalysis,
+          allResults: results,
+          sessionId: sid,
+          statistics: finalReport.statistics || {}
+        })
+        setShowReportPanel(true)
+        message.success('已加载产品趋势报告数据')
+      } else {
+        message.warning('该报告暂无详细数据')
+      }
+    } catch (e) {
+      message.error('加载报告数据失败')
+    } finally {
+      setReportLoading(false)
+    }
+  }
 
   const handleSelect = useCallback((id, color) => {
     setSelectedId(id)
@@ -60,26 +131,54 @@ const ColorDesign = () => {
   }, [])
 
   const addToPalette = useCallback((color, name) => {
+    if (!color || typeof color !== 'string') return
     const id = `swatch-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-    setPalette((prev) => [...prev, { id, color, name }])
+    setPalette((prev) => [...prev, { id, color, name, opacity: 100 }])
     setSelectedId(id)
     setSelectedColor(color)
     if (name) setColorName(name)
   }, [])
 
+  const handleOpacityChange = useCallback((id, opacity) => {
+    setPalette((prev) => prev.map((p) => (p.id === id ? { ...p, opacity } : p)))
+  }, [])
+
+  const handleColorMix = useCallback((blendedColor, color1, color2, ratio) => {
+    // 混合后的颜色直接添加到画布
+    addToPalette(blendedColor, `混合 ${ratio}:${100 - ratio}`)
+  }, [addToPalette])
+
   const loadFromHistory = (item) => {
     addToPalette(item.color, item.name)
   }
 
-  const handleSave = () => {
-    const newItem = {
-      id: String(Date.now()),
-      color: selectedColor,
-      name: colorName || `色号 ${history.length + 1}`,
-      date: new Date().toISOString().split('T')[0]
+  const handleSave = async () => {
+    const name = colorName.trim() || `色号 ${history.length + 1}`
+    try {
+      const saved = await rdAPI.saveHistory({
+        name,
+        hex: selectedColor,
+        texture: TEXTURES[textureIndex],
+        opacity,
+        note: '',
+        session_id: sessionIdFromUrl || '',
+      })
+      setHistory((prev) => [saved, ...prev])
+      message.success(`已保存「${name}」到研发历史`)
+    } catch (e) {
+      message.error('保存失败：' + (e.message || '请检查登录状态'))
     }
-    setHistory((prev) => [newItem, ...prev])
-    message.success('已保存到研发历史')
+  }
+
+  const handleDeleteHistory = async (id, e) => {
+    e.stopPropagation()
+    try {
+      await rdAPI.deleteHistory(id)
+      setHistory((prev) => prev.filter((h) => h.id !== id))
+      message.success('已删除')
+    } catch {
+      message.error('删除失败')
+    }
   }
 
   const updateSelectedInPalette = (newColor) => {
@@ -90,8 +189,45 @@ const ColorDesign = () => {
     )
   }
 
-  const handleAiColor = () => {
-    message.info('AI 智能配色将基于已上传的报告生成，功能开发中')
+  const handleAiColor = async () => {
+    // 优先使用上传的文件，其次使用 session
+    if (reportFile) {
+      setAiSchemesLoading(true)
+      try {
+        const schemes = await rdAPI.generateSchemesFromFile(reportFile)
+        if (!Array.isArray(schemes) || schemes.length === 0) {
+          message.warning('未能生成配色，请确认报告内容有效')
+          return
+        }
+        setAiSchemes(schemes)
+        message.success(`AI 已根据报告生成 ${schemes.length} 组配色`)
+      } catch (e) {
+        message.error('配色生成失败：' + (e.message || '请检查文件格式或网络'))
+      } finally {
+        setAiSchemesLoading(false)
+      }
+      return
+    }
+
+    const sid = sessionIdFromUrl || reportData?.sessionId
+    if (!sid) {
+      message.warning('请先上传产品报告或从趋势报告页跳转')
+      return
+    }
+    setAiSchemesLoading(true)
+    try {
+      const schemes = await rdAPI.generateSchemes(sid)
+      if (!Array.isArray(schemes) || schemes.length === 0) {
+        message.warning('未能生成配色，请确认报告包含色调分析数据')
+        return
+      }
+      setAiSchemes(schemes)
+      message.success(`AI 已根据色调分析生成 ${schemes.length} 组配色`)
+    } catch (e) {
+      message.error('配色生成失败：' + (e.message || '请检查网络或登录状态'))
+    } finally {
+      setAiSchemesLoading(false)
+    }
   }
 
   const handleAiName = () => {
@@ -104,9 +240,20 @@ const ColorDesign = () => {
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
           <div>
             <h1 className="page-title">AI 色号实验室</h1>
-            <p className="page-subtitle">基于趋势分析的色号研发，画布为唯一颜色展示区</p>
+            <p className="page-subtitle">
+              {reportData ? `基于报告：${reportData.title}` : reportFile ? `基于文件：${reportFile.name}` : '上传产品报告，AI 智能生成配色方案'}
+            </p>
           </div>
           <Space wrap size="middle" align="center">
+            {reportData && (
+              <Button
+                icon={<BarChartOutlined />}
+                onClick={() => setShowReportPanel(!showReportPanel)}
+                style={{ borderColor: '#ff6b9d', color: '#ff6b9d' }}
+              >
+                {showReportPanel ? '隐藏' : '查看'}趋势数据
+              </Button>
+            )}
             <label className="rd-upload-trigger">
               <UploadOutlined />
               <span>上传产品报告</span>
@@ -116,7 +263,7 @@ const ColorDesign = () => {
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const f = e.target.files?.[0]
-                  if (f) setReportFile({ name: f.name })
+                  if (f) setReportFile(f)  // 存完整文件对象
                 }}
               />
             </label>
@@ -125,7 +272,13 @@ const ColorDesign = () => {
                 <FileTextOutlined /> 当前依据：{reportFile.name}
               </span>
             )}
-            <Button type="primary" icon={<ThunderboltOutlined />} onClick={handleAiColor} className="rd-btn-primary">
+            <Button
+              type="primary"
+              icon={aiSchemesLoading ? <LoadingOutlined /> : <ThunderboltOutlined />}
+              onClick={handleAiColor}
+              className="rd-btn-primary"
+              disabled={!reportFile && !sessionIdFromUrl && !reportData}
+            >
               AI 智能配色
             </Button>
           </Space>
@@ -136,6 +289,55 @@ const ColorDesign = () => {
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
         <HeartLottieRow />
       </div>
+
+      {/* 趋势数据面板 */}
+      {showReportPanel && reportData && (
+        <Card 
+          className="card-hover" 
+          style={{ marginBottom: 24, borderRadius: 20 }}
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BarChartOutlined style={{ color: '#ff6b9d' }} />
+              <span>产品趋势分析数据</span>
+              <Tag color="pink">{reportData.colorAnalysis.length} 项色彩分析</Tag>
+            </div>
+          }
+          extra={
+            <Button type="link" onClick={() => setShowReportPanel(false)}>
+              收起
+            </Button>
+          }
+        >
+          {reportLoading ? (
+            <div style={{ padding: 40, textAlign: 'center' }}>
+              <Spin />
+              <div style={{ marginTop: 16, color: '#999' }}>加载中...</div>
+            </div>
+          ) : (
+            <div>
+              <p style={{ color: '#666', marginBottom: 16 }}>{reportData.summary}</p>
+              {reportData.colorAnalysis.length > 0 ? (
+                <Row gutter={[16, 16]}>
+                  {reportData.colorAnalysis.map((item, idx) => (
+                    <Col xs={24} md={12} key={idx}>
+                      <Card size="small" style={{ borderRadius: 12, height: '100%' }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8, color: '#333' }}>
+                          {item.title}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#666', lineHeight: 1.6, maxHeight: 120, overflow: 'auto' }}>
+                          {item.content?.substring(0, 200)}{item.content?.length > 200 ? '...' : ''}
+                        </div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              ) : (
+                <Empty description="暂无色彩分析数据" />
+              )}
+            </div>
+          )}
+        </Card>
+      )}
 
       <Row gutter={[24, 24]} style={{ alignItems: 'stretch' }}>
         {/* 研发历史 */}
@@ -149,11 +351,24 @@ const ColorDesign = () => {
             style={{ borderRadius: 20, overflow: 'hidden', minHeight: 540, flex: 1, display: 'flex', flexDirection: 'column' }}
             bodyStyle={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
           >
-            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-              {history.map((item) => (
+            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+              {historyLoading ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Spin size="small" />
+                </div>
+              ) : history.length === 0 ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Empty
+                    description={<span style={{ fontSize: 12, color: '#cbd5e1' }}>保存配方后显示于此</span>}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 32 }}
+                  />
+                </div>
+              ) : (
+                history.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => loadFromHistory(item)}
+                  onClick={() => loadFromHistory({ ...item, color: item.hex })}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -177,16 +392,21 @@ const ColorDesign = () => {
                       borderRadius: 12,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                       flexShrink: 0,
-                      backgroundColor: item.color
+                      backgroundColor: item.hex
                     }}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 14 }}>{item.name}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 2 }}>{item.date}</div>
+                    <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8', letterSpacing: '0.1em', marginTop: 2 }}>{item.texture} · {item.date}</div>
                   </div>
-                  <Button type="text" size="small" icon={<DeleteOutlined />} style={{ color: '#cbd5e1' }} />
+                  <Button
+                    type="text" size="small" icon={<DeleteOutlined />}
+                    style={{ color: '#cbd5e1' }}
+                    onClick={(e) => handleDeleteHistory(item.id, e)}
+                  />
                 </div>
-              ))}
+              ))
+              )}
             </div>
             <Button type="link" size="small" style={{ marginTop: 8, padding: 0, fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
               查看全部
@@ -211,6 +431,10 @@ const ColorDesign = () => {
               onSelect={handleSelect}
               onRemove={handleRemove}
               onPositionChange={handlePositionChange}
+              onAddColor={(hex) => hex ? addToPalette(hex) : addToPalette(selectedColor)}
+              onClearAll={() => { setPalette([]); setSelectedId(null); setSelectedColor('#ff6b9d') }}
+              onOpacityChange={handleOpacityChange}
+              onColorMix={handleColorMix}
             />
             {palette.length === 0 && (
               <p style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', margin: 0, fontSize: 14, color: '#94a3b8', pointerEvents: 'none', zIndex: 5 }}>
@@ -228,59 +452,37 @@ const ColorDesign = () => {
           <Card
             className="card-hover"
             style={{ borderRadius: 20, minHeight: 540, flex: 1, display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ padding: 20, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+            bodyStyle={{ padding: 20, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}
           >
-            <Space direction="vertical" size="middle" style={{ width: '100%', flex: 1, minHeight: 0 }}>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+              {/* 色号名称 */}
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.1em', marginBottom: 8 }}>色号名称</div>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   <Input
-                    placeholder="如：桃夭"
+                    placeholder="如：桃夠"
                     value={colorName}
                     onChange={(e) => setColorName(e.target.value)}
                     style={{ flex: 1, borderRadius: 20 }}
                   />
-                  <Button type="primary" onClick={handleAiName} className="rd-btn-primary">AI 取名</Button>
+                  <Button type="primary" onClick={handleAiName} className="rd-btn-primary" style={{ height: 36, padding: '0 14px', fontSize: 13 }}>AI 取名</Button>
                 </div>
               </div>
-              <div
-                style={{
-                  width: '100%',
-                  height: 64,
-                  borderRadius: 16,
-                  boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.06)',
-                  border: '1px solid #f1f5f9',
-                  backgroundColor: selectedColor
-                }}
-              />
-              <div style={{ fontSize: 12, fontFamily: 'monospace', color: '#64748b' }}>{selectedColor.toUpperCase()}</div>
-
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.1em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <BgColorsOutlined style={{ color: 'var(--color-primary)' }} /> 色彩调节
+      
+              {/* Canvas 色谱面板 + 调色板 */}
+              <div className="rd-panel-embed">
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.1em', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <BgColorsOutlined style={{ color: 'var(--color-primary)', fontSize: 12 }} /> 调色板
                 </div>
-                {[
-                  { label: '色相', value: hue, set: setHue, max: 360 },
-                  { label: '饱和度', value: sat, set: setSat, max: 100 },
-                  { label: '明度', value: val, set: setVal, max: 100 }
-                ].map(({ label, value, set, max }) => (
-                  <div key={label} style={{ marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
-                      <span>{label}</span>
-                      <span style={{ color: 'var(--color-primary)' }}>{value}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={max}
-                      value={value}
-                      onChange={(e) => set(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: 'var(--color-primary)' }}
-                    />
-                  </div>
-                ))}
+                <ColorPicker
+                  color={selectedColor}
+                  opacity={opacity}
+                  onChange={handleColorChange}
+                  onOpacityChange={(v) => setOpacity(v)}
+                />
               </div>
-
+      
+              {/* 质地 */}
               <div className="rd-panel-embed">
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.1em', marginBottom: 10 }}>
                   质地
@@ -298,8 +500,8 @@ const ColorDesign = () => {
                   ))}
                 </div>
               </div>
-
-              <Space style={{ width: '100%', marginTop: 8 }}>
+      
+              <Space style={{ width: '100%', marginTop: 4 }}>
                 <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} className="rd-btn-primary" style={{ flex: 1 }}>
                   保存配方
                 </Button>
@@ -314,53 +516,94 @@ const ColorDesign = () => {
       <div style={{ marginTop: 40 }}>
         <div className="page-section-label" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <ExperimentOutlined style={{ color: 'var(--color-primary)' }} />
-          AI 推荐配色（点选加入画布）
+          AI 推荐配色
+          {!aiSchemes && !sessionIdFromUrl && !reportData && (
+            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400, marginLeft: 4 }}>· 从趋势报告页跳转并点击「AI 智能配色」生成</span>
+          )}
         </div>
-        <Row gutter={[24, 24]}>
-          {AI_SCHEMES.map((scheme) => (
-            <Col xs={24} md={8} key={scheme.name}>
-              <Card
-                className="card-hover"
-                style={{ borderRadius: 20, cursor: 'pointer' }}
-                bodyStyle={{ padding: 24 }}
-                onClick={() => scheme.colors.forEach((c) => addToPalette(c))}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    height: 56,
-                    borderRadius: 16,
-                    overflow: 'hidden',
-                    boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.06)',
-                    marginBottom: 16
-                  }}
+
+        {aiSchemes ? (
+          // 已生成：展示三张配色卡
+          <Row gutter={[24, 24]}>
+            {aiSchemes.map((scheme, idx) => (
+              <Col xs={24} md={8} key={idx}>
+                <Card
+                  className="card-hover"
+                  style={{ borderRadius: 20, cursor: 'pointer' }}
+                  bodyStyle={{ padding: 24 }}
+                  onClick={() => scheme.colors.forEach((c) => addToPalette(c))}
                 >
-                  {scheme.colors.map((c) => (
-                    <div
-                      key={c}
-                      style={{ flex: 1, backgroundColor: c, cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToPalette(c)
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)'
-                        e.currentTarget.style.transition = 'transform 0.2s'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)'
-                      }}
-                    />
-                  ))}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{scheme.name}</span>
-                  <span style={{ color: '#cbd5e1', fontSize: 18 }}>→</span>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                  <div
+                    style={{
+                      display: 'flex',
+                      height: 56,
+                      borderRadius: 16,
+                      overflow: 'hidden',
+                      boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.06)',
+                      marginBottom: 16
+                    }}
+                  >
+                    {scheme.colors.map((c) => (
+                      <div
+                        key={c}
+                        style={{ flex: 1, backgroundColor: c, cursor: 'pointer' }}
+                        onClick={(e) => { e.stopPropagation(); addToPalette(c) }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.transition = 'transform 0.2s' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{scheme.name}</span>
+                    <span style={{ color: '#cbd5e1', fontSize: 18 }}>→</span>
+                  </div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          // 未生成：一张大占位卡（参考分析工作台轮播样式）
+          <div
+            className="workbench-carousel-slide workbench-carousel-slide-1 rd-scheme-placeholder"
+            style={{
+              borderRadius: 20,
+              minHeight: 180,
+              position: 'relative',
+              overflow: 'visible',
+              clipPath: 'inset(0 round 20px)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              border: '1.5px dashed rgba(255,107,157,0.3)',
+              cursor: reportFile || sessionIdFromUrl || reportData ? 'pointer' : 'default',
+            }}
+            onClick={reportFile || sessionIdFromUrl || reportData ? handleAiColor : undefined}
+          >
+            {/* 浮动色块装饰动画 */}
+            <div className="rd-scheme-blob rd-scheme-blob-1" />
+            <div className="rd-scheme-blob rd-scheme-blob-2" />
+            <div className="rd-scheme-blob rd-scheme-blob-3" />
+
+            {aiSchemesLoading ? (
+              <>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 28, color: 'var(--color-primary)' }} spin />} />
+                <span style={{ fontSize: 14, color: '#64748b', marginTop: 8, position: 'relative', zIndex: 1 }}>正在根据报告生成配色…</span>
+              </>
+            ) : (
+              <>
+                <span className="workbench-carousel-title" style={{ position: 'relative', zIndex: 1 }}>色彩驱动 · 趋势开发</span>
+                <span className="workbench-carousel-desc" style={{ position: 'relative', zIndex: 1 }}>
+                  {reportFile || sessionIdFromUrl || reportData
+                    ? '点击此处或顶部「AI 智能配色」，基于报告生成配色方案'
+                    : '上传产品报告后，点击「AI 智能配色」生成方案'
+                  }
+                </span>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -66,6 +66,7 @@ export default function MouseFollowRabbit () {
 
   return (
     <div
+      className="mouse-follow-rabbit"
       style={{
         position: 'fixed',
         left: pos.x,
