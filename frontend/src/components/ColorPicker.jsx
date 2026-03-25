@@ -5,7 +5,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { message } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
-import { rdAPI } from '../services/api'
+import { dataAPI } from '../services/api'
 
 // ─── 颜色工具函数 ──────────────────────────────────────────────
 
@@ -139,7 +139,7 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
   // ── 初始化：从后端加载调色板 ──
   useEffect(() => {
     setSwatchLoading(true)
-    rdAPI.getSwatches()
+    dataAPI.getSwatches()
       .then(data => setSwatches(Array.isArray(data) ? data : []))
       .catch(() => setSwatches([]))
       .finally(() => setSwatchLoading(false))
@@ -283,7 +283,7 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
       return
     }
     try {
-      const newSwatch = await rdAPI.addSwatch(color)
+      const newSwatch = await dataAPI.addSwatch(color)
       setSwatches(prev => [...prev, newSwatch])
     } catch (e) {
       message.error('保存失败：' + (e.message || '请检查登录状态'))
@@ -293,7 +293,7 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
   // ── 调色板：删除（双击触发）──
   const handleDeleteSwatch = async (id) => {
     try {
-      await rdAPI.deleteSwatch(id)
+      await dataAPI.deleteSwatch(id)
       setSwatches(prev => prev.filter(s => s.id !== id))
       message.success('已删除')
     } catch {

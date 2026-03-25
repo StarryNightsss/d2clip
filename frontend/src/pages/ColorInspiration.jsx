@@ -12,7 +12,7 @@ import {
   HeartOutlined
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
-import { rdAPI, agentAPI } from '../services/api'
+import { dataAPI, agentAPI } from '../services/api'
 
 // 取名风格配置 - 中国古典文学（不同粉色系）
 const NAMING_STYLES = [
@@ -99,7 +99,7 @@ const ColorInspiration = () => {
     setAiSchemesLoading(true)
     try {
       // 这里调用实际的 AI 配色 API
-      // const result = await rdAPI.generateColorSchemes(reportFile, selectedStyle)
+      // const result = await dataAPI.generateColorSchemes(reportFile, selectedStyle)
       // 模拟数据
       await new Promise(r => setTimeout(r, 2000))
       const mockSchemes = [

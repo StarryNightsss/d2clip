@@ -15,7 +15,7 @@ import SwatchCanvas from '../components/SwatchCanvas'
 import HeartLottieRow from '../components/HeartLottieRow'
 import HeartLottieStatic from '../components/HeartLottieStatic'
 import ColorPicker from '../components/ColorPicker'
-import { agentAPI, rdAPI } from '../services/api'
+import { agentAPI, dataAPI } from '../services/api'
 
 const TEXTURES = ['哑光', '缎面', '镜面', '金属']
 
@@ -45,7 +45,7 @@ const ColorDesign = () => {
   // 加载研发历史色号
   useEffect(() => {
     setHistoryLoading(true)
-    rdAPI.getHistory()
+    dataAPI.getHistory()
       .then(data => setHistory(Array.isArray(data) ? data : []))
       .catch(() => setHistory([]))
       .finally(() => setHistoryLoading(false))
@@ -154,7 +154,7 @@ const ColorDesign = () => {
   const handleSave = async () => {
     const name = colorName.trim() || `色号 ${history.length + 1}`
     try {
-      const saved = await rdAPI.saveHistory({
+      const saved = await dataAPI.saveHistory({
         name,
         hex: selectedColor,
         texture: TEXTURES[textureIndex],
@@ -172,7 +172,7 @@ const ColorDesign = () => {
   const handleDeleteHistory = async (id, e) => {
     e.stopPropagation()
     try {
-      await rdAPI.deleteHistory(id)
+      await dataAPI.deleteHistory(id)
       setHistory((prev) => prev.filter((h) => h.id !== id))
       message.success('已删除')
     } catch {
@@ -193,7 +193,7 @@ const ColorDesign = () => {
     if (reportFile) {
       setAiSchemesLoading(true)
       try {
-        const schemes = await rdAPI.generateSchemesFromFile(reportFile)
+        const schemes = await dataAPI.generateSchemesFromFile(reportFile)
         if (!Array.isArray(schemes) || schemes.length === 0) {
           message.warning('未能生成配色，请确认报告内容有效')
           return
@@ -215,7 +215,7 @@ const ColorDesign = () => {
     }
     setAiSchemesLoading(true)
     try {
-      const schemes = await rdAPI.generateSchemes(sid)
+      const schemes = await dataAPI.generateSchemes(sid)
       if (!Array.isArray(schemes) || schemes.length === 0) {
         message.warning('未能生成配色，请确认报告包含色调分析数据')
         return
