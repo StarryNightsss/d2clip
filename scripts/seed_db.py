@@ -121,6 +121,9 @@ def main():
             {"key": "product_small", "name": "产品小群", "description": "产品部门内部沟通", "color": "#ff6b9d", "group_type": "small", "member_departments": ["product"], "members": [{"name": "张晓雯", "role": "产品经理"}, {"name": "李明", "role": "数据分析师"}, {"name": "王芳", "role": "产品助理"}, {"name": "刘洋", "role": "需求分析师"}], "sort_order": 5},
             {"key": "product_rd", "name": "产品+研发小群", "description": "产品与研发协作", "color": "#a29bfe", "group_type": "small", "member_departments": ["product", "rd"], "members": [{"name": "张晓雯", "role": "产品"}, {"name": "陈工", "role": "研发"}, {"name": "周明", "role": "前端"}], "sort_order": 6},
             {"key": "rd_small", "name": "研发小群", "description": "研发部门内部沟通", "color": "#a29bfe", "group_type": "small", "member_departments": ["rd"], "members": [{"name": "陈工", "role": "后端"}, {"name": "周明", "role": "前端"}, {"name": "赵磊", "role": "测试"}], "sort_order": 7},
+            {"key": "market_small", "name": "市场小群", "description": "市场部门内部沟通", "color": "#74b9ff", "group_type": "small", "member_departments": ["market"], "members": [{"name": "林悦", "role": "市场经理"}, {"name": "孙琦", "role": "试妆师"}, {"name": "何露", "role": "推广专员"}], "sort_order": 8},
+            {"key": "market_rd", "name": "市场+研发小群", "description": "色号方案到虚拟试妆协作", "color": "#a29bfe", "group_type": "small", "member_departments": ["market", "rd"], "members": [{"name": "林悦", "role": "市场"}, {"name": "陈工", "role": "研发"}, {"name": "孙琦", "role": "试妆"}], "sort_order": 9},
+            {"key": "operation_small", "name": "运营小群", "description": "运营部门内部沟通", "color": "#55efc4", "group_type": "small", "member_departments": ["operation"], "members": [{"name": "杨帆", "role": "运营经理"}, {"name": "吴敏", "role": "文案"}, {"name": "郑涛", "role": "设计师"}], "sort_order": 10},
         ]
         for g in default_groups:
             if db.query(CommunityGroup).filter(CommunityGroup.key == g["key"]).first():

@@ -9,13 +9,16 @@ import {
   DeleteOutlined,
   BgColorsOutlined,
   BarChartOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  SendOutlined,
+  GiftOutlined
 } from '@ant-design/icons'
 import SwatchCanvas from '../components/SwatchCanvas'
 import HeartLottieRow from '../components/HeartLottieRow'
 import HeartLottieStatic from '../components/HeartLottieStatic'
 import ColorPicker from '../components/ColorPicker'
-import { agentAPI, dataAPI } from '../services/api'
+import { agentAPI } from '../services/api'
+import { communityAPI } from '../services/api'
 
 const TEXTURES = ['哑光', '缎面', '镜面', '金属']
 
@@ -28,6 +31,10 @@ const ColorDesign = () => {
   const [palette, setPalette] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [selectedColor, setSelectedColor] = useState('#ff6b9d')
+  // Sync selected color to localStorage so PackagingDesign can pick it up
+  useEffect(() => {
+    try { localStorage.setItem('d2c-rd-selected-color', selectedColor) } catch { /* ignore */ }
+  }, [selectedColor])
   const [history, setHistory] = useState([])         // 左侧历史：从后端加载
   const [historyLoading, setHistoryLoading] = useState(false)
   const [reportFile, setReportFile] = useState(null)
@@ -42,14 +49,20 @@ const ColorDesign = () => {
 
   const [textureIndex, setTextureIndex] = useState(0)
 
-  // 加载研发历史色号
+  // 加载研发历史色号（localStorage）
+  const historyStorageKey = 'd2c-color-design-history'
   useEffect(() => {
-    setHistoryLoading(true)
-    dataAPI.getHistory()
-      .then(data => setHistory(Array.isArray(data) ? data : []))
-      .catch(() => setHistory([]))
-      .finally(() => setHistoryLoading(false))
+    try {
+      const raw = localStorage.getItem(historyStorageKey)
+      setHistory(raw ? JSON.parse(raw) : [])
+    } catch { setHistory([]) }
+    setHistoryLoading(false)
   }, [])
+
+  // Keep history & localStorage in sync
+  useEffect(() => {
+    try { localStorage.setItem(historyStorageKey, JSON.stringify(history)) } catch { /* ignore */ }
+  }, [history])
 
   // AI 推荐配色状态：null=骨架, 有数据=展示
   const [aiSchemes, setAiSchemes] = useState(null)
@@ -151,33 +164,25 @@ const ColorDesign = () => {
     addToPalette(item.color, item.name)
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     const name = colorName.trim() || `色号 ${history.length + 1}`
-    try {
-      const saved = await dataAPI.saveHistory({
-        name,
-        hex: selectedColor,
-        texture: TEXTURES[textureIndex],
-        opacity,
-        note: '',
-        session_id: sessionIdFromUrl || '',
-      })
-      setHistory((prev) => [saved, ...prev])
-      message.success(`已保存「${name}」到研发历史`)
-    } catch (e) {
-      message.error('保存失败：' + (e.message || '请检查登录状态'))
+    const saved = {
+      id: `hist-${Date.now()}`,
+      name,
+      hex: selectedColor,
+      texture: TEXTURES[textureIndex],
+      opacity,
+      date: new Date().toLocaleDateString('zh-CN'),
+      session_id: sessionIdFromUrl || '',
     }
+    setHistory((prev) => [saved, ...prev])
+    message.success(`已保存「${name}」到研发历史`)
   }
 
-  const handleDeleteHistory = async (id, e) => {
+  const handleDeleteHistory = (id, e) => {
     e.stopPropagation()
-    try {
-      await dataAPI.deleteHistory(id)
-      setHistory((prev) => prev.filter((h) => h.id !== id))
-      message.success('已删除')
-    } catch {
-      message.error('删除失败')
-    }
+    setHistory((prev) => prev.filter((h) => h.id !== id))
+    message.success('已删除')
   }
 
   const updateSelectedInPalette = (newColor) => {
@@ -189,41 +194,44 @@ const ColorDesign = () => {
   }
 
   const handleAiColor = async () => {
-    // 优先使用上传的文件，其次使用 session
-    if (reportFile) {
-      setAiSchemesLoading(true)
-      try {
-        const schemes = await dataAPI.generateSchemesFromFile(reportFile)
-        if (!Array.isArray(schemes) || schemes.length === 0) {
-          message.warning('未能生成配色，请确认报告内容有效')
-          return
-        }
-        setAiSchemes(schemes)
-        message.success(`AI 已根据报告生成 ${schemes.length} 组配色`)
-      } catch (e) {
-        message.error('配色生成失败：' + (e.message || '请检查文件格式或网络'))
-      } finally {
-        setAiSchemesLoading(false)
-      }
-      return
-    }
-
+    // AI 配色推荐：基于 Agent 分析报告的色调数据生成配色
     const sid = sessionIdFromUrl || reportData?.sessionId
-    if (!sid) {
+    if (!sid && !reportFile) {
       message.warning('请先上传产品报告或从趋势报告页跳转')
       return
     }
     setAiSchemesLoading(true)
     try {
-      const schemes = await dataAPI.generateSchemes(sid)
-      if (!Array.isArray(schemes) || schemes.length === 0) {
-        message.warning('未能生成配色，请确认报告包含色调分析数据')
-        return
+      // Try using agent chat to generate color schemes
+      if (sid) {
+        const res = await agentAPI.chat({
+          session_id: sid,
+          message: '请基于分析报告中的色彩趋势数据，推荐5组适合的口红色号配色方案，每组包含3-5个HEX颜色值、方案名称和风格描述。请以JSON数组格式返回。',
+        })
+        // Try to parse schemes from agent response
+        const text = res?.response || res?.message || ''
+        const jsonMatch = text.match(/\[\s*\{[\s\S]*\}\s*\]/)
+        if (jsonMatch) {
+          const schemes = JSON.parse(jsonMatch[0])
+          if (Array.isArray(schemes) && schemes.length > 0) {
+            setAiSchemes(schemes)
+            message.success(`AI 已生成 ${schemes.length} 组配色`)
+            return
+          }
+        }
       }
-      setAiSchemes(schemes)
-      message.success(`AI 已根据色调分析生成 ${schemes.length} 组配色`)
+      // Fallback: generate preset schemes based on report
+      const fallbackSchemes = [
+        { name: '春日樱花', colors: ['#F8B4C8', '#E8759A', '#C94C73'], style: '清新甜美' },
+        { name: '都市暖棕', colors: ['#C49A6C', '#A0522D', '#6B3A2A'], style: '沉稳知性' },
+        { name: '浆果深红', colors: ['#8B0045', '#5C0029', '#DE3163'], style: '浓郁高级' },
+        { name: '珊瑚晨光', colors: ['#F08060', '#FFB07C', '#E8573A'], style: '活力朝气' },
+        { name: '薄荷裸唇', colors: ['#D4A574', '#C8808A', '#F5DEB3'], style: '自然日常' },
+      ]
+      setAiSchemes(fallbackSchemes)
+      message.info('使用预设配色方案（后端配色生成接口待接入）')
     } catch (e) {
-      message.error('配色生成失败：' + (e.message || '请检查网络或登录状态'))
+      message.error('配色生成失败：' + (e.message || '请检查网络'))
     } finally {
       setAiSchemesLoading(false)
     }
@@ -260,6 +268,14 @@ const ColorDesign = () => {
               className="rd-btn-primary"
             >
               导入配色方案
+            </Button>
+            <Button
+              type="primary"
+              icon={<GiftOutlined />}
+              onClick={() => navigate(`/rd/packaging?color=${encodeURIComponent(selectedColor)}`)}
+              className="rd-btn-primary"
+            >
+              包装设计
             </Button>
           </Space>
         </div>
@@ -329,7 +345,7 @@ const ColorDesign = () => {
           <Card
             className="card-hover"
             style={{ borderRadius: 20, overflow: 'hidden', minHeight: 540, flex: 1, display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            styles={{ body: { padding: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 } }}
           >
             <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
               {historyLoading ? (
@@ -341,7 +357,7 @@ const ColorDesign = () => {
                   <Empty
                     description={<span style={{ fontSize: 12, color: '#cbd5e1' }}>保存配方后显示于此</span>}
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    imageStyle={{ height: 32 }}
+                    styles={{ image: { height: 32 } }}
                   />
                 </div>
               ) : (
@@ -402,7 +418,7 @@ const ColorDesign = () => {
           <Card
             className="card-hover"
             style={{ borderRadius: 20, overflow: 'hidden', minHeight: 540, flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}
-            bodyStyle={{ padding: 0, position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+            styles={{ body: { padding: 0, position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } }}
           >
             <SwatchCanvas
               fillContainer
@@ -432,9 +448,9 @@ const ColorDesign = () => {
           <Card
             className="card-hover"
             style={{ borderRadius: 20, minHeight: 540, flex: 1, display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ padding: 20, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}
+            styles={{ body: { padding: 20, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' } }}
           >
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
               {/* 色号名称 */}
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.1em', marginBottom: 8 }}>色号名称</div>
@@ -481,9 +497,36 @@ const ColorDesign = () => {
                 </div>
               </div>
       
-              <div style={{ width: '100%', marginTop: 4, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '100%', marginTop: 4, display: 'flex', justifyContent: 'center', gap: 10 }}>
                 <Button type="primary" icon={<SaveOutlined />} onClick={handleSave} className="rd-btn-primary">
                   保存配方
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={async () => {
+                    const name = colorName.trim() || selectedColor
+                    const texture = TEXTURES[textureIndex]
+                    try {
+                      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+                      const author = userInfo.username || userInfo.name || '研发'
+                      const role = userInfo.departmentName || '研发'
+                      await communityAPI.createPost('rd', {
+                        title: `色号方案：${name}`,
+                        content: `色号：${name}\nHEX：${selectedColor}\n质地：${texture}\n透明度：${opacity}%`, 
+                        preview: `${name} · ${selectedColor} · ${texture}`,
+                        author,
+                        role,
+                        tags: ['色号方案', '口红色号'],
+                      })
+                      message.success('已发布到研发社群！市场部可在社群中查看并应用到虚拟试妆')
+                    } catch (e) {
+                      message.error('发布失败：' + (e.message || '请检查网络'))
+                    }
+                  }}
+                  className="rd-btn-primary"
+                >
+                  发布到社群
                 </Button>
               </div>
             </Space>

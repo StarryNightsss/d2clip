@@ -5,7 +5,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { message } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
-import { dataAPI } from '../services/api'
 
 // ─── 颜色工具函数 ──────────────────────────────────────────────
 
@@ -129,21 +128,27 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
   const [hexInput, setHexInput] = useState(color.toUpperCase())
   const [cursorPct, setCursorPct] = useState({ x: hsv.s, y: 100 - hsv.v })
 
-  // 调色板（后端存储）
-  const [swatches, setSwatches] = useState([])
-  const [swatchLoading, setSwatchLoading] = useState(false)
+  // 调色板（本地 localStorage 存储）
+  const storageKey = 'd2c-color-picker-swatches'
+  const loadLocalSwatches = () => {
+    try {
+      const raw = localStorage.getItem(storageKey)
+      return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+  }
+  const persistSwatches = (list) => {
+    try { localStorage.setItem(storageKey, JSON.stringify(list)) } catch { /* ignore */ }
+  }
+
+  const [swatches, setSwatches] = useState(loadLocalSwatches)
+
+  // Keep state & localStorage in sync
+  useEffect(() => { persistSwatches(swatches) }, [swatches])
 
   // 是否在拖拽
   const dragging = useRef(null) // 'spectrum' | 'hue' | 'alpha'
 
-  // ── 初始化：从后端加载调色板 ──
-  useEffect(() => {
-    setSwatchLoading(true)
-    dataAPI.getSwatches()
-      .then(data => setSwatches(Array.isArray(data) ? data : []))
-      .catch(() => setSwatches([]))
-      .finally(() => setSwatchLoading(false))
-  }, [])
+  // No backend loading needed — swatches are localStorage-based
 
   // ── 当外部 color 变化时同步 hsv / hexInput ──
   useEffect(() => {
@@ -276,29 +281,20 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
     onChange?.(val.toUpperCase(), opacity)
   }
 
-  // ── 调色板：添加当前色 ──
-  const handleAddSwatch = async () => {
+  // ── 调色板：添加当前色（localStorage）──
+  const handleAddSwatch = () => {
     if (swatches.some(s => s.hex.toUpperCase() === color.toUpperCase())) {
       message.info('调色板中已有这个颜色')
       return
     }
-    try {
-      const newSwatch = await dataAPI.addSwatch(color)
-      setSwatches(prev => [...prev, newSwatch])
-    } catch (e) {
-      message.error('保存失败：' + (e.message || '请检查登录状态'))
-    }
+    const newSwatch = { id: `sw-${Date.now()}`, hex: color.toUpperCase() }
+    setSwatches(prev => [...prev, newSwatch])
   }
 
-  // ── 调色板：删除（双击触发）──
-  const handleDeleteSwatch = async (id) => {
-    try {
-      await dataAPI.deleteSwatch(id)
-      setSwatches(prev => prev.filter(s => s.id !== id))
-      message.success('已删除')
-    } catch {
-      message.error('删除失败')
-    }
+  // ── 调色板：删除（双击触发，localStorage）──
+  const handleDeleteSwatch = (id) => {
+    setSwatches(prev => prev.filter(s => s.id !== id))
+    message.success('已删除')
   }
 
   // ── 调色板：单击应用颜色 ──
@@ -393,9 +389,7 @@ export default function ColorPicker({ color = '#ff6b9d', onChange, opacity = 100
       <div className="rd-panel-embed">
         <div className="rd-picker-label">调色板</div>
         <div className="rd-palette-strip">
-          {swatchLoading
-            ? <span style={{ fontSize: 11, color: '#94a3b8' }}>加载中…</span>
-            : swatches.map(s => (
+          {swatches.map(s => (
               <div
                 key={s.id}
                 className={`rd-palette-dot${s.hex.toUpperCase() === color.toUpperCase() ? ' rd-palette-dot--active' : ''}`}

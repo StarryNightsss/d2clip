@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { crawlerAPI, dataAPI, agentAPI } from '../services/api'
 import CrawlerTerminal from '../components/CrawlerTerminal'
+import VtoDemoPanel from '../components/VtoDemoPanel'
 
 const { TextArea } = Input
 
@@ -744,7 +745,7 @@ const AnalysisWorkbench = () => {
         </div>
       </div>
 
-      {/* 分析历史（已废弃：统一由 AI 报告助手管理，因此这里整体移除） */}
+{/* 分析历史（已废弃：统一由 AI 报告助手管理，因此这里整体移除） */}
       {false && (
         <Card
           className="workbench-content-card"

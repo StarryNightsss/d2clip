@@ -1,6 +1,6 @@
 import { Layout as AntLayout, Menu, Dropdown, Avatar, Space, Modal, message } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { BarChartOutlined, FileTextOutlined, TableOutlined, UserOutlined, LogoutOutlined, TeamOutlined, ExperimentOutlined, SmileOutlined, EditOutlined, CommentOutlined, MenuFoldOutlined, MenuUnfoldOutlined, BulbOutlined } from '@ant-design/icons'
+import { BarChartOutlined, FileTextOutlined, TableOutlined, UserOutlined, LogoutOutlined, TeamOutlined, ExperimentOutlined, SmileOutlined, EditOutlined, CommentOutlined, MenuFoldOutlined, MenuUnfoldOutlined, BulbOutlined, GiftOutlined } from '@ant-design/icons'
 import LipstickLottie from './LipstickLottie'
 import { useState, useEffect } from 'react'
 
@@ -76,6 +76,12 @@ const Layout = ({ children }) => {
         key: '/rd/inspiration',
         icon: <BulbOutlined style={{ fontSize: '18px' }} />,
         label: <span style={{ fontSize: '15px', fontWeight: '500' }}>配色灵感</span>,
+        departments: ['rd', 'admin']
+      },
+      {
+        key: '/rd/packaging',
+        icon: <GiftOutlined style={{ fontSize: '18px' }} />,
+        label: <span style={{ fontSize: '15px', fontWeight: '500' }}>包装设计</span>,
         departments: ['rd', 'admin']
       },
       {

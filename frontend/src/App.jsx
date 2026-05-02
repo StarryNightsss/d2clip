@@ -8,6 +8,7 @@ import DataTable from './pages/DataTable'
 import UserManagement from './pages/UserManagement'
 import ColorDesign from './pages/ColorDesign'
 import ColorInspiration from './pages/ColorInspiration'
+import PackagingDesign from './pages/PackagingDesign'
 import VirtualTryOn from './pages/VirtualTryOn'
 import ContentGeneration from './pages/ContentGeneration'
 import Community from './pages/Community'
@@ -22,6 +23,7 @@ const ROUTE_DEPARTMENTS = {
   '/agent': ['product', 'admin'],
   '/rd': ['rd', 'admin'],
   '/rd/inspiration': ['rd', 'admin'],
+  '/rd/packaging': ['rd', 'admin'],
   '/market': ['market', 'admin'],
   '/operation': ['operation', 'admin'],
   '/community': ['product', 'rd', 'market', 'operation', 'admin'],
@@ -118,6 +120,14 @@ function App() {
           <ProtectedRoute>
             <DepartmentGuard path="/rd/inspiration">
               <Layout><ColorInspiration /></Layout>
+            </DepartmentGuard>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/rd/packaging" element={
+          <ProtectedRoute>
+            <DepartmentGuard path="/rd/packaging">
+              <Layout><PackagingDesign /></Layout>
             </DepartmentGuard>
           </ProtectedRoute>
         } />

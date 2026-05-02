@@ -15,7 +15,10 @@ const DEPT_ICONS = {
   operation: <EditOutlined />,
   product_small: <TeamOutlined />,
   product_rd: <MessageOutlined />,
-  rd_small: <TeamOutlined />
+  rd_small: <TeamOutlined />,
+  market_small: <TeamOutlined />,
+  market_rd: <MessageOutlined />,
+  operation_small: <TeamOutlined />,
 }
 
 function formatTime(createdAt) {
