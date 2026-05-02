@@ -18,6 +18,7 @@ from backend.api.crawler import router as crawler_router
 from backend.api.data import router as data_router
 from backend.api.auth import router as auth_router
 from backend.api.agent import router as agent_router
+from backend.api.vto import router as vto_router
 from backend.db import is_db_configured
 
 # 创建 FastAPI 应用
@@ -45,6 +46,7 @@ app.include_router(community_router, prefix="/api")
 app.include_router(crawler_router, prefix="/api")
 app.include_router(data_router, prefix="/api")
 app.include_router(agent_router, prefix="/api")
+app.include_router(vto_router, prefix="/api")
 # 职员管理 CRUD（仅当配置了 DATABASE_URL 时挂载）
 if is_db_configured():
     from backend.api.users import router as users_router
