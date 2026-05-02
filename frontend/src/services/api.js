@@ -268,3 +268,55 @@ export const agentAPI = {
     return new WebSocket(`${wsBase}/agent/ws/${sessionId}`)
   }
 }
+
+// 研发部门 API
+export const rdAPI = {
+  // AI 色号取名
+  generateColorName: (hex, style = 'shijing') =>
+    request('/rd/color-names', {
+      method: 'POST',
+      body: JSON.stringify({ hex, style }),
+    }),
+
+  // AI 配色方案（基于上传文件）
+  generateColorSchemes: (file, style = 'shijing') => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return fetch(`${ANALYSIS_API_BASE}/rd/color-schemes/upload?style=${encodeURIComponent(style)}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: formData,
+    }).then(async (r) => {
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ detail: '请求失败' }))
+        throw new Error(err.detail || `HTTP ${r.status}`)
+      }
+      return r.json()
+    })
+  },
+
+  // AI 配色方案（基于已有 Agent session）
+  generateColorSchemesFromSession: (sessionId, style = 'shijing') =>
+    request('/rd/color-schemes', {
+      method: 'POST',
+      body: JSON.stringify({ session_id: sessionId, style }),
+    }),
+
+  // 调色板 CRUD
+  getSwatches: () => request('/rd/color-swatches'),
+  addSwatch: (hex, label = '') =>
+    request('/rd/color-swatches', {
+      method: 'POST',
+      body: JSON.stringify({ hex, label }),
+    }),
+  deleteSwatch: (id) => request(`/rd/color-swatches/${id}`, { method: 'DELETE' }),
+
+  // 历史色号
+  getHistory: () => request('/rd/swatches'),
+  saveHistory: (body) =>
+    request('/rd/swatches', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  deleteHistory: (id) => request(`/rd/swatches/${id}`, { method: 'DELETE' }),
+}

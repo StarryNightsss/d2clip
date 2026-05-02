@@ -252,12 +252,14 @@ async def delete_swatch_history(swatch_id: str, authorization: Optional[str] = H
 
 class ColorSchemesRequest(BaseModel):
     session_id: str = Field(..., description="agent 会话 ID，用于获取已分析的色调数据")
+    style: str = Field("shijing", description="命名风格：shijing/tangshi/songci")
 
 
 @router.post("/color-schemes")
 async def generate_color_schemes(body: ColorSchemesRequest, authorization: Optional[str] = Header(None)):
     """根据 agent 已分析的色调数据，调用 LLM 生成 3 组配色方案"""
-    _get_user_id(authorization)  # 确认登录
+    # AI 配色是无状态功能，无需强制登录
+    # _get_user_id(authorization)  # 可选：如需审计可取消注释
 
     # 从已持久化的 agent 会话中获取 tone_analysis
     from backend.db import SessionLocal as _SL, is_db_configured as _idc
@@ -293,18 +295,51 @@ async def generate_color_schemes(body: ColorSchemesRequest, authorization: Optio
                 tone_dist = cols
 
     if not tone_dist:
-        raise HTTPException(status_code=422, detail="该报告不包含色调分析数据，请确认已执行 analyze_tone")
+        # 会话无色调数据时，也 fallback 到通用生成
+        import logging
+        logging.getLogger(__name__).warning(f"session {body.session_id} 无色调数据，使用通用配色生成")
+        tone_dist = [{"name": "通用趋势", "count": 1, "percentage": 100}]
 
-    # 创建临时 AgentTools 实例，将 tone_analysis 写入缓存，再调用工具
-    from backend.services.agent_tools import AgentTools
-    tools = AgentTools()
-    tools.data_cache['tone_analysis'] = tone_dist
+    # 风格映射
+    _style_map = {
+        "shijing": ("诗经", "先秦诗歌总集，以自然意象（桃夭、蒹葭、采薇、鹿鸣）为色彩命名灵感"),
+        "tangshi": ("唐诗", "唐代诗歌巅峰，以壮美意象（云裳、露华、孤烟、明月）为色彩命名灵感"),
+        "songci":  ("宋词", "宋代词作精选，以婉约意象（绿肥、婵娟、暗香、疏影）为色彩命名灵感"),
+    }
+    style_name, style_desc = _style_map.get(body.style, ("诗经", _style_map["shijing"][1]))
 
-    result = await tools.generate_color_schemes()
-    if not result.get('success'):
-        raise HTTPException(status_code=500, detail=result.get('error', '配色生成失败'))
+    # 直接调用 LLM 生成配色（基于色调数据 + 命名风格）
+    import re as _re
+    from backend.services.langchain_service import langchain_service
 
-    return result['data']  # 列表： [{"name": "...", "colors": ["#...", ...]}, ...]
+    tone_text = _json.dumps(tone_dist, ensure_ascii=False)[:2000]
+    prompt = (
+        f"你是一位精通中国古典文学的美妆配色大师。\n\n"
+        f"以下是色调分析数据：\n{tone_text}\n\n"
+        f"请根据以上色调数据，设计 3 组美妆口红配色方案，每组 3 个颜色。\n\n"
+        f"核心要求：\n"
+        f"1. 每个颜色用 6 位十六进制 HEX 表示（如 #C8808A）\n"
+        f"2. 每组方案的名称必须基于《{style_name}》风格的古典意象来命名\n"
+        f"   {style_desc}\n"
+        f"3. 每组方案的 name 字段格式为「意象词1·意象词2·意象词3」\n"
+        f"4. 颜色必须与名称的意象相呼应（如「桃夭」对应粉色，「孤烟」对应灰蓝）\n"
+        f"5. 返回纯 JSON 数组，不要加三反引号代码块\n"
+        f'格式：[{{"name": "意象词1·意象词2·意象词3", "colors": ["#RRGGBB", "#RRGGBB", "#RRGGBB"]}}]'
+    )
+
+    resp = await langchain_service.llm.ainvoke(prompt)
+    raw = resp.content if hasattr(resp, 'content') else str(resp)
+    clean = _re.sub(r'^```[\w]*\n?|\n?```$', '', raw.strip(), flags=_re.MULTILINE).strip()
+
+    try:
+        schemes = _json.loads(clean)
+    except Exception:
+        raise HTTPException(status_code=500, detail=f"LLM 返回格式解析失败：{clean[:200]}")
+
+    if not isinstance(schemes, list) or not schemes:
+        raise HTTPException(status_code=500, detail="LLM 未返回有效的配色方案")
+
+    return schemes
 
 
 # ============================================================
@@ -314,10 +349,20 @@ async def generate_color_schemes(body: ColorSchemesRequest, authorization: Optio
 @router.post("/color-schemes/upload")
 async def generate_color_schemes_from_file(
     file: UploadFile = File(...),
+    style: str = "shijing",
     authorization: Optional[str] = Header(None)
 ):
     """直接上传产品报告文件，提取文本内容后调用 LLM 生成 3 组配色方案"""
-    _get_user_id(authorization)
+    # AI 配色是无状态功能，无需强制登录
+    # _get_user_id(authorization)
+
+    # 风格映射
+    _style_map = {
+        "shijing": ("诗经", "先秦诗歌总集，以自然意象（桃夭、蒹葭、采薇、鹿鸣）为色彩命名灵感"),
+        "tangshi": ("唐诗", "唐代诗歌巅峰，以壮美意象（云裳、露华、孤烟、明月）为色彩命名灵感"),
+        "songci":  ("宋词", "宋代词作精选，以婉约意象（绿肥、婵娟、暗香、疏影）为色彩命名灵感"),
+    }
+    style_name, style_desc = _style_map.get(style, ("诗经", _style_map["shijing"][1]))
 
     content_bytes = await file.read()
     filename = file.filename or ""
@@ -332,11 +377,14 @@ async def generate_color_schemes_from_file(
                 text = "\n".join(page.extract_text() or "" for page in reader.pages)
             except ImportError:
                 # fallback: 尝试 pdfminer
-                from pdfminer.high_level import extract_text_to_fp
-                from pdfminer.layout import LAParams
-                out = io.StringIO()
-                extract_text_to_fp(io.BytesIO(content_bytes), out, laparams=LAParams())
-                text = out.getvalue()
+                try:
+                    from pdfminer.high_level import extract_text_to_fp
+                    from pdfminer.layout import LAParams
+                    out = io.StringIO()
+                    extract_text_to_fp(io.BytesIO(content_bytes), out, laparams=LAParams())
+                    text = out.getvalue()
+                except ImportError:
+                    raise HTTPException(status_code=422, detail="PDF 解析需要安装 pypdf 或 pdfminer，请运行: pip install pypdf")
         elif filename.lower().endswith((".xlsx", ".xls")):
             import io
             import openpyxl
@@ -361,7 +409,10 @@ async def generate_color_schemes_from_file(
         raise HTTPException(status_code=422, detail=f"文件解析失败：{e}")
 
     if not text.strip():
-        raise HTTPException(status_code=422, detail="无法从文件中提取文本内容")
+        # 文件解析成功但未提取到文本（如扫描版 PDF），直接用 LLM 生成通用配色
+        import logging
+        logging.getLogger(__name__).warning(f"文件 {filename} 未提取到文本，使用通用配色生成")
+        text = "（产品报告内容未提取到文字，请基于当季美妆口红流行趋势生成配色方案）"
 
     # 截取前 3000 字符避免超出 token 限制
     excerpt = text[:3000]
@@ -371,14 +422,38 @@ async def generate_color_schemes_from_file(
     import re as _re
 
     prompt = (
-        "下面是一份美妆产品趋势报告的内容节选：\n"
-        f"{excerpt}\n\n"
-        "请根据以上报告内容，设计 3 组美妆口红配色方案，每组 3 个颜色。"
-        "要求：1. 颜色必须符合报告中提到的色调趋势；"
-        "2. 每个颜色都要用具体的 6 位十六进制 HEX（如 #CC3300）；"
-        "3. 每组方案取一个美妆风格名（中文，4-6个字）；"
-        "4. 返回纯 JSON 数组，不要加三反引号代码块。"
-        '格式：[{"name": "方案名", "colors": ["#RRGGBB", "#RRGGBB", "#RRGGBB"]}]'
+        f"你是一位精通中国古典文学的美妆配色大师。\n\n"
+        f"下面是一份美妆产品趋势报告的内容节选：\n{excerpt}\n\n"
+        f"请根据以上报告内容，设计 3 组美妆口红配色方案，每组 3 个颜色。\n\n"
+        f"核心要求：\n"
+        f"1. 每个颜色用 6 位十六进制 HEX 表示（如 #C8808A）\n"
+        f"2. 每组方案的名称必须基于《{style_name}》风格的古典意象来命名\n"
+        f"   {style_desc}\n"
+        f"   命名示例：\n"
+    )
+    if style == "shijing":
+        prompt += (
+            '   - 粉色系："桃夭"（出自「桃之夭夭，灼灼其华」）\n'
+            '   - 白色系："蒹葭"（出自「蒹葭苍苍，白露为霜」）\n'
+            '   - 绿色系："采薇"（出自「采薇采薇，薇亦作止」）\n'
+        )
+    elif style == "tangshi":
+        prompt += (
+            '   - 金色系："露华"（出自「云想衣裳花想容，春风拂槛露华浓」）\n'
+            '   - 灰蓝色系："孤烟"（出自「大漠孤烟直，长河落日圆」）\n'
+            '   - 银白色系："明月"（出自「春江潮水连海平，海上明月共潮生」）\n'
+        )
+    elif style == "songci":
+        prompt += (
+            '   - 红绿色系："绿肥"（出自「知否知否，应是绿肥红瘦」）\n'
+            '   - 银色系："婵娟"（出自「但愿人长久，千里共婵娟」）\n'
+            '   - 暗香色系："暗香"（出自「众里寻他千百度，蓦然回首」）\n'
+        )
+    prompt += (
+        f"3. 每组方案的 name 字段格式为「意象词1·意象词2·意象词3」，用《{style_name}》中的意象词\n"
+        f"4. 颜色必须与名称的意象相呼应（如「桃夭」对应粉色，「孤烟」对应灰蓝）\n"
+        f"5. 返回纯 JSON 数组，不要加三反引号代码块\n"
+        f'格式：[{{"name": "意象词1·意象词2·意象词3", "colors": ["#RRGGBB", "#RRGGBB", "#RRGGBB"]}}]'
     )
 
     resp = await langchain_service.llm.ainvoke(prompt)
@@ -394,3 +469,91 @@ async def generate_color_schemes_from_file(
         raise HTTPException(status_code=500, detail="LLM 未返回有效的配色方案")
 
     return schemes
+
+
+# ============================================================
+# AI 色号取名（基于古典文学风格）
+# ============================================================
+
+class ColorNameRequest(BaseModel):
+    hex: str = Field(..., description="色号 HEX 值，如 #C8808A")
+    style: str = Field("shijing", description="命名风格：shijing(诗经) / tangshi(唐诗) / songci(宋词)")
+
+
+class ColorNameResponse(BaseModel):
+    name: str = Field(..., description="色号中文名")
+    quote: str = Field(..., description="诗词出处")
+    meaning: str = Field(..., description="寓意解读")
+    style: str = Field(..., description="使用的命名风格")
+
+
+_STYLE_MAP = {
+    "shijing": ("诗经", "先秦诗歌总集，收录西周至春秋诗歌305篇"),
+    "tangshi": ("唐诗", "唐代诗歌巅峰，代表中华诗歌最高成就"),
+    "songci":  ("宋词", "宋代词作精选，婉约豪放两派并盛"),
+}
+
+
+@router.post("/color-names", response_model=ColorNameResponse)
+async def generate_color_name(body: ColorNameRequest, authorization: Optional[str] = Header(None)):
+    """
+    AI 为色号生成中文名
+
+    根据 HEX 色号和命名风格（诗经/唐诗/宋词），调用 LLM 生成富有诗意的中文名称。
+    """
+    # AI 取名是无状态功能，无需强制登录
+
+    hex_val = body.hex.strip()
+    if not hex_val.startswith("#") or len(hex_val) not in (4, 7, 9):
+        raise HTTPException(status_code=422, detail="颜色值格式不正确，需要 #RGB / #RRGGBB")
+
+    style_id = body.style
+    if style_id not in _STYLE_MAP:
+        raise HTTPException(status_code=422, detail=f"命名风格必须是 {list(_STYLE_MAP.keys())} 之一")
+
+    style_name, style_desc = _STYLE_MAP[style_id]
+
+    # 提取 RGB
+    hex_clean = hex_val.lstrip("#")
+    if len(hex_clean) == 3:
+        hex_clean = "".join([c * 2 for c in hex_clean])
+    r = int(hex_clean[0:2], 16)
+    g = int(hex_clean[2:4], 16)
+    b = int(hex_clean[4:6], 16)
+
+    from backend.services.langchain_service import langchain_service
+    import json as _json
+    import re as _re
+
+    prompt = (
+        f"你是一位精通中国古典文学的美妆色号命名师。\n\n"
+        f"请为口红色号 {hex_val}（RGB: {r},{g},{b}）取一个基于《{style_name}》风格的中文名称。\n"
+        f"《{style_name}》简介：{style_desc}。\n\n"
+        f"要求：\n"
+        f"1. 名称 2-4 个字，富有诗意且贴合颜色气质\n"
+        f"2. 附带一句诗词出处（标明作品名，如「桃之夭夭，灼灼其华」——《诗经·周南》）\n"
+        f"3. 写一句 30 字内的寓意解读\n"
+        f"4. 返回纯 JSON，不要加三反引号代码块，格式："
+        f'{{"name": "...", "quote": "...", "meaning": "..."}}\n\n'
+        f"示例：\n"
+        f'- 色号 #C8808A（豆沙粉）：{{"name": "桃夭", "quote": "「桃之夭夭，灼灼其华」——《诗经·周南》", "meaning": "桃花初绽的柔粉，寓意青春美好"}}'
+    )
+
+    resp = await langchain_service.llm.ainvoke(prompt)
+    raw = resp.content if hasattr(resp, "content") else str(resp)
+    clean = _re.sub(r"^```[\w]*\n?|\n?```$", "", raw.strip(), flags=_re.MULTILINE).strip()
+
+    try:
+        result = _json.loads(clean)
+    except Exception:
+        raise HTTPException(status_code=500, detail=f"LLM 返回格式解析失败：{clean[:200]}")
+
+    if not isinstance(result, dict) or "name" not in result:
+        raise HTTPException(status_code=500, detail="LLM 未返回有效的取名结果")
+
+    return ColorNameResponse(
+        name=result.get("name", "未命名"),
+        quote=result.get("quote", ""),
+        meaning=result.get("meaning", ""),
+        style=style_id,
+    )

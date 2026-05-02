@@ -12,7 +12,7 @@ import {
   HeartOutlined
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
-import { dataAPI, agentAPI } from '../services/api'
+import { dataAPI, agentAPI, rdAPI } from '../services/api'
 
 // 取名风格配置 - 中国古典文学（不同粉色系）
 const NAMING_STYLES = [
@@ -80,13 +80,11 @@ const ColorInspiration = () => {
     }
   }
 
-  // 处理文件上传
-  const handleFileChange = (info) => {
-    const { file } = info
-    if (file.status === 'done' || file.status === 'uploading') {
-      setReportFile(file.originFileObj || file)
-      message.success(`已选择文件：${file.name}`)
-    }
+  // 处理文件选择（直接在 beforeUpload 中捕获，最可靠）
+  const handleBeforeUpload = (file) => {
+    setReportFile(file)
+    message.success(`已选择文件：${file.name}`)
+    return false  // 阻止自动上传
   }
 
   // AI 生成配色
@@ -98,31 +96,23 @@ const ColorInspiration = () => {
 
     setAiSchemesLoading(true)
     try {
-      // 这里调用实际的 AI 配色 API
-      // const result = await dataAPI.generateColorSchemes(reportFile, selectedStyle)
-      // 模拟数据
-      await new Promise(r => setTimeout(r, 2000))
-      const mockSchemes = [
-        {
-          name: '桃夭·朱砂·暮山紫',
-          colors: ['#FF6B9D', '#DC143C', '#8B4789'],
-          style: selectedStyle
-        },
-        {
-          name: '天青·月白·鸦青',
-          colors: ['#87CEEB', '#F0F8FF', '#4A5568'],
-          style: selectedStyle
-        },
-        {
-          name: '胭脂·藤黄·石青',
-          colors: ['#FF1493', '#FFD700', '#4169E1'],
-          style: selectedStyle
-        }
-      ]
-      setAiSchemes(mockSchemes)
-      message.success('配色方案生成成功！')
+      let schemes
+      if (reportFile.sessionId) {
+        // 方式二：从已有会话生成（基于 session 的 tone_analysis）
+        schemes = await rdAPI.generateColorSchemesFromSession(reportFile.sessionId, selectedStyle)
+      } else {
+        // 方式一：从上传文件生成
+        schemes = await rdAPI.generateColorSchemes(reportFile, selectedStyle)
+      }
+      const enriched = schemes.map((s, idx) => ({
+        ...s,
+        style: selectedStyle,
+        name: s.name || `${NAMING_STYLES.find(n => n.id === selectedStyle)?.name || '配色'}方案${idx + 1}`,
+      }))
+      setAiSchemes(enriched)
+      message.success('AI 配色方案生成成功！')
     } catch (err) {
-      message.error('生成配色方案失败')
+      message.error('生成配色方案失败：' + (err.message || '请检查网络'))
       console.error(err)
     } finally {
       setAiSchemesLoading(false)
@@ -167,9 +157,8 @@ const ColorInspiration = () => {
                 </div>
                 <Upload.Dragger
                   accept=".pdf,.doc,.docx,.xlsx"
-                  onChange={handleFileChange}
                   showUploadList={false}
-                  beforeUpload={() => false}
+                  beforeUpload={handleBeforeUpload}
                   style={{
                     borderRadius: 16,
                     border: '2px dashed rgba(255,107,157,0.3)',
@@ -298,7 +287,7 @@ const ColorInspiration = () => {
           <Card
             className="card-hover"
             style={{ borderRadius: 20, height: '100%', display: 'flex', flexDirection: 'column' }}
-            bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+            styles={{ body: { flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 } }}
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <HeartOutlined style={{ color: '#ff6b9d' }} />
@@ -326,7 +315,7 @@ const ColorInspiration = () => {
                           border: '1.5px solid transparent',
                           transition: 'all 0.3s'
                         }}
-                        bodyStyle={{ padding: 20 }}
+                        styles={{ body: { padding: 20 } }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = '#ff6b9d'
                           e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,157,0.15)'

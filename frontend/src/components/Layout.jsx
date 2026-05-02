@@ -180,12 +180,15 @@ const Layout = ({ children }) => {
               }}
             >
               <Avatar
-                src={userInfo.avatar || (userInfo.username === 'testsss@admin.com' ? '/kuromi-avatar.png' : undefined)}
+                src={
+                  userInfo.avatar ||
+                  ((userInfo.username === 'admin@d2clip.com' || userInfo.username === 'testsss@admin.com') ? '/kuromi-avatar.png' : undefined)
+                }
                 style={{
-                  backgroundColor: (userInfo.avatar || userInfo.username === 'testsss@admin.com') ? 'transparent' : '#ff8fab',
+                  backgroundColor: (userInfo.avatar || userInfo.username === 'admin@d2clip.com' || userInfo.username === 'testsss@admin.com') ? 'transparent' : '#ff8fab',
                   fontWeight: '600'
                 }}
-                icon={!userInfo.avatar && userInfo.username !== 'testsss@admin.com' ? <UserOutlined /> : undefined}
+                icon={!(userInfo.avatar || userInfo.username === 'admin@d2clip.com' || userInfo.username === 'testsss@admin.com') ? <UserOutlined /> : undefined}
               />
               <span style={{
                 color: 'white',

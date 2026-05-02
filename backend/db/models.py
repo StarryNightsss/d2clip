@@ -147,3 +147,30 @@ class AgentSession(Base):
     file_path = Column(String(512), default="")         # 关联的数据文件
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class RdColorSwatch(Base):
+    """9. 研发调色板色块（每个用户自己的常用色）"""
+    __tablename__ = "rd_color_swatches"
+
+    id = Column(String(64), primary_key=True)           # UUID
+    user_id = Column(String(64), nullable=False, index=True)
+    hex = Column(String(16), nullable=False)            # #RRGGBB
+    label = Column(String(128), default="")
+    sort_order = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class RdSwatch(Base):
+    """10. 研发历史色号记录（左侧历史栏）"""
+    __tablename__ = "rd_swatches"
+
+    id = Column(String(64), primary_key=True)           # UUID
+    user_id = Column(String(64), nullable=False, index=True)
+    name = Column(String(128), nullable=False, default="色号")
+    hex = Column(String(16), nullable=False)            # #RRGGBB
+    texture = Column(String(32), default="哑光")
+    opacity = Column(Integer, default=100)
+    note = Column(String(512), default="")
+    session_id = Column(String(64), default="")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

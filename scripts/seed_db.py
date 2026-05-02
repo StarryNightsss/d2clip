@@ -67,6 +67,7 @@ def main():
         base_avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed="
         users_data = [
             ("admin@d2clip.com", "管理员", "admin", "admin", "/kuromi-avatar.png", "admin@d2clip.com"),
+            ("testsss@admin.com", "测试管理员", "admin", "admin", "/kuromi-avatar.png", "testsss@admin.com"),
             ("zhangxiaowen@d2clip.com", "张晓雯", "product", "user", f"{base_avatar}zhang", "zhangxiaowen@d2clip.com"),
             ("lisi@d2clip.com", "李四", "rd", "user", f"{base_avatar}lisi", "lisi@d2clip.com"),
             ("wangwu@d2clip.com", "王五", "market", "user", f"{base_avatar}wangwu", "wangwu@d2clip.com"),

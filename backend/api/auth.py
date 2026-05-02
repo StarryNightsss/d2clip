@@ -41,7 +41,7 @@ async def login(body: LoginBody):
                 dept_key = d.key
                 dept_name = d.name
         # 非 admin：只能以自己所在部门登录，选错部门直接拒绝
-        is_admin = (dept_key == "admin" or (user.username or "").lower() == "admin@d2clip.com")
+        is_admin = (dept_key == "admin" or (user.username or "").lower() in ("admin@d2clip.com", "testsss@admin.com"))
         if not is_admin:
             chosen = (body.department or "").strip().lower()
             if not chosen:

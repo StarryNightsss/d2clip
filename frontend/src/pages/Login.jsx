@@ -46,9 +46,9 @@ const Login = () => {
       try {
         const users = await communityAPI.getUsers()
         const me = Array.isArray(users) ? users.find(u => u && (u.username === username || u.email === username)) : null
-        avatar = me?.avatar || ((username === 'admin@d2clip.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined)
+        avatar = me?.avatar || ((username === 'admin@d2clip.com' || username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined)
       } catch (_) {
-        avatar = (username === 'admin@d2clip.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined
+        avatar = (username === 'admin@d2clip.com' || username === 'testsss@admin.com' || department === 'admin') ? '/kuromi-avatar.png' : undefined
       }
       const userInfo = {
         username,

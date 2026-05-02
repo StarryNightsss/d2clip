@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { Card, Row, Col, Button, Input, Space, message, Tag, Spin, Empty, Tooltip } from 'antd'
 import {
   ExperimentOutlined,
@@ -17,13 +17,13 @@ import SwatchCanvas from '../components/SwatchCanvas'
 import HeartLottieRow from '../components/HeartLottieRow'
 import HeartLottieStatic from '../components/HeartLottieStatic'
 import ColorPicker from '../components/ColorPicker'
-import { agentAPI } from '../services/api'
-import { communityAPI } from '../services/api'
+import { agentAPI, rdAPI, communityAPI } from '../services/api'
 
 const TEXTURES = ['哑光', '缎面', '镜面', '金属']
 
 const ColorDesign = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const sessionIdFromUrl = searchParams.get('session_id')
 
@@ -31,6 +31,28 @@ const ColorDesign = () => {
   const [palette, setPalette] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [selectedColor, setSelectedColor] = useState('#ff6b9d')
+
+  // 从 ColorInspiration 导入配色方案
+  useEffect(() => {
+    const scheme = location.state?.importedScheme
+    if (!scheme || !Array.isArray(scheme.colors)) return
+    // 将方案的每个颜色添加到色板
+    const newSwatches = scheme.colors.map((hex, idx) => ({
+      id: `swatch-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+      color: hex,
+      name: scheme.name ? `${scheme.name}-${idx + 1}` : `导入色${idx + 1}`,
+      opacity: 100,
+    }))
+    setPalette((prev) => [...prev, ...newSwatches])
+    if (newSwatches.length > 0) {
+      setSelectedId(newSwatches[0].id)
+      setSelectedColor(newSwatches[0].color)
+      setColorName(newSwatches[0].name)
+    }
+    message.success(`已导入「${scheme.name || '配色方案'}」${newSwatches.length} 个色号`)
+    // 清除 state 避免重复导入
+    window.history.replaceState({}, '')
+  }, [location.state])
   // Sync selected color to localStorage so PackagingDesign can pick it up
   useEffect(() => {
     try { localStorage.setItem('d2c-rd-selected-color', selectedColor) } catch { /* ignore */ }
@@ -49,17 +71,36 @@ const ColorDesign = () => {
 
   const [textureIndex, setTextureIndex] = useState(0)
 
-  // 加载研发历史色号（localStorage）
+  // 加载研发历史色号（优先从后端加载，fallback localStorage）
   const historyStorageKey = 'd2c-color-design-history'
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(historyStorageKey)
-      setHistory(raw ? JSON.parse(raw) : [])
-    } catch { setHistory([]) }
-    setHistoryLoading(false)
+    const loadHistory = async () => {
+      setHistoryLoading(true)
+      try {
+        const data = await rdAPI.getHistory()
+        if (Array.isArray(data) && data.length > 0) {
+          setHistory(data)
+        } else {
+          // fallback: 从 localStorage 读取
+          try {
+            const raw = localStorage.getItem(historyStorageKey)
+            setHistory(raw ? JSON.parse(raw) : [])
+          } catch { setHistory([]) }
+        }
+      } catch {
+        // 未登录或后端不可用，从 localStorage 读取
+        try {
+          const raw = localStorage.getItem(historyStorageKey)
+          setHistory(raw ? JSON.parse(raw) : [])
+        } catch { setHistory([]) }
+      } finally {
+        setHistoryLoading(false)
+      }
+    }
+    loadHistory()
   }, [])
 
-  // Keep history & localStorage in sync
+  // Keep history & localStorage in sync (本地缓存，后端为主)
   useEffect(() => {
     try { localStorage.setItem(historyStorageKey, JSON.stringify(history)) } catch { /* ignore */ }
   }, [history])
@@ -164,23 +205,53 @@ const ColorDesign = () => {
     addToPalette(item.color, item.name)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const name = colorName.trim() || `色号 ${history.length + 1}`
     const saved = {
-      id: `hist-${Date.now()}`,
       name,
       hex: selectedColor,
       texture: TEXTURES[textureIndex],
       opacity,
-      date: new Date().toLocaleDateString('zh-CN'),
+      note: '',
       session_id: sessionIdFromUrl || '',
     }
-    setHistory((prev) => [saved, ...prev])
-    message.success(`已保存「${name}」到研发历史`)
+    try {
+      // 保存到后端 PostgreSQL
+      const result = await rdAPI.saveHistory(saved)
+      const backendItem = {
+        id: result.id || `hist-${Date.now()}`,
+        name: result.name || name,
+        hex: result.hex || selectedColor,
+        texture: result.texture || TEXTURES[textureIndex],
+        opacity: result.opacity ?? opacity,
+        note: result.note || '',
+        session_id: result.session_id || sessionIdFromUrl || '',
+        date: result.date || new Date().toLocaleDateString('zh-CN'),
+      }
+      setHistory((prev) => [backendItem, ...prev])
+      message.success(`已保存「${name}」到研发历史`)
+    } catch (e) {
+      // 后端不可用时 fallback 到本地
+      const localItem = {
+        id: `hist-${Date.now()}`,
+        name,
+        hex: selectedColor,
+        texture: TEXTURES[textureIndex],
+        opacity,
+        date: new Date().toLocaleDateString('zh-CN'),
+        session_id: sessionIdFromUrl || '',
+      }
+      setHistory((prev) => [localItem, ...prev])
+      message.success(`已保存「${name}」到本地（后端不可用）`)
+    }
   }
 
-  const handleDeleteHistory = (id, e) => {
+  const handleDeleteHistory = async (id, e) => {
     e.stopPropagation()
+    try {
+      // 从后端删除
+      await rdAPI.deleteHistory(id)
+    } catch { /* 后端不可用时仅本地删除 */ }
     setHistory((prev) => prev.filter((h) => h.id !== id))
     message.success('已删除')
   }
@@ -237,8 +308,29 @@ const ColorDesign = () => {
     }
   }
 
-  const handleAiName = () => {
-    message.info('AI 取名功能开发中')
+  const [aiNamingLoading, setAiNamingLoading] = useState(false)
+
+  const handleAiName = async () => {
+    if (!selectedColor) {
+      message.warning('请先选择一个颜色')
+      return
+    }
+    setAiNamingLoading(true)
+    try {
+      const result = await rdAPI.generateColorName(selectedColor, 'shijing')
+      setColorName(result.name)
+      message.success(
+        <div>
+          <div style={{ fontWeight: 700 }}>AI 取名：{result.name}</div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>{result.quote}</div>
+        </div>,
+        3
+      )
+    } catch (e) {
+      message.error('取名失败：' + (e.message || '请检查网络'))
+    } finally {
+      setAiNamingLoading(false)
+    }
   }
 
   return (
@@ -461,7 +553,7 @@ const ColorDesign = () => {
                     onChange={(e) => setColorName(e.target.value)}
                     style={{ flex: 1, borderRadius: 20 }}
                   />
-                  <Button type="primary" onClick={handleAiName} className="rd-btn-primary" style={{ height: 36, padding: '0 14px', fontSize: 13 }}>AI 取名</Button>
+                  <Button type="primary" onClick={handleAiName} loading={aiNamingLoading} className="rd-btn-primary" style={{ height: 36, padding: '0 14px', fontSize: 13 }}>AI 取名</Button>
                 </div>
               </div>
       

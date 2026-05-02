@@ -57,7 +57,8 @@ class Settings(BaseSettings):
     AGENT_SESSION_TTL: int = 60 * 60 * 24 * 7  # 7 天
 
     class Config:
-        env_file = ".env"
+        env_file = str(_resolve_project_root() / ".env")
+        env_file_encoding = "utf-8"
         case_sensitive = True
 
 settings = Settings()

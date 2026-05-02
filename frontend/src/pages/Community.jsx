@@ -106,7 +106,7 @@ const Community = () => {
   })()
 
   // 当前用户头像（优先 localStorage，其次从员工列表 userAvatarMap 取）
-  const currentUserAvatar = (() => {
+  const [currentUserAvatar, setCurrentUserAvatar] = useState(() => {
     try {
       const raw = localStorage.getItem('userInfo')
       const info = raw ? JSON.parse(raw) : {}
@@ -114,7 +114,7 @@ const Community = () => {
     } catch {
       return undefined
     }
-  })()
+  })
 
   // 当前登录用户身份（用于帖子编辑/删除权限：仅本人或 admin 可操作）
   const { currentUsername, currentUserName, isAdminUser } = (() => {
@@ -126,7 +126,7 @@ const Community = () => {
       return {
         currentUsername: username,
         currentUserName: name,
-        isAdminUser: username === 'admin@d2clip.com' || (info.department || '').toLowerCase() === 'admin'
+        isAdminUser: username === 'admin@d2clip.com' || username === 'testsss@admin.com' || (info.department || '').toLowerCase() === 'admin'
       }
     } catch {
       return { currentUsername: '', currentUserName: '', isAdminUser: false }
@@ -280,6 +280,21 @@ const Community = () => {
             if (u.name) map[u.name] = av
           })
           setUserAvatarMap(map)
+          // 如果 localStorage 没有头像，从员工列表补充
+          if (!currentUserAvatar) {
+            try {
+              const raw = localStorage.getItem('userInfo')
+              const info = raw ? JSON.parse(raw) : {}
+              const username = info.username || ''
+              const matched = users.find(u => u.username === username)
+              if (matched?.avatar) {
+                setCurrentUserAvatar(matched.avatar)
+                // 同步更新 localStorage
+                info.avatar = matched.avatar
+                localStorage.setItem('userInfo', JSON.stringify(info))
+              }
+            } catch {}
+          }
         }
       })
       .catch(() => {})
@@ -318,12 +333,7 @@ const Community = () => {
           const next = {}
           visibleGroupKeys.forEach((key, i) => {
             const arr = Array.isArray(results[i]) ? results[i] : []
-            const prevArr = prev[key]
-            if (!Array.isArray(prevArr) || arr.length >= prevArr.length) {
-              next[key] = arr
-            } else {
-              next[key] = prevArr
-            }
+            next[key] = arr
           })
           return { ...prev, ...next }
         })

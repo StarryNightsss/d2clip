@@ -106,6 +106,7 @@ def _default_users() -> List[Dict]:
     base = "https://api.dicebear.com/7.x/avataaars/svg?seed="
     return [
         {"username": "admin@d2clip.com", "name": "管理员", "department": "admin", "avatar": "/kuromi-avatar.png"},
+        {"username": "testsss@admin.com", "name": "测试管理员", "department": "admin", "avatar": "/kuromi-avatar.png"},
         {"username": "zhangxiaowen@d2clip.com", "name": "张晓雯", "department": "product", "avatar": f"{base}zhang"},
         {"username": "lisi@d2clip.com", "name": "李四", "department": "rd", "avatar": f"{base}lisi"},
         {"username": "wangwu@d2clip.com", "name": "王五", "department": "market", "avatar": f"{base}wangwu"},

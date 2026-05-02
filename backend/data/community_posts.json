@@ -538,32 +538,6 @@
     "type": "text"
   },
   {
-    "id": "2f5a4646-f479-495d-82f5-60382405c23c",
-    "group_key": "product",
-    "author": "testsss@admin.com",
-    "avatar": "/kuromi-avatar.png",
-    "role": "产品部门",
-    "created_at": "2026-03-01T16:39:06.547560Z",
-    "title": "2026年妆容与色彩趋势分析报告",
-    "preview": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性...",
-    "content": "本报告对10个小红书提取的化妆笔记进行了全面分析，揭示了不同妆容风格和色彩的流行趋势。结果显示，韩系妆容占据了主要地位，复古风紧随其后。此外，各种色彩的受欢迎程度也存在明显差异，正红和珊瑚橘色最为常见。这些结果能够帮助相关品牌制定更有针对性的产品策略。通过关键词分析，我们更深入地了解了消费者的偏好与需求。",
-    "images": [],
-    "likes": 1,
-    "comments": 0,
-    "shares": 1,
-    "liked_by": [
-      "testsss@admin.com"
-    ],
-    "comment_list": [],
-    "tags": [
-      "趋势报告",
-      "分析"
-    ],
-    "attachments": [],
-    "type": "report",
-    "analysis_id": "27f0c137-0447-4e57-bf6f-2a28d77e2286"
-  },
-  {
     "id": "300aad00-d48a-4e38-80ff-7395565be07d",
     "group_key": "product_small",
     "author": "testsss@admin.com",
@@ -587,54 +561,6 @@
     "attachments": [],
     "type": "report",
     "analysis_id": "27f0c137-0447-4e57-bf6f-2a28d77e2286"
-  },
-  {
-    "id": "7e46ec66-0770-42e7-bc66-ddae1d45772b",
-    "group_key": "product",
-    "author": "testsss@admin.com",
-    "avatar": "/kuromi-avatar.png",
-    "role": "产品部门",
-    "created_at": "2026-03-03T18:35:23.205915Z",
-    "title": "2026年化妆风格与色彩分析报告",
-    "preview": "本报告分析了10个化妆笔记的风格与色彩数据。其中，韩系妆容和珊瑚橘色在分析中占据主导地位，分别占90%的比例。复古风格和复古红色的出现率虽较低，但仍值得关注。此外，诸如'显白'和'不拔干'的关键词频繁出现，显示出消费者对于日常化妆效果的重视...",
-    "content": "本报告分析了10个化妆笔记的风格与色彩数据。其中，韩系妆容和珊瑚橘色在分析中占据主导地位，分别占90%的比例。复古风格和复古红色的出现率虽较低，但仍值得关注。此外，诸如'显白'和'不拔干'的关键词频繁出现，显示出消费者对于日常化妆效果的重视。整体趋势表明，轻盈自然的妆容在受众中受到青睐。",
-    "images": [],
-    "likes": 0,
-    "comments": 0,
-    "shares": 0,
-    "liked_by": [],
-    "comment_list": [],
-    "tags": [
-      "趋势报告",
-      "分析"
-    ],
-    "attachments": [],
-    "type": "report",
-    "analysis_id": "2d78572e-1950-4157-a4ba-1aa3e9148eef"
-  },
-  {
-    "id": "9f1b2589-161e-4cf1-8863-3e4d97e642cf",
-    "group_key": "product",
-    "author": "testsss@admin.com",
-    "avatar": "/kuromi-avatar.png",
-    "role": "产品部门",
-    "created_at": "2026-03-07T08:27:54.755414Z",
-    "title": "化妆品风格与色彩分析报告",
-    "preview": "本报告分析了10条化妆笔记，涵盖了不同的妆容风格和颜色选择。测评结果显示，韩系妆容占据了60%的比例，成为最受欢迎的妆容风格。同时，珊瑚橘色是最常用的颜色，近30%的笔记中提到。关键词分析方面，'显白'和'不拔干'等关键词频繁出现，反映了消...",
-    "content": "本报告分析了10条化妆笔记，涵盖了不同的妆容风格和颜色选择。测评结果显示，韩系妆容占据了60%的比例，成为最受欢迎的妆容风格。同时，珊瑚橘色是最常用的颜色，近30%的笔记中提到。关键词分析方面，'显白'和'不拔干'等关键词频繁出现，反映了消费者在选购时的主要需求。通过这些数据，我们能够更好地理解市场趋势和消费者偏好。",
-    "images": [],
-    "likes": 0,
-    "comments": 0,
-    "shares": 1,
-    "liked_by": [],
-    "comment_list": [],
-    "tags": [
-      "趋势报告",
-      "分析"
-    ],
-    "attachments": [],
-    "type": "report",
-    "analysis_id": "fb7436d6-dc0b-48d4-ac86-b451bc3b6918"
   },
   {
     "id": "fc2c0a8a-69bd-4c29-a00a-330afc364010",
@@ -662,30 +588,6 @@
     "analysis_id": "fb7436d6-dc0b-48d4-ac86-b451bc3b6918"
   },
   {
-    "id": "faf41b08-c40f-4e6b-a73c-94ad047cded4",
-    "group_key": "product",
-    "author": "testsss@admin.com",
-    "avatar": "/kuromi-avatar.png",
-    "role": "产品部门",
-    "created_at": "2026-03-07T20:34:26.539691Z",
-    "title": "化妆风格与色彩分析报告",
-    "preview": "本报告分析了10条化妆笔记的数据，总体分析结果显示韩系妆容和自然裸妆占据了主导地位，各占60%。在色彩方面，珊瑚橘和裸色是主要选择，分别占50%和40%。关键词分析表明，自然、显白和水润是用户最关注的特性。该报告旨在帮助化妆品品牌深入了解用...",
-    "content": "本报告分析了10条化妆笔记的数据，总体分析结果显示韩系妆容和自然裸妆占据了主导地位，各占60%。在色彩方面，珊瑚橘和裸色是主要选择，分别占50%和40%。关键词分析表明，自然、显白和水润是用户最关注的特性。该报告旨在帮助化妆品品牌深入了解用户偏好和市场趋势。",
-    "images": [],
-    "likes": 0,
-    "comments": 0,
-    "shares": 0,
-    "liked_by": [],
-    "comment_list": [],
-    "tags": [
-      "趋势报告",
-      "分析"
-    ],
-    "attachments": [],
-    "type": "report",
-    "analysis_id": "d71fc033-a684-4a86-bc2e-25472c9a9775"
-  },
-  {
     "id": "cc10de44-2f34-46c2-8674-4a03dfc8fa7f",
     "group_key": "product",
     "author": "testsss@admin.com",
@@ -708,5 +610,74 @@
     "attachments": [],
     "type": "report",
     "analysis_id": "14a8b0e1-9529-42fd-866b-33ba057c2ea0"
+  },
+  {
+    "id": "116cd354-8929-4787-ac3a-bf7fe4e7b0a1",
+    "group_key": "rd",
+    "author": "admin@d2clip.com",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin@d2clip.com",
+    "role": "研发部门",
+    "created_at": "2026-05-02T10:44:00.656865Z",
+    "title": "色号方案：芙蓉韵",
+    "preview": "芙蓉韵 · #fb74c3 · 哑光",
+    "content": "色号：芙蓉韵\nHEX：#fb74c3\n质地：哑光\n透明度：100%",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "色号方案",
+      "口红色号"
+    ],
+    "attachments": [],
+    "type": "text"
+  },
+  {
+    "id": "15d137e6-f461-4ba5-9bc9-10e0c707653d",
+    "group_key": "rd",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "研发部门",
+    "created_at": "2026-05-02T11:47:37.856563Z",
+    "title": "色号方案：绯绣",
+    "preview": "绯绣 · #f8b4c7 · 哑光",
+    "content": "色号：绯绣\nHEX：#f8b4c7\n质地：哑光\n透明度：100%",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "色号方案",
+      "口红色号"
+    ],
+    "attachments": [],
+    "type": "text"
+  },
+  {
+    "id": "c3aa8aa5-83f0-4304-b224-eab6a162858d",
+    "group_key": "rd",
+    "author": "testsss@admin.com",
+    "avatar": "/kuromi-avatar.png",
+    "role": "研发部门",
+    "created_at": "2026-05-02T11:48:32.660447Z",
+    "title": "包装色号方案：N° 01",
+    "preview": "N° 01 · #ff6b9d · 缎面",
+    "content": "色号：N° 01\n膏体颜色：#ff6b9d\n管身颜色：#cc2936\n盖子颜色：#cc2936\n质地：缎面",
+    "images": [],
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "liked_by": [],
+    "comment_list": [],
+    "tags": [
+      "包装设计",
+      "色号方案"
+    ],
+    "attachments": [],
+    "type": "text"
   }
 ]
